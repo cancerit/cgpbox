@@ -10,10 +10,10 @@ echo -e "\tNAME_WT : $NAME_WT"
 echo -e "\tBAM_MT : $BAM_MT"
 echo -e "\tBAM_WT : $BAM_WT"
 
-if [ "${PRE_EXEC}x" -ne "x" ]; then
-  echo -e "\tPRE_EXEC : $PRE_EXEC"
+if [ -z ${PRE_EXEC+x} ]; then
+  PRE_EXEC='echo No PRE_EXEC defined'
 else
-  PRE_EXEC="echo 'No PRE_EXEC defined'"
+  echo -e "\tPRE_EXEC : $PRE_EXEC"
 fi
 
 set -u
@@ -21,7 +21,7 @@ echo -e "\nStart workflow: `date`\n"
 
 # run any pre-exec step before attempting to access BAMs
 # logically the pre-exec could be pulling them
-`$PRE_EXEC`
+$PRE_EXEC
 
 CPU=`grep -c ^processor /proc/cpuinfo`
 
@@ -32,23 +32,31 @@ mkdir -p $TMP
 BAM_MT_TMP=$TMP/$NAME_MT.bam
 BAM_WT_TMP=$TMP/$NAME_WT.bam
 
-ln -s $BAM_MT $BAM_MT_TMP
-ln -s $BAM_WT $BAM_WT_TMP
-ln -s $BAM_MT.bai $BAM_MT_TMP.bai
-ln -s $BAM_WT.bai $BAM_WT_TMP.bai
+ln -fs $BAM_MT $BAM_MT_TMP
+ln -fs $BAM_WT $BAM_WT_TMP
+ln -fs $BAM_MT.bai $BAM_MT_TMP.bai
+ln -fs $BAM_WT.bai $BAM_WT_TMP.bai
 
-if [ !-e "${BAM_MT}.bas" ]; then
+BAS_PARALLEL=""
+
+if [ ! -f "${BAM_MT}.bas" ]; then
   echo -e "Generate BAS $NAME_MT: `date`\n"
-  bam_stats -i $BAM_MT_TMP -o $BAM_MT_TMP.bas
+  BAS_PARALLEL="bam_stats -i $BAM_MT_TMP -o $BAM_MT_TMP.bas&"
 else
-  ln -s $BAM_MT.bas $BAM_MT_TMP.bas
+  ln -fs $BAM_MT.bas $BAM_MT_TMP.bas
 fi
 
-if [ !-e "${BAM_WT}.bas" ]; then
+if [ ! -f "${BAM_WT}.bas" ]; then
   echo -e "Generate BAS $NAME_WT: `date`\n"
-  bam_stats -i $BAM_WT_TMP -o $BAM_WT_TMP.bas
+  BAS_PARALLEL="$BAS_PARALLEL;bam_stats -i $BAM_WT_TMP -o $BAM_WT_TMP.bas"
 else
-  ln -s $BAM_WT.bas $BAM_WT_TMP.bas
+  ln -fs $BAM_WT.bas $BAM_WT_TMP.bas
+fi
+
+if [ -z ${BAS_PARALLEL+x} ]; then
+  echo "BAS files are present"
+else
+  $BAS_PARALLEL
 fi
 
 echo -e "Genotype Check start: `date`\n"
