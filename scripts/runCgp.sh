@@ -37,26 +37,18 @@ ln -fs $BAM_WT $BAM_WT_TMP
 ln -fs $BAM_MT.bai $BAM_MT_TMP.bai
 ln -fs $BAM_WT.bai $BAM_WT_TMP.bai
 
-BAS_PARALLEL=""
-
 if [ ! -f "${BAM_MT}.bas" ]; then
   echo -e "Generate BAS $NAME_MT: `date`\n"
-  BAS_PARALLEL="bam_stats -i $BAM_MT_TMP -o $BAM_MT_TMP.bas&"
+  bam_stats -i $BAM_MT_TMP -o $BAM_MT_TMP.bas
 else
   ln -fs $BAM_MT.bas $BAM_MT_TMP.bas
 fi
 
 if [ ! -f "${BAM_WT}.bas" ]; then
   echo -e "Generate BAS $NAME_WT: `date`\n"
-  BAS_PARALLEL="$BAS_PARALLEL;bam_stats -i $BAM_WT_TMP -o $BAM_WT_TMP.bas"
+  bam_stats -i $BAM_WT_TMP -o $BAM_WT_TMP.bas
 else
   ln -fs $BAM_WT.bas $BAM_WT_TMP.bas
-fi
-
-if [ -z ${BAS_PARALLEL+x} ]; then
-  echo "BAS files are present"
-else
-  $BAS_PARALLEL
 fi
 
 echo -e "Genotype Check start: `date`\n"
