@@ -109,7 +109,7 @@ do_parallel[verify_WT]="verifyBamHomChk.pl -d 25 \
  -b $BAM_WT \
  -j /datastore/output/$NAME_WT/contamination/result.json"
 
-echo -e "[Parallel block 1] start: `date`\n"
+echo -e "[Parallel block 1] start: `date`"
 run_parallel $CPU do_parallel
 
 # unset and redeclare the parallel array ready for block 2
@@ -151,7 +151,7 @@ do_parallel[pindel]="pindel.pl \
  -e NC_007605,hs37d5,GL% \
  -c $CPU"
 
-echo -e "[Parallel block 2] start: `date`\n"
+echo -e "[Parallel block 2] start: `date`"
 run_parallel $CPU do_parallel
 
 # prep ascat output for caveman:
@@ -217,7 +217,7 @@ do_parallel[BRASS]="brass.pl -j 4 -k 4 -c $CPU \
  -ss /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/*.samplestatistics.csv \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/brass"
 
-echo -e "[Parallel block 3] start: `date`\n"
+echo -e "[Parallel block 3] start: `date`"
 run_parallel $CPU do_parallel
 
 
