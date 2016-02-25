@@ -21,7 +21,11 @@ echo -e "\nStart workflow: `date`\n"
 
 # run any pre-exec step before attempting to access BAMs
 # logically the pre-exec could be pulling them
+echo -e "\nRun PRE_EXEC: `date`\n"
+set -x
 $PRE_EXEC
+set +x
+echo
 
 CPU=`grep -c ^processor /proc/cpuinfo`
 
