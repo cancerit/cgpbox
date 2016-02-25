@@ -326,4 +326,6 @@ USER    cgpbox
 WORKDIR /home/cgpbox
 RUN     echo "options(bitmapType='cairo')" > ~/.Rprofile
 
-ENTRYPOINT /datastore/scripts/runCgp.sh
+ADD scripts/runCgp.sh ~/runCgp.sh
+
+ENTRYPOINT ~/runCgp.sh
