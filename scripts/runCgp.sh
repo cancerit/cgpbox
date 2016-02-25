@@ -109,7 +109,14 @@ do_parallel[verify_WT]="verifyBamHomChk.pl -d 25 \
  -b $BAM_WT \
  -j /datastore/output/$NAME_WT/contamination/result.json"
 
-echo -e "[Parallel block 1] ASCAT added : `date`\n"
+echo -e "[Parallel block 1] start: `date`\n"
+run_parallel $CPU do_parallel
+
+# unset and redeclare the parallel array ready for block 2
+unset do_parallel
+declare -A do_parallel
+
+echo -e "[Parallel block 2] ASCAT added..."
 
 do_parallel[ascat]="ascat.pl \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat \
@@ -126,22 +133,6 @@ do_parallel[ascat]="ascat.pl \
  -pr WGS \
  -pl ILLUMINA \
  -c $CPU"
-
-echo -e "[Parallel block 1] start: `date`\n"
-run_parallel $CPU do_parallel
-
-# unset and redeclare the parallel array ready for block 2
-unset do_parallel
-declare -A do_parallel
-
-
-echo -e "[Parallel block 2] VerifyBam Tumour added..."
-
-do_parallel[verify_MT]="verifyBamHomChk.pl -d 25 \
- -o /datastore/output/$NAME_MT/contamination \
- -b $BAM_MT \
- -a /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/${NAME_MT}.copynumber.caveman.csv \
- -j /datastore/output/$NAME_MT/contamination/result.json"
 
 echo -e "[Parallel block 2] Pindel added..."
 do_parallel[pindel]="pindel.pl \
@@ -176,6 +167,14 @@ set +x
 # unset and redeclare the parallel array ready for block 3
 unset do_parallel
 declare -A do_parallel
+
+echo -e "[Parallel block 3] VerifyBam Tumour added..."
+
+do_parallel[verify_MT]="verifyBamHomChk.pl -d 25 \
+ -o /datastore/output/$NAME_MT/contamination \
+ -b $BAM_MT \
+ -a /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/${NAME_MT}.copynumber.caveman.csv \
+ -j /datastore/output/$NAME_MT/contamination/result.json"
 
 # annotate pindel
 rm -f /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.annot.vcf.gz*
