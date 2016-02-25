@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ue
+set -e
 
 echo "Loading user options..."
 source /datastore/input/run.params
@@ -16,6 +16,7 @@ else
   PRE_EXEC="echo 'No PRE_EXEC defined'"
 fi
 
+set -u
 echo -e "\nStart workflow: `date`\n"
 
 # run any pre-exec step before attempting to access BAMs
