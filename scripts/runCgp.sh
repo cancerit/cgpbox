@@ -98,15 +98,15 @@ echo -e "[Parallel block 1] Genotype Check added..."
 
 do_parallel[geno_MT]="compareBamGenotypes.pl \
  -o /datastore/output/$NAME_WT/genotyped \
- -nb $BAM_WT \
+ -nb $BAM_WT_TMP \
  -j /datastore/output/$NAME_WT/genotyped/result.json \
- -tb $BAM_MT"
+ -tb $BAM_MT_TMP"
 
 echo -e "[Parallel block 1] VerifyBam Normal added..."
 
 do_parallel[verify_WT]="verifyBamHomChk.pl -d 25 \
  -o /datastore/output/$NAME_WT/contamination \
- -b $BAM_WT \
+ -b $BAM_WT_TMP \
  -j /datastore/output/$NAME_WT/contamination/result.json"
 
 echo -e "[Parallel block 1] start: `date`"
@@ -120,8 +120,8 @@ echo -e "[Parallel block 2] ASCAT added..."
 
 do_parallel[ascat]="ascat.pl \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat \
- -t $BAM_MT \
- -n $BAM_WT \
+ -t $BAM_MT_TMP \
+ -n $BAM_WT_TMP \
  -s /datastore/reference_files/ascat/SnpLocus.tsv \
  -sp /datastore/reference_files/ascat/SnpPositions.tsv \
  -sg /datastore/reference_files/ascat/SnpGcCorrections.tsv \
@@ -137,8 +137,8 @@ do_parallel[ascat]="ascat.pl \
 echo -e "[Parallel block 2] Pindel added..."
 do_parallel[pindel]="pindel.pl \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel \
- -t $BAM_MT \
- -n $BAM_WT \
+ -t $BAM_MT_TMP \
+ -n $BAM_WT_TMP \
  -r /datastore/reference_files/genome.fa \
  -s /datastore/reference_files/pindel/simpleRepeats.bed.gz \
  -f /datastore/reference_files/pindel/genomicRules.lst \
@@ -172,7 +172,7 @@ echo -e "[Parallel block 3] VerifyBam Tumour added..."
 
 do_parallel[verify_MT]="verifyBamHomChk.pl -d 25 \
  -o /datastore/output/$NAME_MT/contamination \
- -b $BAM_MT \
+ -b $BAM_MT_TMP \
  -a /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/${NAME_MT}.copynumber.caveman.csv \
  -j /datastore/output/$NAME_MT/contamination/result.json"
 
@@ -196,8 +196,8 @@ do_parallel[CaVEMan]="caveman.pl \
  -in /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.germline.bed  \
  -tc $TMP/tum.cn.bed \
  -nc $TMP/norm.cn.bed \
- -tb $BAM_MT \
- -nb $BAM_WT \
+ -tb $BAM_MT_TMP \
+ -nb $BAM_WT_TMP \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/caveman"
 
 echo -e "[Parallel block 3] BRASS added..."
@@ -211,8 +211,8 @@ do_parallel[BRASS]="brass.pl -j 4 -k 4 -c $CPU \
  -vi /datastore/reference_files/brass/viral.1.1.genomic.fa \
  -mi /datastore/reference_files/brass/all_ncbi_bacteria.20150703 \
  -b /datastore/reference_files/brass/hs37d5_500bp_windows.gc.bed.gz \
- -t $BAM_MT \
- -n $BAM_WT \
+ -t $BAM_MT_TMP \
+ -n $BAM_WT_TMP \
  -a /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/*.copynumber.caveman.csv \
  -ss /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/*.samplestatistics.csv \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/brass"
