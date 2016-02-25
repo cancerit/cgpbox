@@ -1,25 +1,24 @@
 #!/bin/bash
 
+# about to do some parallel work...
+declare -A do_parallel
+
 # declare function to run parallel processing
 run_parallel () {
   # adapted from: http://stackoverflow.com/a/18666536/4460430
   local max_concurrent_tasks=$1
-  ## this recovers the associative array, which can't be passed as is
-  local e="$( declare -p $2 )"
-  eval "declare -A tasks=${e#*=}"
-  declare -p tasks
   local -A pids=()
 
-  for key in "${!tasks[@]}"; do
+  for key in "${!do_parallel[@]}"; do
     while [ $(jobs 2>&1 | grep -c Running) -ge "$max_concurrent_tasks" ]; do
       sleep 1 # gnu sleep allows floating point here...
     done
-    ${tasks[$key]} &
+    ${do_parallel[$key]} &
     pids+=(["$key"]="$!")
   done
 
   errors=0
-  for key in "${!tasks[@]}"; do
+  for key in "${!do_parallel[@]}"; do
     pid=${pids[$key]}
     local cur_ret=0
     if [ -z "$pid" ]; then
@@ -31,7 +30,7 @@ run_parallel () {
     fi
     if [ "$cur_ret" -ne 0 ]; then
       errors=$(($errors + 1))
-      echo "$key (${tasks[$key]}) failed."
+      echo "$key (${do_parallel[$key]}) failed."
     fi
   done
 
@@ -79,9 +78,6 @@ ln -fs $BAM_MT $BAM_MT_TMP
 ln -fs $BAM_WT $BAM_WT_TMP
 ln -fs $BAM_MT.bai $BAM_MT_TMP.bai
 ln -fs $BAM_WT.bai $BAM_WT_TMP.bai
-
-# about to do some parallel work...
-declare -A do_parallel
 
 if [ ! -f "${BAM_MT}.bas" ]; then
   echo -e "Generate BAS $NAME_MT: `date`\n"
