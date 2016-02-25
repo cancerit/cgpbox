@@ -1,5 +1,44 @@
 #!/bin/bash
 
+# declare function to run parallel processing
+run_parallel () {
+  # adapted from: http://stackoverflow.com/a/18666536/4460430
+  local max_concurrent_tasks=$1
+  ## this recovers the associative array, which can't be passed as is
+  local e="$( declare -p $2 )"
+  eval "declare -A tasks=${e#*=}"
+  declare -p tasks
+  local -A pids=()
+
+  for key in "${!tasks[@]}"; do
+    while [ $(jobs 2>&1 | grep -c Running) -ge "$max_concurrent_tasks" ]; do
+      sleep 1 # gnu sleep allows floating point here...
+    done
+    ${tasks[$key]} &
+    pids+=(["$key"]="$!")
+  done
+
+  errors=0
+  for key in "${!tasks[@]}"; do
+    pid=${pids[$key]}
+    local cur_ret=0
+    if [ -z "$pid" ]; then
+      echo "No Job ID known for the $key process" # should never happen
+      cur_ret=1
+    else
+      wait $pid
+      cur_ret=$?
+    fi
+    if [ "$cur_ret" -ne 0 ]; then
+      errors=$(($errors + 1))
+      echo "$key (${tasks[$key]}) failed."
+    fi
+  done
+
+  return $errors
+}
+
+
 set -e
 
 echo "Loading user options..."
@@ -41,34 +80,39 @@ ln -fs $BAM_WT $BAM_WT_TMP
 ln -fs $BAM_MT.bai $BAM_MT_TMP.bai
 ln -fs $BAM_WT.bai $BAM_WT_TMP.bai
 
+# about to do some parallel work...
+declare -A do_parallel
+
 if [ ! -f "${BAM_MT}.bas" ]; then
   echo -e "Generate BAS $NAME_MT: `date`\n"
-  bam_stats -i $BAM_MT_TMP -o $BAM_MT_TMP.bas
+  do_parallel[bas_MT]="bam_stats -i $BAM_MT_TMP -o $BAM_MT_TMP.bas"
 else
   ln -fs $BAM_MT.bas $BAM_MT_TMP.bas
 fi
 
 if [ ! -f "${BAM_WT}.bas" ]; then
   echo -e "Generate BAS $NAME_WT: `date`\n"
-  bam_stats -i $BAM_WT_TMP -o $BAM_WT_TMP.bas
+  do_parallel[bas_WT]="bam_stats -i $BAM_WT_TMP -o $BAM_WT_TMP.bas"
 else
   ln -fs $BAM_WT.bas $BAM_WT_TMP.bas
 fi
 
 echo -e "Genotype Check start: `date`\n"
 
-set -x
-compareBamGenotypes.pl \
+do_parallel[geno_MT]="compareBamGenotypes.pl \
  -o /datastore/output/$NAME_WT/genotyped \
  -nb $BAM_WT \
  -j /datastore/output/$NAME_WT/genotyped/result.json \
- -tb $BAM_MT
-set +x
+ -tb $BAM_MT"
 
-echo -e "ASCAT start: `date`\n"
+echo -e "VerifyBam Normal start: `date`\n"
 
-set -x
-ascat.pl \
+do_parallel[geno_MT]="verifyBamHomChk.pl -d 25 \
+ -o /datastore/output/$NAME_WT/contamination \
+ -b $BAM_WT \
+ -j /datastore/output/$NAME_WT/contamination/result.json"
+
+do_parallel[ascat]="ascat.pl \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat \
  -t $BAM_MT \
  -n $BAM_WT \
@@ -82,8 +126,9 @@ ascat.pl \
  -ra GRCh37 \
  -pr WGS \
  -pl ILLUMINA \
- -c $CPU
-set +x
+ -c $CPU"
+
+run_parallel $CPU do_parallel
 
 echo -e "VerifyBam Tumour start: `date`\n"
 
@@ -93,15 +138,6 @@ verifyBamHomChk.pl -d 25 \
  -b $BAM_MT \
  -a /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/${NAME_MT}.copynumber.caveman.csv \
  -j /datastore/output/$NAME_MT/contamination/result.json
-set +x
-
-echo -e "VerifyBam Normal start: `date`\n"
-
-set -x
-verifyBamHomChk.pl -d 25 \
- -o /datastore/output/$NAME_WT/contamination \
- -b $BAM_WT \
- -j /datastore/output/$NAME_WT/contamination/result.json
 set +x
 
 echo -e "PINDEL start: `date`\n"
