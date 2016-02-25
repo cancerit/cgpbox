@@ -1,0 +1,4 @@
+NAME_MT='HCC1143'
+NAME_WT='HCC1143_BL'
+BAM_MT='/datastore/input/HCC1143.bam'
+BAM_WT='/datastore/input/HCC1143_BL.bam'
