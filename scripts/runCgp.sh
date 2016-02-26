@@ -56,7 +56,7 @@ else
 fi
 
 if [ -z ${POST_EXEC+x} ]; then
-  PRE_EXEC='echo No POST_EXEC defined'
+  POST_EXEC='echo No POST_EXEC defined'
 else
   echo -e "\tPOST_EXEC : $POST_EXEC"
 fi
