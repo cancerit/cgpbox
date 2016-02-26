@@ -1,5 +1,28 @@
+#!/bin/bash
+
+: "Required parameters
+    - NAME_* : should match that in the BAM file headers, primarily for naming of folders
+    - *_MT   : Refers to the Tumour sample
+    - *_WT   : Refers to the Wildtype/normal sample"
+
 NAME_MT='HCC1143'
 NAME_WT='HCC1143_BL'
 BAM_MT='/datastore/input/HCC1143.bam'
 BAM_WT='/datastore/input/HCC1143_BL.bam'
-PRE_EXEC='ls -ltrh /datastore/input'
+
+: "PRE_EXEC - Commands to be run before the main workflow starts
+    - Can be used to stage your files, the above variables are imported before this so
+      they can be used in the normal fashion, $NAME_WT etc
+    - This example
+        1. creates the input directory in the mounted volume (root is always /datastore in docker)
+        2. Downloads the downsampled test data
+        3. Unpacks the data into the /datastore/input area
+        4. Removes the *.bas files to force generation"
+
+PRE_EXEC="rm -rf /datastore/input && mkdir /datastore/input &&
+curl -sSL --retry 10 -o /datastore/testdata.tar https://s3-eu-west-1.amazonaws.com/wtsi-pancancer/testdata/HCC1143_ds.tar &&
+tar -C /datastore/input --strip-components 1 -xf /datastore/testdata.tar &&
+rm -f /datastore/input/*.bas"
+
+
+POST_EXEC=";"
