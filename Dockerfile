@@ -320,12 +320,15 @@ RUN   curl -sSL -o tmp.tar.gz --retry 10 https://github.com/wrpearson/fasta36/re
       cp /tmp/downloads/fasta/bin/ssearch36 $OPT/bin/. && \
       rm -rf /tmp/downloads/fasta
 
+COPY scripts/runCgp.sh $OPT/bin/runCgp.sh
+COPY scripts/getRef.sh $OPT/bin/getRef.sh
+RUN chmod ugo+x $OPT/bin/runCgp.sh $OPT/bin/getRef.sh
+
 ## USER CONFIGURATION
 RUN     useradd -ms /bin/bash cgpbox
 USER    cgpbox
 WORKDIR /home/cgpbox
 RUN     echo "options(bitmapType='cairo')" > ~/.Rprofile
 
-ADD scripts/runCgp.sh ~/runCgp.sh
 
-ENTRYPOINT ~/runCgp.sh
+ENTRYPOINT $OPT/bin/runCgp.sh
