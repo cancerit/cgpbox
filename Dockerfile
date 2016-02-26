@@ -230,6 +230,11 @@ RUN curl -sSL -o tmp.tar.gz --retry 10 https://github.com/cancerit/grass/archive
 RUN curl -sSL -o $OPT/bin/blat --retry 10 http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/blat/blat && \
     chmod ugo+x $OPT/bin/blat
 
+# pre-compiled exonerate
+RUN curl -sSL http://ftp.ebi.ac.uk/pub/software/vertebrategenomics/exonerate/exonerate-2.2.0-x86_64.tar.gz | \
+    tar -C $OPT/bin --strip-components=2 -zx exonerate-2.2.0-x86_64/bin/exonerate && \
+    chmod ugo+x $OPT/bin/exonerate
+
 # perl mod Graph installed at top of file due to being required in Bio/Brass.pm
 RUN curl -sSL -o tmp.tar.gz --retry 10 https://github.com/cancerit/BRASS/archive/v4.0.13.tar.gz && \
     mkdir /tmp/downloads/BRASS && \
@@ -255,14 +260,6 @@ RUN curl -sSL -o tmp.tar.gz --retry 10 https://github.com/cancerit/BRASS/archive
     ln -fs $OPT/bin/velvet95h $OPT/bin/velveth && \
     ln -fs $OPT/bin/velvet95g $OPT/bin/velvetg && \
     cd /tmp/downloads/BRASS && \
-    tar zxf distros/exonerate-2.2.0.tar.gz && \
-    cd exonerate-2.2.0 && \
-    cp ../distros/patches/exonerate_pthread-asneeded.diff . && \
-    patch -p1 < exonerate_pthread-asneeded.diff && \
-    ./configure --prefix=$OPT && \
-    make && \
-    make  check && \
-    make install && \
     cd /tmp/downloads/BRASS/perl && \
     cpanm --mirror http://cpan.metacpan.org -l $OPT . && \
     cd /tmp/downloads && \
