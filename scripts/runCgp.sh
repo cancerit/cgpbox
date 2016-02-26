@@ -55,6 +55,12 @@ else
   echo -e "\tPRE_EXEC : $PRE_EXEC"
 fi
 
+if [ -z ${POST_EXEC+x} ]; then
+  PRE_EXEC='echo No POST_EXEC defined'
+else
+  echo -e "\POST_EXEC : $POST_EXEC"
+fi
+
 set -u
 echo -e "\nStart workflow: `date`\n"
 
@@ -80,43 +86,50 @@ ln -fs $BAM_WT $BAM_WT_TMP
 ln -fs $BAM_MT.bai $BAM_MT_TMP.bai
 ln -fs $BAM_WT.bai $BAM_WT_TMP.bai
 
+echo "Setting up Parallel block 1"
+
 if [ ! -f "${BAM_MT}.bas" ]; then
-  echo -e "[Parallel block 1] BAS $NAME_MT added..."
+  echo -e "\t[Parallel block 1] BAS $NAME_MT added..."
   do_parallel[bas_MT]="bam_stats -i $BAM_MT_TMP -o $BAM_MT_TMP.bas"
 else
   ln -fs $BAM_MT.bas $BAM_MT_TMP.bas
 fi
 
 if [ ! -f "${BAM_WT}.bas" ]; then
-  echo -e "[Parallel block 1] BAS $NAME_WT added..."
+  echo -e "\t[Parallel block 1] BAS $NAME_WT added..."
   do_parallel[bas_WT]="bam_stats -i $BAM_WT_TMP -o $BAM_WT_TMP.bas"
 else
   ln -fs $BAM_WT.bas $BAM_WT_TMP.bas
 fi
 
-echo -e "[Parallel block 1] Genotype Check added..."
-
+echo -e "\t[Parallel block 1] Genotype Check added..."
 do_parallel[geno_MT]="compareBamGenotypes.pl \
  -o /datastore/output/$NAME_WT/genotyped \
  -nb $BAM_WT_TMP \
  -j /datastore/output/$NAME_WT/genotyped/result.json \
  -tb $BAM_MT_TMP"
 
-echo -e "[Parallel block 1] VerifyBam Normal added..."
-
+echo -e "\t[Parallel block 1] VerifyBam Normal added..."
 do_parallel[verify_WT]="verifyBamHomChk.pl -d 25 \
  -o /datastore/output/$NAME_WT/contamination \
  -b $BAM_WT_TMP \
  -j /datastore/output/$NAME_WT/contamination/result.json"
 
-echo -e "[Parallel block 1] start: `date`"
+
+echo -e "\t[Parallel block 1] Get refset added..."
+do_parallel[get_refset]="rm -rf /datastore/reference_files && \
+curl -sSL --retry 10 -o /datastore/ref.tar.gz https://s3-eu-west-1.amazonaws.com/wtsi-pancancer/reference/GRCh37d5_CGP_refBundle.tar.gz && \
+tar -C /datastore -zxf /datastore/ref.tar.gz"
+
+
+echo -e "\t[Parallel block 1] start: `date`"
 run_parallel $CPU do_parallel
 
 # unset and redeclare the parallel array ready for block 2
 unset do_parallel
 declare -A do_parallel
 
-echo -e "[Parallel block 2] ASCAT added..."
+echo -e "\t[Parallel block 2] ASCAT added..."
 
 do_parallel[ascat]="ascat.pl \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat \
@@ -134,7 +147,7 @@ do_parallel[ascat]="ascat.pl \
  -pl ILLUMINA \
  -c $CPU"
 
-echo -e "[Parallel block 2] Pindel added..."
+echo -e "\t[Parallel block 2] Pindel added..."
 do_parallel[pindel]="pindel.pl \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel \
  -t $BAM_MT_TMP \
@@ -151,7 +164,7 @@ do_parallel[pindel]="pindel.pl \
  -e NC_007605,hs37d5,GL% \
  -c $CPU"
 
-echo -e "[Parallel block 2] start: `date`"
+echo -e "\t[Parallel block 2] start: `date`"
 run_parallel $CPU do_parallel
 
 # prep ascat output for caveman:
@@ -168,7 +181,7 @@ set +x
 unset do_parallel
 declare -A do_parallel
 
-echo -e "[Parallel block 3] VerifyBam Tumour added..."
+echo -e "\t[Parallel block 3] VerifyBam Tumour added..."
 
 do_parallel[verify_MT]="verifyBamHomChk.pl -d 25 \
  -o /datastore/output/$NAME_MT/contamination \
@@ -178,12 +191,12 @@ do_parallel[verify_MT]="verifyBamHomChk.pl -d 25 \
 
 # annotate pindel
 rm -f /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.annot.vcf.gz*
-echo -e "[Parallel block 3] Pindel_annot added..."
+echo -e "\t[Parallel block 3] Pindel_annot added..."
 do_parallel[Pindel_annot]="AnnotateVcf.pl -t -c /datastore/reference_files/vagrent/e75/Homo_sapiens.GRCh37.75.vagrent.cache.gz \
  -i /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.flagged.vcf.gz \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.annot.vcf"
 
-echo -e "[Parallel block 3] CaVEMan added..."
+echo -e "\t[Parallel block 3] CaVEMan added..."
 do_parallel[CaVEMan]="caveman.pl \
  -r /datastore/reference_files/genome.fa.fai \
  -ig /datastore/reference_files/caveman/ucscHiDepth_0.01_merge1000_no_exon.tsv \
@@ -200,7 +213,7 @@ do_parallel[CaVEMan]="caveman.pl \
  -nb $BAM_WT_TMP \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/caveman"
 
-echo -e "[Parallel block 3] BRASS added..."
+echo -e "\t[Parallel block 3] BRASS added..."
 do_parallel[BRASS]="brass.pl -j 4 -k 4 -c $CPU \
  -e MT,GL%,hs37d5,NC_007605 \
  -d /datastore/reference_files/brass/ucscHiDepth_0.01_mrg1000_no_exon_coreChrs.bed.gz \
@@ -217,7 +230,7 @@ do_parallel[BRASS]="brass.pl -j 4 -k 4 -c $CPU \
  -ss /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/*.samplestatistics.csv \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/brass"
 
-echo -e "[Parallel block 3] start: `date`"
+echo -e "\t[Parallel block 3] start: `date`"
 run_parallel $CPU do_parallel
 
 
@@ -231,5 +244,12 @@ AnnotateVcf.pl -t -c /datastore/reference_files/vagrent/e75/Homo_sapiens.GRCh37.
 set +x
 
 echo -e "Annot CaVEMan start: `date`\n"
+
+# run any post-exec step
+echo -e "\nRun POST_EXEC: `date`\n"
+set -x
+$POST_EXEC
+set +x
+echo
 
 echo -e "Workflow end: `date`\n"
