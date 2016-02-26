@@ -29,4 +29,4 @@ PRE_EXEC="bash /tmp/pre_exec.sh"
 
 : "Same as PRE_EXEC but run at the end of the workflow"
 
-POST_EXEC=";"
+POST_EXEC=""
