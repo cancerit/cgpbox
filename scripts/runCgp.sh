@@ -122,7 +122,7 @@ curl -sSL --retry 10 -o /datastore/ref.tar.gz https://s3-eu-west-1.amazonaws.com
 tar -C /datastore -zxf /datastore/ref.tar.gz"
 
 
-echo -e "\t[Parallel block 1] start: `date`"
+echo "Starting Parallel block 1: `date`"
 run_parallel $CPU do_parallel
 
 # unset and redeclare the parallel array ready for block 2
@@ -164,7 +164,7 @@ do_parallel[pindel]="pindel.pl \
  -e NC_007605,hs37d5,GL% \
  -c $CPU"
 
-echo -e "\t[Parallel block 2] start: `date`"
+echo "Starting Parallel block 2: `date`"
 run_parallel $CPU do_parallel
 
 # prep ascat output for caveman:
@@ -230,7 +230,7 @@ do_parallel[BRASS]="brass.pl -j 4 -k 4 -c $CPU \
  -ss /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/*.samplestatistics.csv \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/brass"
 
-echo -e "\t[Parallel block 3] start: `date`"
+echo "Starting Parallel block 3: `date`"
 run_parallel $CPU do_parallel
 
 
