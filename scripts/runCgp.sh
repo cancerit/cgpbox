@@ -42,7 +42,7 @@ run_parallel () {
 set -e
 
 echo "Loading user options..."
-source /datastore/input/run.params
+source /datastore/run.params
 
 echo -e "\tNAME_MT : $NAME_MT"
 echo -e "\tNAME_WT : $NAME_WT"
