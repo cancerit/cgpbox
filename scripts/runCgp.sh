@@ -40,8 +40,13 @@ run_parallel () {
   return $errors
 }
 
-
 set -e
+
+echo -e "\nStart workflow: `date`\n"
+
+CPU=`grep -c ^processor /proc/cpuinfo`
+TMP='/datastore/output/tmp'
+mkdir -p $TMP
 
 echo "Loading user options..."
 source /datastore/run.params
@@ -64,20 +69,13 @@ else
 fi
 
 set -u
-echo -e "\nStart workflow: `date`\n"
 
 # run any pre-exec step before attempting to access BAMs
 # logically the pre-exec could be pulling them
-echo -e "Run PRE_EXEC: `date`"
+echo -e "\nRun PRE_EXEC: `date`"
 set -x
 $PRE_EXEC
 set +x
-
-CPU=`grep -c ^processor /proc/cpuinfo`
-
-TMP='/datastore/output/tmp'
-
-mkdir -p $TMP
 
 BAM_MT_TMP=$TMP/$NAME_MT.bam
 BAM_WT_TMP=$TMP/$NAME_WT.bam
