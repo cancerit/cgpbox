@@ -14,7 +14,9 @@ run_parallel () {
       sleep 1 # gnu sleep allows floating point here...
     done
     echo -e "\tStarting $key"
+    set -x
     ${do_parallel[$key]} &
+    set +x
     pids+=(["$key"]="$!")
   done
 
@@ -66,11 +68,10 @@ echo -e "\nStart workflow: `date`\n"
 
 # run any pre-exec step before attempting to access BAMs
 # logically the pre-exec could be pulling them
-echo -e "\nRun PRE_EXEC: `date`\n"
+echo -e "Run PRE_EXEC: `date`"
 set -x
 $PRE_EXEC
 set +x
-echo
 
 CPU=`grep -c ^processor /proc/cpuinfo`
 
@@ -127,6 +128,7 @@ run_parallel $CPU do_parallel
 unset do_parallel
 declare -A do_parallel
 
+echo -e "\nSetting up Parallel block 2"
 echo -e "\t[Parallel block 2] ASCAT added..."
 
 do_parallel[ascat]="ascat.pl \
@@ -167,7 +169,7 @@ run_parallel $CPU do_parallel
 
 # prep ascat output for caveman:
 
-echo -e "CaVEMan prep: `date`\n"
+echo -e "CaVEMan prep: `date`"
 
 set -x
 ASCAT_CN="/datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/$NAME_MT.copynumber.caveman.csv"
@@ -179,6 +181,7 @@ set +x
 unset do_parallel
 declare -A do_parallel
 
+echo -e "\nSetting up Parallel block 3"
 echo -e "\t[Parallel block 3] VerifyBam Tumour added..."
 
 do_parallel[verify_MT]="verifyBamHomChk.pl -d 25 \
@@ -230,9 +233,9 @@ do_parallel[BRASS]="brass.pl -j 4 -k 4 -c $CPU \
 
 echo "Starting Parallel block 3: `date`"
 run_parallel $CPU do_parallel
+echo
 
-
-echo -e "Annot CaVEMan start: `date`\n"
+echo -e "Annot CaVEMan start: `date`"
 # annotate caveman
 rm -f /datastore/output/${NAME_MT}_vs_${NAME_WT}/caveman/${NAME_MT}_vs_${NAME_WT}.annot.muts.vcf.gz*
 set -x
@@ -241,13 +244,13 @@ AnnotateVcf.pl -t -c /datastore/reference_files/vagrent/e75/Homo_sapiens.GRCh37.
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/caveman/${NAME_MT}_vs_${NAME_WT}.annot.muts.vcf
 set +x
 
-echo -e "Annot CaVEMan start: `date`\n"
+echo -e "Annot CaVEMan start: `date`"
 
 # run any post-exec step
-echo -e "\nRun POST_EXEC: `date`\n"
+echo "Run POST_EXEC: `date`"
 set -x
 $POST_EXEC
 set +x
 echo
 
-echo -e "Workflow end: `date`\n"
+echo -e "\nWorkflow end: `date`"
