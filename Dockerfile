@@ -227,19 +227,8 @@ RUN curl -sSL -o tmp.tar.gz --retry 10 https://github.com/cancerit/grass/archive
 
 # BRASS
 # blat first
-RUN curl -sSL -o tmp.zip http://users.soe.ucsc.edu/~kent/src/blatSrc35.zip && \
-    unzip -qu tmp.zip && \
-    cd /tmp/downloads/blatSrc && \
-    export TMPMACHTYPE=$MACHTYPE && \
-    export MACHTYPE=`uname -m` && \
-    export BINDIR="/tmp/downloads/blat/bin" && \
-    mkdir -p $BINDIR && \
-    make && \
-    cp $BINDIR/blat $OPT/bin/. && \
-    export MACHTYPE=$TMPMACHTYPE && \
-    cd /tmp/downloads && \
-    rm -rf /tmp/downloads/blatSrc /tmp/downloads/blat /tmp/downloads/tmp.zip
-
+RUN curl -sSL -o $OPT/bin/blat --retry 10 http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/blat/blat && \
+    chmod ugo+x $OPT/bin/blat
 
 # perl mod Graph installed at top of file due to being required in Bio/Brass.pm
 RUN curl -sSL -o tmp.tar.gz --retry 10 https://github.com/cancerit/BRASS/archive/v4.0.13.tar.gz && \
