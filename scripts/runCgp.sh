@@ -117,9 +117,7 @@ do_parallel[verify_WT]="verifyBamHomChk.pl -d 25 \
 
 
 echo -e "\t[Parallel block 1] Get refset added..."
-do_parallel[get_refset]="rm -rf /datastore/reference_files && \
-curl -sSL --retry 10 -o /datastore/ref.tar.gz https://s3-eu-west-1.amazonaws.com/wtsi-pancancer/reference/GRCh37d5_CGP_refBundle.tar.gz && \
-tar -C /datastore -zxf /datastore/ref.tar.gz"
+do_parallel[get_refset]="getRef.sh "
 
 
 echo "Starting Parallel block 1: `date`"
