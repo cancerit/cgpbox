@@ -18,7 +18,7 @@ RUN     apt-get -yqq update && \
           wget curl zlib1g-dev libncurses5-dev libgd-dev \
           libgd2-xpm-dev libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
           libpstreams-dev libglib2.0-dev libreadline6-dev gfortran libcairo2-dev openjdk-7-jdk\
-          cpanminus && \
+          cpanminus globus-data-management-client && \
         apt-get clean
 
 #libtest-warn-perl may still be needed
