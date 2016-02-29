@@ -18,7 +18,7 @@ RUN     apt-get -yqq update && \
           wget curl zlib1g-dev libncurses5-dev libgd-dev \
           libgd2-xpm-dev libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
           libpstreams-dev libglib2.0-dev libreadline6-dev gfortran libcairo2-dev openjdk-7-jdk\
-          cpanminus && \
+          cpanminus awscli && \
         apt-get clean
 
 #libtest-warn-perl may still be needed
@@ -309,12 +309,6 @@ RUN   curl -sSL -o tmp.tar.gz --retry 10 https://github.com/wrpearson/fasta36/re
 COPY scripts/runCgp.sh $OPT/bin/runCgp.sh
 COPY scripts/getRef.sh $OPT/bin/getRef.sh
 RUN chmod ugo+x $OPT/bin/runCgp.sh $OPT/bin/getRef.sh
-
-RUN curl -sSL http://s3tools.org/repo/deb-all/stable/s3tools.key | apt-key add - && \
-    sudo curl -sSL -o /etc/apt/sources.list.d/s3tools.list http://s3tools.org/repo/deb-all/stable/s3tools.list && \
-    apt-get update && \
-    apt-get install s3cmd && \
-    apt-get clean
 
 ## USER CONFIGURATION
 RUN     useradd -ms /bin/bash cgpbox
