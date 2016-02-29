@@ -73,11 +73,12 @@ set -u
 # run any pre-exec step before attempting to access BAMs
 # logically the pre-exec could be pulling them
 echo -e "\nRun PRE_EXEC: `date`"
-set -x
+
 for i in "${PRE_EXEC[@]}"; do
+  set -x
   $i
+  set +x
 done
-set +x
 
 BAM_MT_TMP=$TMP/$NAME_MT.bam
 BAM_WT_TMP=$TMP/$NAME_WT.bam
@@ -248,10 +249,11 @@ echo -e "Annot CaVEMan start: `date`"
 
 # run any post-exec step
 echo -e "\nRun POST_EXEC: `date`"
-set -x
 for i in "${POST_EXEC[@]}"; do
+  set -x
   $i
+  set +x
 done
-set +x
+
 
 echo -e "\nWorkflow end: `date`"
