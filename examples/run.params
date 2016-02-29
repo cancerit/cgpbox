@@ -11,7 +11,9 @@ BAM_MT='/datastore/input/HCC1143.bam'
 BAM_WT='/datastore/input/HCC1143_BL.bam'
 
 : "PRE_EXEC - Commands to be run before the main workflow starts
-    - NOTE: you cant directly do multi command things, so we echo to a file a script to run
+    - NOTE: To allow many commands to run an array is defined, the first command must
+            be assigned to 'PRE_EXEC[0]=' all following to 'PRE_EXEC+='.
+            Order of addition is maintaned.
     - Can be used to stage your files, the above variables are imported before this so
       they can be used in the normal fashion, $NAME_WT etc
     - This example
@@ -20,14 +22,18 @@ BAM_WT='/datastore/input/HCC1143_BL.bam'
         3. Unpacks the data into the /datastore/input area
         4. Removes the *.bas files to force generation"
 
-echo "set -uex
-rm -rf /datastore/input && mkdir /datastore/input
-curl -sSL --retry 10 -o /datastore/testdata.tar https://s3-eu-west-1.amazonaws.com/wtsi-pancancer/testdata/HCC1143_ds.tar
-tar -C /datastore/input --strip-components 1 -xf /datastore/testdata.tar
-rm -f /datastore/input/*.bas" > /tmp/pre_exec.sh
+PRE_EXEC[0]='rm -rf /datastore/input'
+PRE_EXEC+='mkdir /datastore/input'
+PRE_EXEC+='curl -sSL --retry 10 -o /datastore/testdata.tar https://s3-eu-west-1.amazonaws.com/wtsi-pancancer/testdata/HCC1143_ds.tar'
+PRE_EXEC+='tar -C /datastore/input --strip-components 1 -xf /datastore/testdata.tar'
+PRE_EXEC+='rm -f /datastore/input/*.bas'
 
-PRE_EXEC="bash /tmp/pre_exec.sh"
+: "Same as PRE_EXEC but run at the end of the workflow
+    - This is an example how you could write your result to S3 by setting the environment variables and path for your bucket
+    - Nice use is that you can then set any AWS image to shutdown automatically when it becomes idle"
 
-: "Same as PRE_EXEC but run at the end of the workflow"
-
-POST_EXEC=""
+POST_EXEC[0]='export AWS_ACCESS_KEY_ID=XXX'
+POST_EXEC+='export AWS_SECRET_ACCESS_KEY=YYY'
+POST_EXEC+='formatted_date=`date +%Y%m%d-%H%M`'
+POST_EXEC+='tar -C /datastore zcf result_${formatted_date}.tar.gz output'
+POST_EXEC+='aws s3 cp result_${formatted_date}.tar.gz s3://wtsi-pancancer/kr2Test/.'

@@ -310,11 +310,10 @@ COPY scripts/runCgp.sh $OPT/bin/runCgp.sh
 COPY scripts/getRef.sh $OPT/bin/getRef.sh
 RUN chmod ugo+x $OPT/bin/runCgp.sh $OPT/bin/getRef.sh
 
-RUN curl -sSL --retry 10 -O http://toolkit.globus.org/ftppub/gt6/installers/repo/globus-toolkit-repo_latest_all.deb && \
-    dpkg -i globus-toolkit-repo_latest_all.deb && \
-    rm -f globus-toolkit-repo_latest_all.deb && \
-    apt-get -yqq update && \
-    apt-get -yqq install globus-data-management-client && \
+RUN curl -sSL http://s3tools.org/repo/deb-all/stable/s3tools.key | apt-key add - && \
+    sudo curl -sSL -o /etc/apt/sources.list.d/s3tools.list http://s3tools.org/repo/deb-all/stable/s3tools.list && \
+    apt-get update && \
+    apt-get install s3cmd && \
     apt-get clean
 
 ## USER CONFIGURATION
