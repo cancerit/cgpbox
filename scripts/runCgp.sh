@@ -48,6 +48,10 @@ CPU=`grep -c ^processor /proc/cpuinfo`
 TMP='/datastore/output/tmp'
 mkdir -p $TMP
 
+declare -a PRE_EXEC
+declare -a POST_EXEC
+
+
 echo "Loading user options..."
 source /datastore/run.params
 
@@ -56,16 +60,12 @@ echo -e "\tNAME_WT : $NAME_WT"
 echo -e "\tBAM_MT : $BAM_MT"
 echo -e "\tBAM_WT : $BAM_WT"
 
-if [ -z ${PRE_EXEC+x} ]; then
+if [ ${#PRE_EXEC[@]} -eq 0 ]; then
   PRE_EXEC='echo No PRE_EXEC defined'
-else
-  echo -e "\tPRE_EXEC : $PRE_EXEC"
 fi
 
-if [ -z ${POST_EXEC+x} ]; then
+if [ ${#POST_EXEC[@]} -eq 0 ]; then
   POST_EXEC='echo No POST_EXEC defined'
-else
-  echo -e "\tPOST_EXEC : $POST_EXEC"
 fi
 
 set -u
@@ -74,7 +74,9 @@ set -u
 # logically the pre-exec could be pulling them
 echo -e "\nRun PRE_EXEC: `date`"
 set -x
-$PRE_EXEC
+for i in "${PRE_EXEC[@]}"; do
+  $i
+done
 set +x
 
 BAM_MT_TMP=$TMP/$NAME_MT.bam
@@ -245,10 +247,11 @@ set +x
 echo -e "Annot CaVEMan start: `date`"
 
 # run any post-exec step
-echo "Run POST_EXEC: `date`"
+echo -e "\nRun POST_EXEC: `date`"
 set -x
-$POST_EXEC
+for i in "${POST_EXEC[@]}"; do
+  $i
+done
 set +x
-echo
 
 echo -e "\nWorkflow end: `date`"
