@@ -18,7 +18,7 @@ RUN     apt-get -yqq update && \
           wget curl zlib1g-dev libncurses5-dev libgd-dev \
           libgd2-xpm-dev libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
           libpstreams-dev libglib2.0-dev libreadline6-dev gfortran libcairo2-dev openjdk-7-jdk\
-          cpanminus && \
+          cpanminus awscli && \
         apt-get clean
 
 #libtest-warn-perl may still be needed
@@ -227,19 +227,13 @@ RUN curl -sSL -o tmp.tar.gz --retry 10 https://github.com/cancerit/grass/archive
 
 # BRASS
 # blat first
-RUN curl -sSL -o tmp.zip http://users.soe.ucsc.edu/~kent/src/blatSrc35.zip && \
-    unzip -qu tmp.zip && \
-    cd /tmp/downloads/blatSrc && \
-    export TMPMACHTYPE=$MACHTYPE && \
-    export MACHTYPE=`uname -m` && \
-    export BINDIR="/tmp/downloads/blat/bin" && \
-    mkdir -p $BINDIR && \
-    make && \
-    cp $BINDIR/blat $OPT/bin/. && \
-    export MACHTYPE=$TMPMACHTYPE && \
-    cd /tmp/downloads && \
-    rm -rf /tmp/downloads/blatSrc /tmp/downloads/blat /tmp/downloads/tmp.zip
+RUN curl -sSL -o $OPT/bin/blat --retry 10 http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/blat/blat && \
+    chmod ugo+x $OPT/bin/blat
 
+# pre-compiled exonerate
+RUN curl -sSL http://ftp.ebi.ac.uk/pub/software/vertebrategenomics/exonerate/exonerate-2.2.0-x86_64.tar.gz | \
+    tar -C $OPT/bin --strip-components=2 -zx exonerate-2.2.0-x86_64/bin/exonerate && \
+    chmod ugo+x $OPT/bin/exonerate
 
 # perl mod Graph installed at top of file due to being required in Bio/Brass.pm
 RUN curl -sSL -o tmp.tar.gz --retry 10 https://github.com/cancerit/BRASS/archive/v4.0.13.tar.gz && \
@@ -266,14 +260,6 @@ RUN curl -sSL -o tmp.tar.gz --retry 10 https://github.com/cancerit/BRASS/archive
     ln -fs $OPT/bin/velvet95h $OPT/bin/velveth && \
     ln -fs $OPT/bin/velvet95g $OPT/bin/velvetg && \
     cd /tmp/downloads/BRASS && \
-    tar zxf distros/exonerate-2.2.0.tar.gz && \
-    cd exonerate-2.2.0 && \
-    cp ../distros/patches/exonerate_pthread-asneeded.diff . && \
-    patch -p1 < exonerate_pthread-asneeded.diff && \
-    ./configure --prefix=$OPT && \
-    make && \
-    make  check && \
-    make install && \
     cd /tmp/downloads/BRASS/perl && \
     cpanm --mirror http://cpan.metacpan.org -l $OPT . && \
     cd /tmp/downloads && \
@@ -320,10 +306,15 @@ RUN   curl -sSL -o tmp.tar.gz --retry 10 https://github.com/wrpearson/fasta36/re
       cp /tmp/downloads/fasta/bin/ssearch36 $OPT/bin/. && \
       rm -rf /tmp/downloads/fasta
 
+COPY scripts/runCgp.sh $OPT/bin/runCgp.sh
+COPY scripts/getRef.sh $OPT/bin/getRef.sh
+RUN chmod ugo+x $OPT/bin/runCgp.sh $OPT/bin/getRef.sh
+
 ## USER CONFIGURATION
 RUN     useradd -ms /bin/bash cgpbox
 USER    cgpbox
 WORKDIR /home/cgpbox
 RUN     echo "options(bitmapType='cairo')" > ~/.Rprofile
 
-ENTRYPOINT /datastore/scripts/runCgp.sh
+
+ENTRYPOINT $OPT/bin/runCgp.sh

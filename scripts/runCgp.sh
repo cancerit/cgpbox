@@ -1,35 +1,141 @@
 #!/bin/bash
 
-set -ue
+# about to do some parallel work...
+declare -A do_parallel
 
-echo -n "Start workflow: ";date
+# declare function to run parallel processing
+run_parallel () {
+  # adapted from: http://stackoverflow.com/a/18666536/4460430
+  local max_concurrent_tasks=$1
+  local -A pids=()
+
+  for key in "${!do_parallel[@]}"; do
+    while [ $(jobs 2>&1 | grep -c Running) -ge "$max_concurrent_tasks" ]; do
+      sleep 1 # gnu sleep allows floating point here...
+    done
+    echo -e "\tStarting $key"
+    set -x
+    ${do_parallel[$key]} &
+    set +x
+    pids+=(["$key"]="$!")
+  done
+
+  errors=0
+  for key in "${!do_parallel[@]}"; do
+    pid=${pids[$key]}
+    local cur_ret=0
+    if [ -z "$pid" ]; then
+      echo "No Job ID known for the $key process" # should never happen
+      cur_ret=1
+    else
+      wait $pid
+      cur_ret=$?
+    fi
+    if [ "$cur_ret" -ne 0 ]; then
+      errors=$(($errors + 1))
+      echo "$key (${do_parallel[$key]}) failed."
+    fi
+  done
+
+  return $errors
+}
+
+set -e
+
+echo -e "\nStart workflow: `date`\n"
 
 CPU=`grep -c ^processor /proc/cpuinfo`
-
 TMP='/datastore/output/tmp'
-NAME_MT='HCC1143'
-NAME_WT='HCC1143_BL'
-BAM_MT='/datastore/input/HCC1143.bam'
-BAM_WT='/datastore/input/HCC1143_BL.bam'
 mkdir -p $TMP
 
-echo -n "Genotype Check start: ";date
+declare -a PRE_EXEC
+declare -a POST_EXEC
 
-set -x
-compareBamGenotypes.pl \
+
+echo "Loading user options..."
+source /datastore/run.params
+
+echo -e "\tNAME_MT : $NAME_MT"
+echo -e "\tNAME_WT : $NAME_WT"
+echo -e "\tBAM_MT : $BAM_MT"
+echo -e "\tBAM_WT : $BAM_WT"
+
+if [ ${#PRE_EXEC[@]} -eq 0 ]; then
+  PRE_EXEC='echo No PRE_EXEC defined'
+fi
+
+if [ ${#POST_EXEC[@]} -eq 0 ]; then
+  POST_EXEC='echo No POST_EXEC defined'
+fi
+
+set -u
+
+# run any pre-exec step before attempting to access BAMs
+# logically the pre-exec could be pulling them
+echo -e "\nRun PRE_EXEC: `date`"
+
+for i in "${PRE_EXEC[@]}"; do
+  set -x
+  $i
+  set +x
+done
+
+BAM_MT_TMP=$TMP/$NAME_MT.bam
+BAM_WT_TMP=$TMP/$NAME_WT.bam
+
+ln -fs $BAM_MT $BAM_MT_TMP
+ln -fs $BAM_WT $BAM_WT_TMP
+ln -fs $BAM_MT.bai $BAM_MT_TMP.bai
+ln -fs $BAM_WT.bai $BAM_WT_TMP.bai
+
+echo "Setting up Parallel block 1"
+
+if [ ! -f "${BAM_MT}.bas" ]; then
+  echo -e "\t[Parallel block 1] BAS $NAME_MT added..."
+  do_parallel[bas_MT]="bam_stats -i $BAM_MT_TMP -o $BAM_MT_TMP.bas"
+else
+  ln -fs $BAM_MT.bas $BAM_MT_TMP.bas
+fi
+
+if [ ! -f "${BAM_WT}.bas" ]; then
+  echo -e "\t[Parallel block 1] BAS $NAME_WT added..."
+  do_parallel[bas_WT]="bam_stats -i $BAM_WT_TMP -o $BAM_WT_TMP.bas"
+else
+  ln -fs $BAM_WT.bas $BAM_WT_TMP.bas
+fi
+
+echo -e "\t[Parallel block 1] Genotype Check added..."
+do_parallel[geno_MT]="compareBamGenotypes.pl \
  -o /datastore/output/$NAME_WT/genotyped \
- -nb $BAM_WT \
+ -nb $BAM_WT_TMP \
  -j /datastore/output/$NAME_WT/genotyped/result.json \
- -tb $BAM_MT
-set +x
+ -tb $BAM_MT_TMP"
 
-echo -n "ASCAT start: ";date
+echo -e "\t[Parallel block 1] VerifyBam Normal added..."
+do_parallel[verify_WT]="verifyBamHomChk.pl -d 25 \
+ -o /datastore/output/$NAME_WT/contamination \
+ -b $BAM_WT_TMP \
+ -j /datastore/output/$NAME_WT/contamination/result.json"
 
-set -x
-ascat.pl \
- -o /datastore/output/$NAME_MT/ascat \
- -t $BAM_MT \
- -n $BAM_WT \
+
+echo -e "\t[Parallel block 1] Get refset added..."
+do_parallel[get_refset]="getRef.sh "
+
+
+echo "Starting Parallel block 1: `date`"
+run_parallel $CPU do_parallel
+
+# unset and redeclare the parallel array ready for block 2
+unset do_parallel
+declare -A do_parallel
+
+echo -e "\nSetting up Parallel block 2"
+echo -e "\t[Parallel block 2] ASCAT added..."
+
+do_parallel[ascat]="ascat.pl \
+ -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat \
+ -t $BAM_MT_TMP \
+ -n $BAM_WT_TMP \
  -s /datastore/reference_files/ascat/SnpLocus.tsv \
  -sp /datastore/reference_files/ascat/SnpPositions.tsv \
  -sg /datastore/reference_files/ascat/SnpGcCorrections.tsv \
@@ -40,35 +146,13 @@ ascat.pl \
  -ra GRCh37 \
  -pr WGS \
  -pl ILLUMINA \
- -c $CPU
-set +x
+ -c $CPU"
 
-echo -n "VerifyBam Tumour start: ";date
-
-set -x
-verifyBamHomChk.pl -d 25 \
- -o /datastore/output/$NAME_MT/contamination \
- -b $BAM_MT \
- -a /datastore/output/$NAME_MT/ascat/${NAME_MT}.copynumber.caveman.csv \
- -j /datastore/output/$NAME_MT/contamination/result.json
-set +x
-
-echo -n "VerifyBam Normal start: ";date
-
-set -x
-verifyBamHomChk.pl -d 25 \
- -o /datastore/output/$NAME_WT/contamination \
- -b $BAM_WT \
- -j /datastore/output/$NAME_WT/contamination/result.json
-set +x
-
-echo -n "PINDEL start: ";date
-
-set -x
-pindel.pl \
- -o /datastore/output/$NAME_MT/pindel \
- -t $BAM_MT \
- -n $BAM_WT \
+echo -e "\t[Parallel block 2] Pindel added..."
+do_parallel[pindel]="pindel.pl \
+ -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel \
+ -t $BAM_MT_TMP \
+ -n $BAM_WT_TMP \
  -r /datastore/reference_files/genome.fa \
  -s /datastore/reference_files/pindel/simpleRepeats.bed.gz \
  -f /datastore/reference_files/pindel/genomicRules.lst \
@@ -79,23 +163,43 @@ pindel.pl \
  -as GRCh37 \
  -sp Human \
  -e NC_007605,hs37d5,GL% \
- -c $CPU
-set +x
+ -c $CPU"
+
+echo "Starting Parallel block 2: `date`"
+run_parallel $CPU do_parallel
 
 # prep ascat output for caveman:
 
-echo -n "CaVEMan prep: ";date
+echo -e "CaVEMan prep: `date`"
 
 set -x
-ASCAT_CN="/datastore/output/$NAME_MT/ascat/$NAME_MT.copynumber.caveman.csv"
+ASCAT_CN="/datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/$NAME_MT.copynumber.caveman.csv"
 perl -ne '@F=(split q{,}, $_)[1,2,3,4]; $F[1]-1; print join("\t",@F)."\n";' < $ASCAT_CN > $TMP/norm.cn.bed
 perl -ne '@F=(split q{,}, $_)[1,2,3,6]; $F[1]-1; print join("\t",@F)."\n";' < $ASCAT_CN > $TMP/tum.cn.bed
 set +x
 
-echo -n "CaVEMan start: ";date
+# unset and redeclare the parallel array ready for block 3
+unset do_parallel
+declare -A do_parallel
 
-set -x
-caveman.pl \
+echo -e "\nSetting up Parallel block 3"
+echo -e "\t[Parallel block 3] VerifyBam Tumour added..."
+
+do_parallel[verify_MT]="verifyBamHomChk.pl -d 25 \
+ -o /datastore/output/$NAME_MT/contamination \
+ -b $BAM_MT_TMP \
+ -a /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/${NAME_MT}.copynumber.caveman.csv \
+ -j /datastore/output/$NAME_MT/contamination/result.json"
+
+# annotate pindel
+rm -f /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.annot.vcf.gz*
+echo -e "\t[Parallel block 3] Pindel_annot added..."
+do_parallel[Pindel_annot]="AnnotateVcf.pl -t -c /datastore/reference_files/vagrent/e75/Homo_sapiens.GRCh37.75.vagrent.cache.gz \
+ -i /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.flagged.vcf.gz \
+ -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.annot.vcf"
+
+echo -e "\t[Parallel block 3] CaVEMan added..."
+do_parallel[CaVEMan]="caveman.pl \
  -r /datastore/reference_files/genome.fa.fai \
  -ig /datastore/reference_files/caveman/ucscHiDepth_0.01_merge1000_no_exon.tsv \
  -b /datastore/reference_files/caveman/flagging \
@@ -104,18 +208,15 @@ caveman.pl \
  -sa GRCh37 \
  -t $CPU \
  -st genomic \
- -in /datastore/output/$NAME_MT/pindel/${NAME_MT}_vs_${NAME_WT}.germline.bed  \
+ -in /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.germline.bed  \
  -tc $TMP/tum.cn.bed \
  -nc $TMP/norm.cn.bed \
- -tb $BAM_MT \
- -nb $BAM_WT \
- -o /datastore/output/$NAME_MT/caveman
-set +x
+ -tb $BAM_MT_TMP \
+ -nb $BAM_WT_TMP \
+ -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/caveman"
 
-echo -n "BRASS start: ";date
-
-set -x
-brass.pl -j 4 -k 4 -c $CPU \
+echo -e "\t[Parallel block 3] BRASS added..."
+do_parallel[BRASS]="brass.pl -j 4 -k 4 -c $CPU \
  -e MT,GL%,hs37d5,NC_007605 \
  -d /datastore/reference_files/brass/ucscHiDepth_0.01_mrg1000_no_exon_coreChrs.bed.gz \
  -f /datastore/reference_files/brass/brass_np.groups.gz \
@@ -125,31 +226,34 @@ brass.pl -j 4 -k 4 -c $CPU \
  -vi /datastore/reference_files/brass/viral.1.1.genomic.fa \
  -mi /datastore/reference_files/brass/all_ncbi_bacteria.20150703 \
  -b /datastore/reference_files/brass/hs37d5_500bp_windows.gc.bed.gz \
- -t $BAM_MT \
- -n $BAM_WT \
- -a /datastore/output/$NAME_MT/ascat/*.copynumber.caveman.csv \
- -ss /datastore/output/$NAME_MT/ascat/*.samplestatistics.csv \
- -o /datastore/output/$NAME_MT/brass
-set +x
+ -t $BAM_MT_TMP \
+ -n $BAM_WT_TMP \
+ -a /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/*.copynumber.caveman.csv \
+ -ss /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/*.samplestatistics.csv \
+ -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/brass"
 
-echo -n "Annot CaVEMan start: ";date
+echo "Starting Parallel block 3: `date`"
+run_parallel $CPU do_parallel
+echo
 
+echo -e "Annot CaVEMan start: `date`"
 # annotate caveman
-rm -f /datastore/output/$NAME_MT/caveman/${NAME_MT}_vs_${NAME_WT}.annot.muts.vcf.gz*
+rm -f /datastore/output/${NAME_MT}_vs_${NAME_WT}/caveman/${NAME_MT}_vs_${NAME_WT}.annot.muts.vcf.gz*
 set -x
 AnnotateVcf.pl -t -c /datastore/reference_files/vagrent/e75/Homo_sapiens.GRCh37.75.vagrent.cache.gz \
- -i /datastore/output/$NAME_MT/caveman/${NAME_MT}_vs_${NAME_WT}.flagged.muts.vcf.gz \
- -o /datastore/output/$NAME_MT/caveman/${NAME_MT}_vs_${NAME_WT}.annot.muts.vcf
+ -i /datastore/output/${NAME_MT}_vs_${NAME_WT}/caveman/${NAME_MT}_vs_${NAME_WT}.flagged.muts.vcf.gz \
+ -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/caveman/${NAME_MT}_vs_${NAME_WT}.annot.muts.vcf
 set +x
 
-echo -n "Annot CaVEMan start: ";date
+echo -e "Annot CaVEMan start: `date`"
 
-# annotate pindel
-rm -f /datastore/output/$NAME_MT/pindel/${NAME_MT}_vs_${NAME_WT}.annot.vcf.gz*
-set -x
-AnnotateVcf.pl -t -c /datastore/reference_files/vagrent/e75/Homo_sapiens.GRCh37.75.vagrent.cache.gz \
- -i /datastore/output/$NAME_MT/pindel/${NAME_MT}_vs_${NAME_WT}.flagged.vcf.gz \
- -o /datastore/output/$NAME_MT/pindel/${NAME_MT}_vs_${NAME_WT}.annot.vcf
-set +x
+# run any post-exec step
+echo -e "\nRun POST_EXEC: `date`"
+for i in "${POST_EXEC[@]}"; do
+  set -x
+  $i
+  set +x
+done
 
-echo -n "Workflow end: ";date
+
+echo -e "\nWorkflow end: `date`"
