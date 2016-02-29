@@ -18,7 +18,7 @@ RUN     apt-get -yqq update && \
           wget curl zlib1g-dev libncurses5-dev libgd-dev \
           libgd2-xpm-dev libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
           libpstreams-dev libglib2.0-dev libreadline6-dev gfortran libcairo2-dev openjdk-7-jdk\
-          cpanminus globus-data-management-client && \
+          cpanminus && \
         apt-get clean
 
 #libtest-warn-perl may still be needed
@@ -309,6 +309,13 @@ RUN   curl -sSL -o tmp.tar.gz --retry 10 https://github.com/wrpearson/fasta36/re
 COPY scripts/runCgp.sh $OPT/bin/runCgp.sh
 COPY scripts/getRef.sh $OPT/bin/getRef.sh
 RUN chmod ugo+x $OPT/bin/runCgp.sh $OPT/bin/getRef.sh
+
+RUN curl -sSL --retry 10 -O http://toolkit.globus.org/ftppub/gt6/installers/repo/globus-toolkit-repo_latest_all.deb && \
+    dpkg -i globus-toolkit-repo_latest_all.deb && \
+    rm -f globus-toolkit-repo_latest_all.deb && \
+    apt-get -yqq update && \
+    apt-get -yqq install globus-data-management-client && \
+    apt-get clean
 
 ## USER CONFIGURATION
 RUN     useradd -ms /bin/bash cgpbox
