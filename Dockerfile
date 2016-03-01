@@ -10,7 +10,7 @@ USER  root
 
 ENV OPT /opt/wtsi-cgp
 ENV PATH $OPT/bin:$PATH
-ENV PERL5LIB $OPT/lib/perl5:$PERL5LIB
+ENV PERL5LIB $OPT/lib/perl5
 
 
 RUN apt-get -yqq update && \
@@ -18,7 +18,7 @@ RUN apt-get -yqq update && \
       wget curl zlib1g-dev libncurses5-dev \
       libgd2-xpm-dev libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
       libpstreams-dev libglib2.0-dev gfortran libcairo2-dev \
-      cpanminus bsdtar libwww-perl tabix openjdk-7-jdk && \
+      cpanminus bsdtar libwww-perl openjdk-7-jdk && \
     apt-get clean
 
 RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share
@@ -79,6 +79,17 @@ RUN curl -sSL -o tmp.tar.gz --retry 10 https://github.com/ICGC-TCGA-PanCancer/PC
     cpanm --mirror http://cpan.metacpan.org -l $OPT . && \
     cd /tmp/downloads && \
     rm -rf /tmp/downloads/PCAP /tmp/downloads/tmp.tar.gz ~/.cpanm
+
+RUN curl -sSL https://github.com/samtools/tabix/archive/master.zip  | bsdtar -xvf - && \
+    cd /tmp/downloads/tabix-master && \
+    make && \
+    cp tabix $OPT/bin/. && \
+    cp bgzip $OPT/bin/. && \
+    cd perl && \
+    perl Makefile.PL INSTALL_BASE=$INST_PATH && \
+    make && make test && make install && \
+    cd /tmp/downloads && \
+    rm -rf /tmp/downloads/tabix-master
 
 # start of cgpVcf block
 # the commit UUID for the release of cgpVcf in use
