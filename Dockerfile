@@ -1,4 +1,4 @@
-FROM  ubuntu:14.04
+FROM  ubuntu:12.04
 
 MAINTAINER  keiranmraine@gmail.com
 
@@ -10,15 +10,15 @@ USER  root
 
 ENV OPT /opt/wtsi-cgp
 ENV PATH $OPT/bin:$PATH
-ENV PERL5LIB $OPT/lib/perl5
+ENV PERL5LIB $OPT/lib/perl5:$PERL5LIB
 
 
 RUN apt-get -yqq update && \
-    apt-get -yqq install build-essential autoconf software-properties-common python-software-properties \
+    apt-get -yqq install libreadline6-dev build-essential autoconf software-properties-common python-software-properties \
       wget curl zlib1g-dev libncurses5-dev \
       libgd2-xpm-dev libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
-      libpstreams-dev libglib2.0-dev libreadline6-dev gfortran libcairo2-dev openjdk-7-jdk\
-      cpanminus bsdtar libwww-perl tabix && \
+      libpstreams-dev libglib2.0-dev gfortran libcairo2-dev \
+      cpanminus bsdtar libwww-perl tabix openjdk-7-jdk && \
     apt-get clean
 
 # libgd-dev may be needed on 14.02
