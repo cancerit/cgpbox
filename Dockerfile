@@ -1,25 +1,25 @@
-FROM    ubuntu:14.04
+FROM  ubuntu:14.04
 
 MAINTAINER  keiranmraine@gmail.com
 
-LABEL   uk.ac.sanger.cgp="Cancer Genome Project, Wellcome Trust Sanger Institute" \
-        version="0.0.1" \
-        description="The CGP somatic calling pipeline 'in-a-box'"
+LABEL uk.ac.sanger.cgp="Cancer Genome Project, Wellcome Trust Sanger Institute" \
+      version="0.0.1" \
+      description="The CGP somatic calling pipeline 'in-a-box'"
 
-USER    root
+USER  root
 
 ENV OPT /opt/wtsi-cgp
 ENV PATH $OPT/bin:$PATH
 ENV PERL5LIB $OPT/lib/perl5
 
 
-RUN     apt-get -yqq update && \
-        apt-get -yqq install build-essential autoconf software-properties-common python-software-properties \
-          wget curl zlib1g-dev libncurses5-dev libgd-dev \
-          libgd2-xpm-dev libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
-          libpstreams-dev libglib2.0-dev libreadline6-dev gfortran libcairo2-dev openjdk-7-jdk\
-          cpanminus awscli && \
-        apt-get clean
+RUN apt-get -yqq update && \
+    apt-get -yqq install build-essential autoconf software-properties-common python-software-properties \
+      wget curl zlib1g-dev libncurses5-dev libgd-dev \
+      libgd2-xpm-dev libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
+      libpstreams-dev libglib2.0-dev libreadline6-dev gfortran libcairo2-dev openjdk-7-jdk\
+      cpanminus bsdtar && \
+    apt-get clean
 
 #libtest-warn-perl may still be needed
 
@@ -27,7 +27,7 @@ RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share
 WORKDIR /tmp/downloads
 
 RUN cpanm --mirror http://cpan.metacpan.org -l $OPT File::ShareDir File::ShareDir::Install LWP::UserAgent Bio::Root::Version Const::Fast Graph && \
-     rm -rf ~/.cpanm
+    rm -rf ~/.cpanm
 
 RUN export SOURCE_JKENT_BIN=https://github.com/ENCODE-DCC/kentUtils/raw/master/bin/linux.x86_64 && \
     curl -sSL -o $OPT/bin/wigToBigWig -C - --retry 10 ${SOURCE_JKENT_BIN}/wigToBigWig && chmod +x $OPT/bin/wigToBigWig && \
@@ -88,8 +88,7 @@ RUN curl -sSL -o tmp.tar.gz --retry 10 https://github.com/ICGC-TCGA-PanCancer/PC
 ENV CGPVCF_UUID 5cc538ded838a4ba94feedff1b51ee3ebc4b65f4
 
 # build tabix using patch from cgpVcf release
-RUN curl -sSL -o tmp.zip --retry 10 https://github.com/samtools/tabix/archive/master.zip && \
-    unzip tmp.zip && \
+RUN curl -sSL https://github.com/samtools/tabix/archive/master.zip  | bsdtar -xvf - && \
     cd /tmp/downloads/tabix-master && \
     make && \
     cp tabix $OPT/bin/. && \
@@ -98,7 +97,7 @@ RUN curl -sSL -o tmp.zip --retry 10 https://github.com/samtools/tabix/archive/ma
     perl Makefile.PL INSTALL_BASE=$INST_PATH && \
     make && make test && make install && \
     cd /tmp/downloads && \
-    rm -rf /tmp/downloads/tabix-master /tmp/downloads/tmp.zip
+    rm -rf /tmp/downloads/tabix-master
 
 # build vcftools using patch from cgpVcf release
 RUN curl -sSL -o tmp.tar.gz http://sourceforge.net/projects/vcftools/files/vcftools_0.1.12a.tar.gz/download && \
@@ -300,11 +299,15 @@ biocLite("copynumber", ask=FALSE)' > tmp.R && \
     rm tmp.R
 
 # Add ssearch36 BRASS dep
-RUN   curl -sSL -o tmp.tar.gz --retry 10 https://github.com/wrpearson/fasta36/releases/download/v36.3.8/fasta-36.3.8-linux64.tar.gz && \
-      mkdir  /tmp/downloads/fasta && \
-      tar -C /tmp/downloads/fasta --strip-components 2 -zxf tmp.tar.gz && \
-      cp /tmp/downloads/fasta/bin/ssearch36 $OPT/bin/. && \
-      rm -rf /tmp/downloads/fasta
+RUN curl -sSL -o tmp.tar.gz --retry 10 https://github.com/wrpearson/fasta36/releases/download/v36.3.8/fasta-36.3.8-linux64.tar.gz && \
+    mkdir  /tmp/downloads/fasta && \
+    tar -C /tmp/downloads/fasta --strip-components 2 -zxf tmp.tar.gz && \
+    cp /tmp/downloads/fasta/bin/ssearch36 $OPT/bin/. && \
+    rm -rf /tmp/downloads/fasta
+
+RUN curl -sSL https://s3.amazonaws.com/aws-cli/awscli-bundle.zip | bsdtar -xvf - && \
+    python awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws && \
+    rm -rf /tmp/downloads/awscli-bundle
 
 COPY scripts/runCgp.sh $OPT/bin/runCgp.sh
 COPY scripts/getRef.sh $OPT/bin/getRef.sh
