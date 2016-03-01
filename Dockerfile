@@ -15,18 +15,18 @@ ENV PERL5LIB $OPT/lib/perl5
 
 RUN apt-get -yqq update && \
     apt-get -yqq install build-essential autoconf software-properties-common python-software-properties \
-      wget curl zlib1g-dev libncurses5-dev libgd-dev \
+      wget curl zlib1g-dev libncurses5-dev \
       libgd2-xpm-dev libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
       libpstreams-dev libglib2.0-dev libreadline6-dev gfortran libcairo2-dev openjdk-7-jdk\
-      cpanminus bsdtar && \
+      cpanminus bsdtar libwww-perl tabix && \
     apt-get clean
 
-#libtest-warn-perl may still be needed
+# libgd-dev may be needed on 14.02
 
 RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share
 WORKDIR /tmp/downloads
 
-RUN cpanm --mirror http://cpan.metacpan.org -l $OPT File::ShareDir File::ShareDir::Install LWP::UserAgent Bio::Root::Version Const::Fast Graph && \
+RUN cpanm --mirror http://cpan.metacpan.org -l $OPT File::ShareDir File::ShareDir::Install Bio::Root::Version Const::Fast Graph && \
     rm -rf ~/.cpanm
 
 RUN export SOURCE_JKENT_BIN=https://github.com/ENCODE-DCC/kentUtils/raw/master/bin/linux.x86_64 && \
@@ -86,18 +86,6 @@ RUN curl -sSL -o tmp.tar.gz --retry 10 https://github.com/ICGC-TCGA-PanCancer/PC
 # the commit UUID for the release of cgpVcf in use
 
 ENV CGPVCF_UUID 5cc538ded838a4ba94feedff1b51ee3ebc4b65f4
-
-# build tabix using patch from cgpVcf release
-RUN curl -sSL https://github.com/samtools/tabix/archive/master.zip  | bsdtar -xvf - && \
-    cd /tmp/downloads/tabix-master && \
-    make && \
-    cp tabix $OPT/bin/. && \
-    cp bgzip $OPT/bin/. && \
-    cd perl && \
-    perl Makefile.PL INSTALL_BASE=$INST_PATH && \
-    make && make test && make install && \
-    cd /tmp/downloads && \
-    rm -rf /tmp/downloads/tabix-master
 
 # build vcftools using patch from cgpVcf release
 RUN curl -sSL -o tmp.tar.gz http://sourceforge.net/projects/vcftools/files/vcftools_0.1.12a.tar.gz/download && \
