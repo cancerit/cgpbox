@@ -21,8 +21,6 @@ RUN apt-get -yqq update && \
       cpanminus bsdtar libwww-perl tabix openjdk-7-jdk && \
     apt-get clean
 
-# libgd-dev may be needed on 14.02
-
 RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share
 WORKDIR /tmp/downloads
 
