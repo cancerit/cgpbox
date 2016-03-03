@@ -311,10 +311,10 @@ COPY scripts/getRef.sh $OPT/bin/getRef.sh
 RUN chmod ugo+x $OPT/bin/runCgp.sh $OPT/bin/getRef.sh
 
 ## USER CONFIGURATION
-RUN     useradd -ms /bin/bash cgpbox
+RUN adduser --disabled-password --gecos '' cgpbox && chsh -s /bin/bash && mkdir -p /home/cgpbox
 USER    cgpbox
 WORKDIR /home/cgpbox
-RUN     echo "options(bitmapType='cairo')" > ~/.Rprofile
+RUN     echo "options(bitmapType='cairo')" > /home/cgpbox/.Rprofile
 
 
 ENTRYPOINT $OPT/bin/runCgp.sh
