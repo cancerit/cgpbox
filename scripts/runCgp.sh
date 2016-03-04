@@ -159,6 +159,7 @@ do_parallel[pindel]="pindel.pl \
  -g /datastore/reference_files/pindel/human.GRCh37.indelCoding.bed.gz \
  -u /datastore/reference_files/pindel/pindel_np.gff3.gz \
  -sf /datastore/reference_files/pindel/softRules.lst \
+ -b /datastore/reference_files/brass/ucscHiDepth_0.01_mrg1000_no_exon_coreChrs.bed.gz \
  -st WGS \
  -as GRCh37 \
  -sp Human \
