@@ -314,7 +314,7 @@ COPY scripts/progress.pl $OPT/bin/progress.pl
 RUN chmod ugo+x $OPT/bin/runCgp.sh $OPT/bin/getRef.sh $OPT/bin/statusSrv.sh $OPT/bin/progress.pl
 
 COPY site $OPT/
-RUN mkdir -p $OPT/site/data && chmod -R ugo+rwx $OPT/site/data/*
+RUN mkdir -p $OPT/site/data && chmod -R ugo+rwx $OPT/site/data/
 
 ## USER CONFIGURATION
 RUN adduser --disabled-password --gecos '' cgpbox && chsh -s /bin/bash && mkdir -p /home/cgpbox
