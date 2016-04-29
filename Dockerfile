@@ -313,7 +313,7 @@ COPY scripts/statusSrv.sh $OPT/bin/statusSrv.sh
 COPY scripts/progress.pl $OPT/bin/progress.pl
 RUN chmod ugo+x $OPT/bin/runCgp.sh $OPT/bin/getRef.sh $OPT/bin/statusSrv.sh $OPT/bin/progress.pl
 
-COPY site $OPT/
+COPY site $OPT/site
 RUN mkdir -p $OPT/site/data && chmod -R ugo+rwx $OPT/site/data/
 
 ## USER CONFIGURATION
