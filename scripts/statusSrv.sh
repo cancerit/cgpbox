@@ -42,7 +42,9 @@ run_parallel () {
   return $errors
 }
 
-do_parallel[progress]="progress.pl /datastore/output $NAME_MT $NAME_WT /opt/wtsi-cgp/site/data/progress.json >& ~/monitor.log"
-do_parallel[server]="cd /opt/wtsi-cgp/site && python -m SimpleHTTPServer 8000 >& ~/server.log"
+cp -r /opt/wtsi-cgp/site /datastore/site
+
+do_parallel[progress]="progress.pl /datastore/output $NAME_MT $NAME_WT /datastore/site/data/progress.json >& ~/monitor.log"
+do_parallel[server]="cd /datastore/site && python -m SimpleHTTPServer 8000 >& ~/server.log"
 
 run_parallel 2 do_parallel
