@@ -24,7 +24,7 @@ BAM_WT='/datastore/input/HCC1143_BL.bam'
 
 PRE_EXEC[0]='rm -rf /datastore/input'
 PRE_EXEC[1]='mkdir /datastore/input'
-PRE_EXEC[2]='curl -sSL --retry 10 -o /datastore/testdata.tar https://s3-eu-west-1.amazonaws.com/wtsi-pancancer/testdata/HCC1143_ds.tar'
+PRE_EXEC[2]='curl -sSL --retry 10 -o /datastore/testdata.tar ftp://ftp.sanger.ac.uk/pub/cancer/cgpbox/testdata.tar'
 PRE_EXEC[3]='tar -C /datastore/input --strip-components 1 -xf /datastore/testdata.tar'
 PRE_EXEC[4]='rm -f /datastore/input/*.bas'
 

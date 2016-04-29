@@ -3,13 +3,14 @@
     <link rel="icon" type="image/png" href="images/favicon.png">
     <script src="../js/jquery-2.2.3.min.js"></script>
     <script src="../js/Chart.bundle.js"></script>
-    <script src="../data/progress_new.js"></script>
+    <script src="../data/progress.js"></script>
     <script>
     $(document).ready(function () {
       (function countdown(remaining) {
           if(remaining <= 0)
               location.reload(true);
           document.getElementById('countdown').innerHTML = remaining;
+          document.getElementById('last_mod').innerHTML = last_change;
           setTimeout(function(){ countdown(remaining - 1); }, 1000);
       })(30); // 5 seconds
 
@@ -26,8 +27,8 @@
             }],
             yAxes: [{
               stacked: true,
+              type: "linear",
               ticks: {
-                stepSize: 1,
                 beginAtZero: true
               }
             }]
@@ -39,6 +40,7 @@
   </head>
   <body>
     <div>Time to refresh: <span id="countdown">?</span></div>
+    <div>Last status change: <span id="last_mod">?</span></div>
     <canvas id="myChart"></canvas>
   </body>
 </html>
