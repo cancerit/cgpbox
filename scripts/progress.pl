@@ -21,11 +21,12 @@ while(1) {
       $counts{$alg} = alg_counts($base_path, $alg, $mt_name, $wt_name);
     }
   }
-  my $progress = progress_struct(\%counts);
+  my ($progress, $last_change) = progress_struct(\%counts);
   open my $OUT, '>', $outfile or die $!;
   print $OUT 'progress = ';
   print $OUT encode_json $progress;
   print $OUT "\n";
+  print $OUT qq{last_change = "$last_change"\n};
   close $OUT;
 
   die "Artifical stop";
@@ -35,41 +36,77 @@ while(1) {
 
 sub alg_counts {
   my ($base_path, $alg, $mt_name, $wt_name) = @_;
-  my ($started, $done) = (0,0);
   my $alg_base = sprintf "%s/%s_vs_%s/%s", $base_path, $mt_name, $wt_name, $alg;
   my $logs;
   if(-e "$alg_base/logs") {
     $logs = "$alg_base/logs"
-    # when this starts, set completed ==
   }
   else {
     $logs = "$alg_base/tmp".(ucfirst $alg).'/logs';
   }
-warn "NOT DONE";
-  $done = $started if(-e "$alg_base/logs");
+
+  my ($started, $most_recent_log) = file_listing("$logs/*.err");
+
+
+  my ($done, $most_recent_prog);
+  if(-e "$alg_base/logs") {
+    $done = $started if(-e "$alg_base/logs");
+  }
+  else {
+    ($done, $most_recent_prog) = file_listing("$alg_base/tmp".(ucfirst $alg).'/progress/*');
+    $done ||= 0;
+  }
+  my @most_recent;
+  push @most_recent, $most_recent_log if(defined $most_recent_log);
+  push @most_recent, $most_recent_prog if(defined $most_recent_prog);
+
+#warn "NOT DONE";
+
   $started = $started - $done;
-  return {$element => [$started, $done]};
+  return [$started, $done, \@most_recent];
 }
 
 sub genotype_contam_counts {
   my ($base_path, @samples) = @_;
   my ($started, $done) = (0,0);
-  for(@samples) {
-    $started++ if(-e "$base_path/$_/genotyped");
-    $done++ if(-e "$base_path/$_/genotyped/result.json");
-    $started++ if(-e "$base_path/$_/genotyped");
-    $done++ if(-e "$base_path/$_/contamination/result.json");
+  my @most_recent;
+  for my $samp(@samples) {
+    for my $type(qw(contamination genotyped)) {
+      $started++ if(-e "$base_path/$samp/$type");
+      if(-e "$base_path/$samp/$type/result.json") {
+        $done++;
+        push @most_recent, "$base_path/$samp/$type/result.json";
+      }
+    }
   }
   $started = $started - $done;
-  return [$started, $done];
+  return [$started, $done, \@most_recent];
+}
+
+sub file_listing {
+  my ($search) = @_;
+  my @lines = `ls -ltrh $search`;
+  my $count = 0;
+  my ($most_recent_file, $most_recent_dt);
+  for my $line(@lines) {
+    chomp $line;
+    my @elements = split / +/, $line;
+    next unless(scalar @elements == 9);
+    $count++;
+    $most_recent_file = $elements[-1];
+    $most_recent_dt = join ' ', $elements[-4], $elements[-3], $elements[-2];
+  }
+  return ($count, $most_recent_file, $most_recent_dt);
 }
 
 sub progress_struct {
   my $counts = shift;
-  my (@started, @done);
+
+  my (@started, @done, @files);
   for my $alg(@algs) {
     push @started, $counts->{$alg}->[0] || 0;
     push @done, $counts->{$alg}->[1] || 0;
+    push @files, @{$counts->{$alg}->[2]};
   }
   my $progress = {
     labels => \@algs,
@@ -94,5 +131,7 @@ sub progress_struct {
       }
     ]
   };
-  return $progress;
+
+  my (undef, undef, $dt) = file_listing(join ' ', @files);
+  return ($progress, $dt);
 }
