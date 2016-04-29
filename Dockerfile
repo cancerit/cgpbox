@@ -18,10 +18,10 @@ RUN apt-get -yqq update && \
       wget curl zlib1g-dev libncurses5-dev \
       libgd2-xpm-dev libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
       libpstreams-dev libglib2.0-dev gfortran libcairo2-dev \
-      cpanminus bsdtar libwww-perl openjdk-7-jdk libjson-xs-perl && \
+      cpanminus bsdtar libwww-perl openjdk-7-jdk libjson-perl libjson-xs-perl && \
     apt-get clean
 
-RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share
+RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share $OPT/site
 WORKDIR /tmp/downloads
 
 RUN cpanm --mirror http://cpan.metacpan.org -l $OPT File::ShareDir File::ShareDir::Install Bio::Root::Version Const::Fast Graph && \
@@ -309,8 +309,12 @@ RUN curl -sSL https://s3.amazonaws.com/aws-cli/awscli-bundle.zip | bsdtar -xvf -
 
 COPY scripts/runCgp.sh $OPT/bin/runCgp.sh
 COPY scripts/getRef.sh $OPT/bin/getRef.sh
+COPY scripts/statusSrv.sh $OPT/bin/statusSrv.sh
 COPY scripts/progress.pl $OPT/bin/progress.pl
-RUN chmod ugo+x $OPT/bin/runCgp.sh $OPT/bin/getRef.sh
+RUN chmod ugo+x $OPT/bin/runCgp.sh $OPT/bin/getRef.sh $OPT/bin/statusSrv.sh $OPT/bin/progress.pl
+
+COPY site $OPT/
+RUN mkdir -p $OPT/site/data && chmod -R ugo+rwx $OPT/site/data/*
 
 ## USER CONFIGURATION
 RUN adduser --disabled-password --gecos '' cgpbox && chsh -s /bin/bash && mkdir -p /home/cgpbox
