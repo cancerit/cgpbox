@@ -29,8 +29,6 @@ while(1) {
   print $OUT qq{last_change = "$last_change"\n};
   close $OUT;
 
-  die "Artifical stop";
-
   sleep 28;
 }
 
@@ -59,8 +57,6 @@ sub alg_counts {
   my @most_recent;
   push @most_recent, $most_recent_log if(defined $most_recent_log);
   push @most_recent, $most_recent_prog if(defined $most_recent_prog);
-
-#warn "NOT DONE";
 
   $started = $started - $done;
   return [$started, $done, \@most_recent];
