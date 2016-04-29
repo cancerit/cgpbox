@@ -61,8 +61,8 @@ To run the pre-built docker image with the test data log into a docker enabled h
 ````
 $ cd ~
 $ curl -sSL --retry 10 -O https://raw.githubusercontent.com/cancerit/cgpbox/master/examples/run.params
-$ (docker run --rm -v $MOUNT_POINT:/datastore -v ~/run.params:/datastore/run.params\
-  quay.io/wtsicgp/cgp_in_a_box > ~/run.out) >& ~/run.err &
+$ export MOUNT_POINT=/some/large/storage
+$ (docker run --rm -v $MOUNT_POINT:/datastore -v ~/run.params:/datastore/run.params quay.io/wtsicgp/cgp_in_a_box > ~/run.out) >& ~/run.err &
 ````
 `$MOUNT_POINT` should be a storage area with ~25GB of space for this test.
 
