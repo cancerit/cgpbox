@@ -1,0 +1,44 @@
+<html>
+  <head>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <script src="../js/jquery-2.2.3.min.js"></script>
+    <script src="../js/Chart.bundle.js"></script>
+    <script src="../data/progress_new.js"></script>
+    <script>
+    $(document).ready(function () {
+      (function countdown(remaining) {
+          if(remaining <= 0)
+              location.reload(true);
+          document.getElementById('countdown').innerHTML = remaining;
+          setTimeout(function(){ countdown(remaining - 1); }, 1000);
+      })(30); // 5 seconds
+
+
+      // chart stuff
+      var ctx = document.getElementById("myChart");
+      var myBarChart = new Chart(ctx, {
+        type: "bar",
+        data: progress,
+        options: {
+          scales: {
+            xAxes: [{
+              stacked: true
+            }],
+            yAxes: [{
+              stacked: true,
+              ticks: {
+                stepSize: 1,
+                beginAtZero: true
+              }
+            }]
+          }
+        }
+      });
+    });
+    </script>
+  </head>
+  <body>
+    <div>Time to refresh: <span id="countdown">?</span></div>
+    <canvas id="myChart"></canvas>
+  </body>
+</html>

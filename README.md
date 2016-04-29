@@ -51,7 +51,7 @@ The required resources are unfortunately large but the system does run many elem
 
 @TODO HERE ADD EXAMPLE RUN TIMES FOR REAL 30x-40x genome coverage
 
-The small test data set completes in ~80 minutes on the AWS `4.10xlarge` instance type.  This consists of ~10GB of input data.
+The small test data set completes in ~80 minutes on the AWS `m4.10xlarge` instance type.  This consists of ~10GB of input data.  Please read the AWS documentation regarding [EBS volume types](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html) to avoid runtime being artificially increased by IO limits.  Examples here are based on GP2 SSD 1024GiB EBS.
 
 -----
 

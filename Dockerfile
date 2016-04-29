@@ -18,7 +18,7 @@ RUN apt-get -yqq update && \
       wget curl zlib1g-dev libncurses5-dev \
       libgd2-xpm-dev libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
       libpstreams-dev libglib2.0-dev gfortran libcairo2-dev \
-      cpanminus bsdtar libwww-perl openjdk-7-jdk && \
+      cpanminus bsdtar libwww-perl openjdk-7-jdk libjson-xs-perl && \
     apt-get clean
 
 RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share
@@ -273,12 +273,13 @@ RUN curl -sSL -o tmp.tar.gz --retry 10 http://ftp.heanet.ie/mirrors/cran.r-proje
     cd /tmp/downloads && \
     rm -rf /tmp/downloads/R-build /tmp/downloads/tmp.tar.gz
 
-RUN echo '(".Rprofile: Setting UK repository")\n\
+RUN echo 'cat(".Rprofile: Setting UK repository")\n\
 r = getOption("repos") # hard code the UK repo for CRAN\n\
 r["CRAN"] = "http://cran.uk.r-project.org"\n\
 options(repos = r)\n\
 rm(r)\n\
 source("http://bioconductor.org/biocLite.R")\n\
+biocLite("data.table", ask=FALSE)\n\
 biocLite("gam", ask=FALSE)\n\
 biocLite("VGAM", ask=FALSE)\n\
 biocLite("stringr", ask=FALSE)\n\
@@ -308,6 +309,7 @@ RUN curl -sSL https://s3.amazonaws.com/aws-cli/awscli-bundle.zip | bsdtar -xvf -
 
 COPY scripts/runCgp.sh $OPT/bin/runCgp.sh
 COPY scripts/getRef.sh $OPT/bin/getRef.sh
+COPY scripts/progress.pl $OPT/bin/progress.pl
 RUN chmod ugo+x $OPT/bin/runCgp.sh $OPT/bin/getRef.sh
 
 ## USER CONFIGURATION
