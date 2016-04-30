@@ -67,6 +67,8 @@ sub genotype_contam_counts {
   my ($started, $done) = (0,0);
   my @most_recent;
   for my $samp(@samples) {
+    $started++ if(-e "$base_path/tmp/$samp.bam.bai");
+    $done++ if(-e "$base_path/tmp/$samp.bam.bas");
     for my $type(qw(contamination genotyped)) {
       $started++ if(-e "$base_path/$samp/$type");
       if(-e "$base_path/$samp/$type/result.json") {
