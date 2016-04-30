@@ -316,6 +316,8 @@ RUN chmod ugo+x $OPT/bin/runCgp.sh $OPT/bin/getRef.sh $OPT/bin/statusSrv.sh $OPT
 COPY site $OPT/site
 RUN mkdir -p $OPT/site/data && chmod -R ugo+rwx $OPT/site/data/
 
+EXPOSE 8000
+
 ## USER CONFIGURATION
 RUN adduser --disabled-password --gecos '' cgpbox && chsh -s /bin/bash && mkdir -p /home/cgpbox
 USER    cgpbox

@@ -51,6 +51,8 @@ mkdir -p $TMP
 declare -a PRE_EXEC
 declare -a POST_EXEC
 
+echo "Starting monitoring..."
+/opt/wtsi-cgp/bin/statusSrv.sh >& /datastore/output/monitor.log&
 
 echo "Loading user options..."
 source /datastore/run.params
