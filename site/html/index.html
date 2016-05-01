@@ -7,7 +7,13 @@
       last_change = "-";
       progress = {"datasets":[{"borderWidth":1,"backgroundColor":"rgba(255,99,132,0.2)","hoverBorderColor":"rgba(255,99,132,1)","hoverBackgroundColor":"rgba(255,99,132,0.4)","borderColor":"rgba(255,99,132,1)","data":[0,0,0,0,0],"label":"Jobs Started"},{"hoverBackgroundColor":"rgba(75,192,192,0.4)","hoverBorderColor":"rgba(75,192,192,1)","backgroundColor":"rgba(75,192,192,0.2)","borderColor":"rgba(75,192,192,1)","data":[0,0,0,0,0],"label":"Jobs Completed","borderWidth":1}],"labels":["QC","ascat","pindel","caveman","brass"]}
     </script>
-    <script src="../data/progress.js"></script>
+    <script>
+      function reload_js(src) {
+          $('script[src="' + src + '"]').remove();
+          $('<script>').attr('src', src).appendTo('head');
+      }
+      reload_js('source_file.js');
+    </script>
     <script>
     $(document).ready(function () {
       (function countdown(remaining) {
@@ -18,6 +24,7 @@
           setTimeout(function(){ countdown(remaining - 1); }, 1000);
       })(30); // 5 seconds
 
+      reload_js('../data/progress.js);
 
       // chart stuff
       var ctx = document.getElementById("myChart");
