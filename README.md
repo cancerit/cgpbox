@@ -68,6 +68,25 @@ $ (docker run --rm -v $MOUNT_POINT:/datastore -v ~/run.params:/datastore/run.par
 
 Result files will be written to `$MOUNT_POINT/output`
 
+### Monitoring
+A simple webpage has been created so that you can monitor the progress of your job.  It simply provides evidence that things are progressing and requires the base host (not the docker) to have python installed:
+
+````
+$ cd $MOUNT_POINT/site
+$ python -m SimpleHTTPServer 8000 >& ~/monitor.log&
+````
+
+Then point you browser at:
+
+````
+http://yourhost:8000/html/index.html
+````
+----
+![Example web 1](examples/images/web_1.png)
+![Example web 2](examples/images/web_2.png)
+
+----
+
 ## Input requirements
 __cgpbox__ expects to be provided with a pair of BAM files (one tumour, one normal) each:
 
