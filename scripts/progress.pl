@@ -91,7 +91,9 @@ sub ref_testdata_counts {
 
     $started++ if(-e "$base_path/output/tmp/$samp.bam.bai");
     $done++ if(-e "$base_path/output/tmp/$samp.bam.bas");
-    push @most_recent,  "$base_path/testdata.tar",
+    push @most_recent,  "$base_path/output/tmp/$samp.bam.bai",
+                        "$base_path/tmp/$samp.bam.bas",
+                        "$base_path/testdata.tar",
                         "$base_path/input/HCC1143.bam",
                         "$base_path/ref.tar.gz",
                         "$base_path/reference_files/genotype_snps.tsv",
@@ -107,10 +109,6 @@ sub genotype_contam_counts {
   my @most_recent;
 
   for my $samp(@samples) {
-    $started++ if(-e "$base_path/output/tmp/$samp.bam.bai");
-    $done++ if(-e "$base_path/output/tmp/$samp.bam.bas");
-    push @most_recent,  "$base_path/output/tmp/$samp.bam.bai",
-                        "$base_path/tmp/$samp.bam.bas";
     for my $type(qw(contamination genotyped)) {
       $started++ if(-e "$base_path/output/$samp/$type");
       if(-e "$base_path/output/$samp/$type/result.json") {
