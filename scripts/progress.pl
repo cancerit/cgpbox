@@ -9,12 +9,15 @@ my $mt_name = shift @ARGV;
 my $wt_name = shift @ARGV;
 my $outfile = shift @ARGV;
 
-my @algs = qw(QC ascat pindel caveman brass);
+my @algs = qw(Ref QC ascat pindel caveman brass);
 
 while(1) {
   my %counts;
   for my $alg(@algs) {
-    if($alg eq 'QC') {
+    if($alg eq 'Ref') {
+      $counts{$alg} = ref_testdata_counts($base_path, $mt_name, $wt_name);
+    }
+    elsif($alg eq 'QC') {
       $counts{$alg} = genotype_contam_counts($base_path, $mt_name, $wt_name);
     }
     else {
@@ -34,7 +37,7 @@ while(1) {
 
 sub alg_counts {
   my ($base_path, $alg, $mt_name, $wt_name) = @_;
-  my $alg_base = sprintf "%s/%s_vs_%s/%s", $base_path, $mt_name, $wt_name, $alg;
+  my $alg_base = sprintf "%s/output/%s_vs_%s/%s", $base_path, $mt_name, $wt_name, $alg;
   my $logs;
   if(-e "$alg_base/logs") {
     $logs = "$alg_base/logs"
@@ -62,18 +65,57 @@ sub alg_counts {
   return [$started, $done, \@most_recent];
 }
 
+sub ref_testdata_counts {
+  my ($base_path, @samples) = @_;
+  my ($started, $done) = (0,0);
+  my @most_recent;
+
+  for my $samp(@samples) {
+    # these 2 only occur if pre-exe is test data
+    if(-e "$base_path/testdata.tar") {
+      $started++;
+      $done++ if(-e "$base_path/input/HCC1143.bam");
+    }
+
+    #
+    if(-e "$base_path/ref.tar.gz") {
+      $started++;
+      if(-e "$base_path/reference_files") {
+        $done++;
+        if(-e "$base_path/reference_files/genotype_snps.tsv") {
+          $started++;
+          $done++ if(-e "$base_path/reference_files/ascat/SnpGcCorrections.tsv");
+        }
+      }
+    }
+
+    $started++ if(-e "$base_path/output/tmp/$samp.bam.bai");
+    $done++ if(-e "$base_path/output/tmp/$samp.bam.bas");
+    push @most_recent,  "$base_path/testdata.tar",
+                        "$base_path/input/HCC1143.bam",
+                        "$base_path/ref.tar.gz",
+                        "$base_path/reference_files/genotype_snps.tsv",
+                        "$base_path/reference_files/ascat/SnpGcCorrections.tsv";
+  }
+  $started = $started - $done;
+  return [$started, $done, \@most_recent];
+}
+
 sub genotype_contam_counts {
   my ($base_path, @samples) = @_;
   my ($started, $done) = (0,0);
   my @most_recent;
+
   for my $samp(@samples) {
-    $started++ if(-e "$base_path/tmp/$samp.bam.bai");
-    $done++ if(-e "$base_path/tmp/$samp.bam.bas");
+    $started++ if(-e "$base_path/output/tmp/$samp.bam.bai");
+    $done++ if(-e "$base_path/output/tmp/$samp.bam.bas");
+    push @most_recent,  "$base_path/output/tmp/$samp.bam.bai",
+                        "$base_path/tmp/$samp.bam.bas";
     for my $type(qw(contamination genotyped)) {
-      $started++ if(-e "$base_path/$samp/$type");
-      if(-e "$base_path/$samp/$type/result.json") {
+      $started++ if(-e "$base_path/output/$samp/$type");
+      if(-e "$base_path/output/$samp/$type/result.json") {
         $done++;
-        push @most_recent, "$base_path/$samp/$type/result.json";
+        push @most_recent, "$base_path/output/$samp/$type/result.json";
       }
     }
   }

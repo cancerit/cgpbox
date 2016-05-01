@@ -51,11 +51,12 @@ mkdir -p $TMP
 declare -a PRE_EXEC
 declare -a POST_EXEC
 
-echo "Starting monitoring..."
-/opt/wtsi-cgp/bin/statusSrv.sh >& /datastore/output/monitor.log&
-
 echo "Loading user options..."
 source /datastore/run.params
+
+echo "Starting monitoring..."
+cp -r /opt/wtsi-cgp/site /datastore/site
+progress.pl /datastore $NAME_MT $NAME_WT /datastore/site/data/progress.json >& /datastore/monitor.log
 
 echo -e "\tNAME_MT : $NAME_MT"
 echo -e "\tNAME_WT : $NAME_WT"
