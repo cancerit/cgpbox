@@ -90,7 +90,7 @@ sub alg_counts {
     $logs = "$alg_base/tmp".(ucfirst $alg).'/logs';
   }
 
-  my ($started, $most_recent_log) = file_listing("$logs/::$element.*.err");
+  my ($started, $most_recent_log) = file_listing("$logs/*::$element.*.err");
 
 
   my ($done, $most_recent_prog);
@@ -114,36 +114,38 @@ sub ref_testdata_counts {
   my ($started, $done) = (0,0);
   my @most_recent;
 
-  for my $samp(@samples) {
-    # these 2 only occur if pre-exe is test data
-    if(-e "$base_path/testdata.tar") {
-      $started++;
-      $done++ if(-e "$base_path/input/HCC1143.bam");
-    }
+  # these 2 only occur if pre-exe is test data
+  if(-e "$base_path/testdata.tar") {
+    $started++;
+    $done++ if(-e "$base_path/input/HCC1143.bam");
+  }
 
-    #
-    if(-e "$base_path/ref.tar.gz") {
-      $started++;
-      if(-e "$base_path/reference_files") {
-        $done++;
-        if(-e "$base_path/reference_files/genotype_snps.tsv") {
-          $started++;
-          $done++ if(-e "$base_path/reference_files/ascat/SnpGcCorrections.tsv");
-        }
+  #
+  if(-e "$base_path/ref.tar.gz") {
+    $started++;
+    if(-e "$base_path/reference_files") {
+      $done++;
+      if(-e "$base_path/reference_files/genotype_snps.tsv") {
+        $started++;
+        $done++ if(-e "$base_path/reference_files/ascat/SnpGcCorrections.tsv");
       }
     }
+  }
 
-    $started++ if(-e "$base_path/output/tmp/$samp.bam.bai");
-    $done++ if(-e "$base_path/output/tmp/$samp.bam.bas");
+  push @most_recent,  "$base_path/testdata.tar",
+                      "$base_path/input/HCC1143.bam",
+                      "$base_path/ref.tar.gz",
+                      "$base_path/reference_files/genotype_snps.tsv",
+                      "$base_path/reference_files/ascat/SnpGcCorrections.tsv";
+
+  for my $samp(@samples) {
+    $started++ if(-e "$base_path/output/tmp/$samp.bam.bai" || -l "$base_path/output/tmp/$samp.bam.bai");
+    $done++ if(-e "$base_path/output/tmp/$samp.bam.bas" || -l "$base_path/output/tmp/$samp.bam.bas");
     push @most_recent,  "$base_path/output/tmp/$samp.bam.bai",
-                        "$base_path/tmp/$samp.bam.bas",
-                        "$base_path/testdata.tar",
-                        "$base_path/input/HCC1143.bam",
-                        "$base_path/ref.tar.gz",
-                        "$base_path/reference_files/genotype_snps.tsv",
-                        "$base_path/reference_files/ascat/SnpGcCorrections.tsv";
+                        "$base_path/output/tmp/$samp.bam.bas";
   }
   $started = $started - $done;
+
   return [$started, $done, \@most_recent];
 }
 
