@@ -47,7 +47,7 @@ for my $alg(@algs) {
     push @algs_list, $alg;
   }
   else {
-    for my $element(@{$alg_elements}) {
+    for my $element(@{$alg_elements{$alg}}) {
       @algs_list = "$alg.$element";
     }
   }
@@ -63,7 +63,7 @@ while(1) {
       $counts{$alg}{'.'} = genotype_contam_counts($base_path, $mt_name, $wt_name);
     }
     else {
-      for my $element(@{$alg_elements}) {
+      for my $element(@{$alg_elements{$alg}}) {
         $counts{$alg}{$element} = alg_counts($base_path, $alg, $element, $mt_name, $wt_name);
       }
     }
