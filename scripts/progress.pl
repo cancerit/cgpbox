@@ -48,7 +48,7 @@ for my $alg(@algs) {
   }
   else {
     for my $element(@{$alg_elements{$alg}}) {
-      @algs_list = "$alg.$element";
+      push @algs_list, "$alg.$element";
     }
   }
 }
