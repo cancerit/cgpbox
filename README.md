@@ -73,13 +73,13 @@ A simple webpage has been created so that you can monitor the progress of your j
 
 ````
 $ cd $MOUNT_POINT/site
-$ python -m SimpleHTTPServer 8000 >& ~/monitor.log&
+$ sudo python -m SimpleHTTPServer 80 >& ~/monitor.log&
 ````
 
 Then point you browser at:
 
 ````
-http://yourhost:8000/html/index.html
+http://yourhost/html/index.html
 ````
 ----
 ![Example web 1](examples/images/web_1.png)
