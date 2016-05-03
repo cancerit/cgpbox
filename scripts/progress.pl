@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 use JSON qw(encode_json);
+use Capture::Tiny qw(capture);
 
 my $base_path = shift @ARGV;
 my $mt_name = shift @ARGV;
@@ -166,7 +167,8 @@ sub genotype_contam_counts {
 
 sub file_listing {
   my ($search) = @_;
-  my @lines = `ls -ltrh $search`;
+  my ($stdout, $stderr, $exit) = capture { system("ls -ltrh $search"); };
+  my @lines = split /\n/, $stdout;
   my $count = 0;
   my ($most_recent_file, $most_recent_dt);
   for my $line(@lines) {

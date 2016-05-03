@@ -307,6 +307,8 @@ RUN curl -sSL https://s3.amazonaws.com/aws-cli/awscli-bundle.zip | bsdtar -xvf -
     python awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws && \
     rm -rf /tmp/downloads/awscli-bundle
 
+RUN apt-get install -qy libcapture-tiny-perl && apt-get clean
+
 COPY scripts/runCgp.sh $OPT/bin/runCgp.sh
 COPY scripts/getRef.sh $OPT/bin/getRef.sh
 COPY scripts/progress.pl $OPT/bin/progress.pl
