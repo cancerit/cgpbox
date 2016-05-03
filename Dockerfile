@@ -309,7 +309,6 @@ RUN curl -sSL https://s3.amazonaws.com/aws-cli/awscli-bundle.zip | bsdtar -xvf -
 
 COPY scripts/runCgp.sh $OPT/bin/runCgp.sh
 COPY scripts/getRef.sh $OPT/bin/getRef.sh
-COPY scripts/statusSrv.sh $OPT/bin/statusSrv.sh
 COPY scripts/progress.pl $OPT/bin/progress.pl
 RUN chmod ugo+x $OPT/bin/runCgp.sh $OPT/bin/getRef.sh $OPT/bin/statusSrv.sh $OPT/bin/progress.pl
 
