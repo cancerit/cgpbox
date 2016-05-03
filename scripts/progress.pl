@@ -191,7 +191,7 @@ sub progress_struct {
     $element ||= '.';
     push @started, $counts->{$base}->{$element}->[0] || 0;
     push @done, $counts->{$base}->{$element}->[1] || 0;
-    push @files, @{$counts->{$base}->{$element}->[2]};
+    push @files, @{$counts->{$base}->{$element}->[2]} if(defined $counts->{$base}->{$element}->[2]);
   }
   my $progress = {
     labels => \@algs_list,
@@ -218,5 +218,6 @@ sub progress_struct {
   };
 
   my (undef, undef, $dt) = file_listing(join ' ', @files);
+  $dt ||= '-';
   return ($progress, $dt);
 }
