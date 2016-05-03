@@ -10,22 +10,65 @@ my $wt_name = shift @ARGV;
 my $outfile = shift @ARGV;
 
 my @algs = qw(Ref QC ascat pindel caveman brass);
+my %alg_elements = (ascat => [qw( allele_count
+                                  ascat
+                                  finalise)],
+                    pindel => [qw(input
+                                  pindel
+                                  pin2vcf
+                                  merge
+                                  flag)],
+                    caveman => [qw( setup
+                                    split
+                                    split_concat
+                                    mstep
+                                    merge
+                                    estep
+                                    merge_results
+                                    add_ids
+                                    flag)],
+                    brass => [qw( input
+                                  cover
+                                  merge
+                                  group
+                                  isize
+                                  normcn
+                                  filter
+                                  split
+                                  assemble
+                                  grass
+                                  tabix)],
+                    );
+
+my @algs_list;
+for my $alg(@algs) {
+  if($alg eq 'Ref' || $alg eq 'QC'){
+    push @algs_list, $alg;
+  }
+  else {
+    for my $element(@{$alg_elements}) {
+      @algs_list = "$alg.$element";
+    }
+  }
+}
 
 while(1) {
   my %counts;
   for my $alg(@algs) {
     if($alg eq 'Ref') {
-      $counts{$alg} = ref_testdata_counts($base_path, $mt_name, $wt_name);
+      $counts{$alg}{'.'} = ref_testdata_counts($base_path, $mt_name, $wt_name);
     }
     elsif($alg eq 'QC') {
-      $counts{$alg} = genotype_contam_counts($base_path, $mt_name, $wt_name);
+      $counts{$alg}{'.'} = genotype_contam_counts($base_path, $mt_name, $wt_name);
     }
     else {
-      $counts{$alg} = alg_counts($base_path, $alg, $mt_name, $wt_name);
+      for my $element(@{$alg_elements}) {
+        $counts{$alg}{$element} = alg_counts($base_path, $alg, $element, $mt_name, $wt_name);
+      }
     }
   }
   my ($progress, $last_change) = progress_struct(\%counts);
-  open my $OUT, '>', $outfile or die $!;
+  open my $OUT, '>', $outfile or die "$!: $outfile";
   print $OUT 'progress = ';
   print $OUT encode_json $progress;
   print $OUT "\n";
@@ -36,7 +79,7 @@ while(1) {
 }
 
 sub alg_counts {
-  my ($base_path, $alg, $mt_name, $wt_name) = @_;
+  my ($base_path, $alg, $element, $mt_name, $wt_name) = @_;
   my $alg_base = sprintf "%s/output/%s_vs_%s/%s", $base_path, $mt_name, $wt_name, $alg;
   my $logs;
   if(-e "$alg_base/logs") {
@@ -46,7 +89,7 @@ sub alg_counts {
     $logs = "$alg_base/tmp".(ucfirst $alg).'/logs';
   }
 
-  my ($started, $most_recent_log) = file_listing("$logs/*.err");
+  my ($started, $most_recent_log) = file_listing("$logs/*$element.*.err");
 
 
   my ($done, $most_recent_prog);
@@ -141,13 +184,15 @@ sub progress_struct {
   my $counts = shift;
 
   my (@started, @done, @files);
-  for my $alg(@algs) {
-    push @started, $counts->{$alg}->[0] || 0;
-    push @done, $counts->{$alg}->[1] || 0;
-    push @files, @{$counts->{$alg}->[2]};
+  for my $alg(@algs_list) {
+    my ($base, $element) = split /./, $alg;
+    $element ||= '.';
+    push @started, $counts->{$base}->{$element}->[0] || 0;
+    push @done, $counts->{$base}->{$element}->[1] || 0;
+    push @files, @{$counts->{$base}->{$element}->[2]};
   }
   my $progress = {
-    labels => \@algs,
+    labels => \@algs_list,
     datasets => [
       {
         label => "Jobs Started",
