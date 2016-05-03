@@ -90,7 +90,7 @@ sub alg_counts {
     $logs = "$alg_base/tmp".(ucfirst $alg).'/logs';
   }
 
-  my ($started, $most_recent_log) = file_listing("$logs/*$element.*.err");
+  my ($started, $most_recent_log) = file_listing("$logs/::$element.*.err");
 
 
   my ($done, $most_recent_prog);
@@ -98,7 +98,7 @@ sub alg_counts {
     $done = $started if(-e "$alg_base/logs");
   }
   else {
-    ($done, $most_recent_prog) = file_listing("$alg_base/tmp".(ucfirst $alg).'/progress/*');
+    ($done, $most_recent_prog) = file_listing("$alg_base/tmp".(ucfirst $alg)."/progress/*::$element.*");
     $done ||= 0;
   }
   my @most_recent;
