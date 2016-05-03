@@ -18,7 +18,8 @@ RUN apt-get -yqq update && \
       wget curl zlib1g-dev libncurses5-dev \
       libgd2-xpm-dev libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
       libpstreams-dev libglib2.0-dev gfortran libcairo2-dev \
-      cpanminus bsdtar libwww-perl openjdk-7-jdk libjson-perl libjson-xs-perl && \
+      cpanminus bsdtar libwww-perl openjdk-7-jdk \
+      libcapture-tiny-perl libjson-perl libjson-xs-perl && \
     apt-get clean
 
 RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share $OPT/site
@@ -307,8 +308,6 @@ RUN curl -sSL https://s3.amazonaws.com/aws-cli/awscli-bundle.zip | bsdtar -xvf -
     python awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws && \
     rm -rf /tmp/downloads/awscli-bundle
 
-RUN apt-get install -qy libcapture-tiny-perl && apt-get clean
-
 COPY scripts/runCgp.sh $OPT/bin/runCgp.sh
 COPY scripts/getRef.sh $OPT/bin/getRef.sh
 COPY scripts/progress.pl $OPT/bin/progress.pl
@@ -317,13 +316,10 @@ RUN chmod ugo+x $OPT/bin/runCgp.sh $OPT/bin/getRef.sh $OPT/bin/progress.pl
 COPY site $OPT/site
 RUN mkdir -p $OPT/site/data && chmod -R ugo+rwx $OPT/site/data/
 
-#EXPOSE 8000
-
 ## USER CONFIGURATION
 RUN adduser --disabled-password --gecos '' cgpbox && chsh -s /bin/bash && mkdir -p /home/cgpbox
 USER    cgpbox
 WORKDIR /home/cgpbox
 RUN     echo "options(bitmapType='cairo')" > /home/cgpbox/.Rprofile
-
 
 ENTRYPOINT $OPT/bin/runCgp.sh
