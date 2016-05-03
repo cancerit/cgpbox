@@ -16,18 +16,18 @@ my %alg_elements = (ascat => [qw( allele_count
                                   finalise)],
                     pindel => [qw(input
                                   pindel
-                                  pin2vcf
-                                  merge
+                                  pindel_to_vcf
+                                  merge_and_bam
                                   flag)],
-                    caveman => [qw( setup
-                                    split
-                                    split_concat
-                                    mstep
-                                    merge
-                                    estep
-                                    merge_results
-                                    add_ids
-                                    flag)],
+                    caveman => [qw( caveman_setup
+                                    caveman_split
+                                    concat
+                                    caveman_mstep
+                                    caveman_merge
+                                    caveman_estep
+                                    caveman_merge_results
+                                    caveman_add_ids
+                                    caveman_flag)],
                     brass => [qw( input
                                   cover
                                   merge
@@ -48,6 +48,7 @@ for my $alg(@algs) {
   }
   else {
     for my $element(@{$alg_elements{$alg}}) {
+      $element =~ s/^caveman_//;
       push @algs_list, "$alg.$element";
     }
   }
@@ -64,7 +65,9 @@ while(1) {
     }
     else {
       for my $element(@{$alg_elements{$alg}}) {
-        $counts{$alg}{$element} = alg_counts($base_path, $alg, $element, $mt_name, $wt_name);
+        my $clean_element = $element;
+        $clean_element =~ s/^caveman_//;
+        $counts{$alg}{$clean_element} = alg_counts($base_path, $alg, $element, $mt_name, $wt_name);
       }
     }
   }
