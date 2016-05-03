@@ -187,7 +187,7 @@ sub progress_struct {
 
   my (@started, @done, @files);
   for my $alg(@algs_list) {
-    my ($base, $element) = split /./, $alg;
+    my ($base, $element) = split /\./, $alg;
     $element ||= '.';
     push @started, $counts->{$base}->{$element}->[0] || 0;
     push @done, $counts->{$base}->{$element}->[1] || 0;
