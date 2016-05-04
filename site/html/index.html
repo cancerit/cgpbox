@@ -20,9 +20,10 @@
               location.reload(true);
           document.getElementById('countdown').innerHTML = remaining;
           document.getElementById('last_mod').innerHTML = last_change;
+          document.getElementById('testdata_status').innerHTML = testdata_status;
           document.getElementById('setup_status').innerHTML = setup_status;
           document.getElementById('qc_status').innerHTML = qc_status;
-          document.getElementById('testdata_status').innerHTML = testdata_status;
+          document.getElementById('load_avg').innerHTML = load_avg;
           setTimeout(function(){ countdown(remaining - 1); }, 1000);
       })(30); // 5 seconds
 
@@ -41,20 +42,19 @@
     </script>
   </head>
   <body>
-    <div style="display:inline-block">
-      <h2>Status:</h2>
-      <ul>
-        <li>Time to refresh: <span id="countdown">?</span></li>
-        <li>Last status change: <span id="last_mod">?</span></li>
-      </ul>
+    <div style="display:inline-block;vertical-align:top;padding:5px;margin:5px">
+      <table>
+        <tr><th align="right">Time to refresh:</th><td><span id="countdown">?</span></td></tr>
+        <tr><th align="right">Last status change:</th><td><span id="last_mod">?</span></td></tr>
+        <tr><th align="right">Load average:</th><td><span id="load_avg">?</span></td></tr>
+      </table>
     </div>
-    <div style="display:inline-block;vertical-align:top">
-      <h2>Setup/QC</h2>
-      <ul>
-        <li>Setup status: <span id="setup_status">?</span></li>
-        <li>Test Data: <span id="testdata_status"></span></li>
-        <li>QC status: <span id="qc_status">?</span></li>
-      </ul>
+    <div style="display:inline-block;vertical-align:top;padding:5px;margin:5px">
+      <table>
+        <tr><th align="right">Setup status:</th><td><span id="setup_status">?</span></td></tr>
+        <tr><th align="right">Test Data:</th><td><span id="testdata_status">?</span></td></tr>
+        <tr><th align="right">QC status:</th><td><span id="qc_status">?</span></td></tr>
+      </table>
     </div>
     <div style="float:clear"></div>
     <div style="float:left;width:550px;border:1px solid black;padding:5px;margin:5px">
