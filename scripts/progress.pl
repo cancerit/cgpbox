@@ -114,8 +114,8 @@ sub trend_struct {
         yAxes => [{
           type => 'linear',
           ticks => {
-            beginAtZero => 'true',
-            stepSize => 1,
+            suggestedMax => 10,
+            suggestedMin => 0,
           }
         }]
       }
