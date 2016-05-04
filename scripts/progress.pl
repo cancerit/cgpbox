@@ -24,7 +24,7 @@ for(1..120) {
   }
 }
 
-my @algs = qw(Ref QC ascat pindel caveman brass);
+my @algs = qw(ascat pindel caveman brass);
 my %alg_elements = (ascat => [qw( allele_count
                                   ascat
                                   finalise)],
@@ -107,7 +107,17 @@ sub trend_struct {
       elements => {
         point => {
           radius => 0,
+          hoverRadius => 5,
         }
+      },
+      scales => {
+        yAxes => [{
+          type => 'linear',
+          ticks => {
+            beginAtZero => 'true',
+            stepSize => 1,
+          }
+        }]
       }
     },
     data => {
@@ -157,7 +167,8 @@ sub progress_struct {
           stacked => 'true',
           type => 'linear',
           ticks => {
-            beginAtZero => 'true'
+            suggestedMax => 10,
+            suggestedMin => 0,
           }
         }]
       }
