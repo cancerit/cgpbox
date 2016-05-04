@@ -20,37 +20,64 @@
               location.reload(true);
           document.getElementById('countdown').innerHTML = remaining;
           document.getElementById('last_mod').innerHTML = last_change;
+          document.getElementById('testdata_status').innerHTML = testdata_status;
+          document.getElementById('setup_status').innerHTML = setup_status;
+          document.getElementById('qc_status').innerHTML = qc_status;
+          document.getElementById('load_avg').innerHTML = load_avg;
           setTimeout(function(){ countdown(remaining - 1); }, 1000);
       })(30); // 5 seconds
 
       reload_js('../data/progress.js');
 
       // chart stuff
-      var ctx = document.getElementById("myChart");
-      var myBarChart = new Chart(ctx, {
-        type: "bar",
-        data: progress,
-        options: {
-          scales: {
-            xAxes: [{
-              stacked: true
-            }],
-            yAxes: [{
-              stacked: true,
-              type: "linear",
-              ticks: {
-                beginAtZero: true
-              }
-            }]
-          }
-        }
-      });
+      var ctx = document.getElementById("ascat");
+      var myBarChart = new Chart(ctx, ascat);
+      var ctx2 = document.getElementById("pindel");
+      var myBarChart2 = new Chart(ctx2, pindel);
+      var ctx3 = document.getElementById("caveman");
+      var myBarChart3 = new Chart(ctx3, caveman);
+      var ctx4 = document.getElementById("brass");
+      var myBarChart4 = new Chart(ctx4, brass);
+      var ctx5 = document.getElementById("load_trend");
+      var myBarChart4 = new Chart(ctx5, load_trend);
     });
     </script>
   </head>
   <body>
-    <div>Time to refresh: <span id="countdown">?</span></div>
-    <div>Last status change: <span id="last_mod">?</span></div>
-    <canvas id="myChart"></canvas>
+    <div style="display:inline-block;vertical-align:top;padding:5px;margin:5px">
+      <table>
+        <tr><th align="right">Time to refresh:</th><td><span id="countdown">?</span></td></tr>
+        <tr><th align="right">Last status change:</th><td><span id="last_mod">?</span></td></tr>
+        <tr><th align="right">Load average:</th><td><span id="load_avg">?</span></td></tr>
+      </table>
+    </div>
+    <div style="display:inline-block;vertical-align:top;padding:5px;margin:5px">
+      <table>
+        <tr><th align="right">Setup status:</th><td><span id="setup_status">?</span></td></tr>
+        <tr><th align="right">Test Data:</th><td><span id="testdata_status">?</span></td></tr>
+        <tr><th align="right">QC status:</th><td><span id="qc_status">?</span></td></tr>
+      </table>
+    </div>
+    <div style="float:clear;border:1px solid black;padding:5px;margin:5px">
+      <h2>System Load</h2>
+      <canvas height="50px" id="load_trend"></canvas>
+    </div>
+
+    <div style="float:left;width:550px;border:1px solid black;padding:5px;margin:5px">
+      <h2>ascat</h2>
+      <canvas id="ascat"></canvas>
+    </div>
+    <div style="float:left;width:550px;border:1px solid black;padding:5px;margin:5px">
+      <h2>pindel</h2>
+      <canvas id="pindel"></canvas>
+    </div>
+    <div style="float:left;width:550px;border:1px solid black;padding:5px;margin:5px">
+      <h2>caveman</h2>
+      <canvas id="caveman"></canvas>
+    </div>
+    <div style="float:left;width:550px;border:1px solid black;padding:5px;margin:5px">
+      <h2>brass</h2>
+      <canvas id="brass"></canvas>
+    </div>
   </body>
 </html>
