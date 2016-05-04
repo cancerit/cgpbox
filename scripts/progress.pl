@@ -183,16 +183,19 @@ sub alg_counts {
 
   my ($done, $most_recent_prog);
   if(-e "$alg_base/logs") {
-    $done = $started if(-e "$alg_base/logs");
+    $done = $started;
   }
   else {
     ($done, $most_recent_prog) = file_listing("$alg_base/tmp".(ucfirst $alg)."/progress/*::$element.*");
     $done ||= 0;
   }
+
+  $most_recent_log ||= 0;
+  $most_recent_prog ||= 0;
   my $most_recent = max($most_recent_log, $most_recent_prog);
 
   $started = $started - $done;
-  return ($started, $done, $most_recent);
+  return ($started+0, $done+0, $most_recent);
 }
 
 sub qc_status {
