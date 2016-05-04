@@ -96,9 +96,9 @@ sub trend_struct {
   my $trends = shift;
   my $max_points = scalar @{$trends->[0]};
   if($max_points > 120) {
-    shift $trends->[0];
-    shift $trends->[1];
-    shift $trends->[2];
+    shift @{$trends->[0]};
+    shift @{$trends->[1]};
+    shift @{$trends->[2]};
   }
 
   my $trend = {
