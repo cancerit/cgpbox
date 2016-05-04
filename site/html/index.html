@@ -38,6 +38,8 @@
       var myBarChart3 = new Chart(ctx3, caveman);
       var ctx4 = document.getElementById("brass");
       var myBarChart4 = new Chart(ctx4, brass);
+      var ctx5 = document.getElementById("load_trend");
+      var myBarChart4 = new Chart(ctx5, load_trend);
     });
     </script>
   </head>
@@ -56,7 +58,11 @@
         <tr><th align="right">QC status:</th><td><span id="qc_status">?</span></td></tr>
       </table>
     </div>
-    <div style="float:clear"></div>
+    <div style="float:clear;border:1px solid black;padding:5px;margin:5px">
+      <h2>System Load</h2>
+      <canvas height="50px" id="load_trend"></canvas>
+    </div>
+
     <div style="float:left;width:550px;border:1px solid black;padding:5px;margin:5px">
       <h2>ascat</h2>
       <canvas id="ascat"></canvas>

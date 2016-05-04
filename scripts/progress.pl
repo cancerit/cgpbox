@@ -14,6 +14,16 @@ my $outfile = shift @ARGV;
 my $min_epoch = time;
 my $max_cpus = max_cpu();
 
+my @time_legend = ('Now');
+for(1..120) {
+  if($_%20 == 0) {
+    unshift @time_legend, (0-$_)/2;
+  }
+  else {
+    unshift @time_legend, q{};
+  }
+}
+
 my @algs = qw(Ref QC ascat pindel caveman brass);
 my %alg_elements = (ascat => [qw( allele_count
                                   ascat
@@ -45,10 +55,12 @@ my %alg_elements = (ascat => [qw( allele_count
                                   tabix)],
                     );
 
+my $load_trend = [[(0)x120],[(0)x120],[(0)x120]];
+
 while (1) {
   my ($ref_status, $ref_mod) = setup_status($base_path);
   my ($testdata_status, $testdata_mod) = testdata_status($base_path);
-  my ($qc_status, $qc_mod) = qc_status($base_path);
+  my ($qc_status, $qc_mod) = qc_status($base_path, $mt_name, $wt_name);
 
   my @mods = ($min_epoch, # this ensures that archive files can't give daft time-points
               $ref_mod,$testdata_mod,$qc_mod);
@@ -72,11 +84,60 @@ while (1) {
   }
 
   print $OUT sprintf qq{last_change = "%s"\n}, recent_date_from_epoch( \@mods );
-  print $OUT sprintf qq{load_avg = "%s (cores=%d)"\n}, load_avg(), $max_cpus;
+  print $OUT sprintf qq{load_avg = "%s (cores=%d)"\n}, load_avg($load_trend), $max_cpus;
+  print $OUT sprintf "%s = %s\n", 'load_trend', encode_json ${trend_struct($load_trend)};
 
   close $OUT;
 
-  sleep 28;
+  sleep 30;
+}
+
+sub trend_struct {
+  my $trends = shift;
+  my $max_points = scalar @{$trends->[0]};
+  if($max_points > 120) {
+    shift $trends->[0];
+    shift $trends->[1];
+    shift $trends->[2];
+  }
+
+  my $trend = {
+    type => 'line',
+    options => {
+      elements => {
+        point => {
+          radius => 0,
+        }
+      }
+    },
+    data => {
+      labels => \@time_legend,
+      datasets => [
+        { data => $trends->[0],
+          label => '1-min',
+          borderWidth => 1,
+          tension => 0.3,
+          borderColor => 'rgba(255,99,132,1)',
+          backgroundColor => 'rgba(255,99,132,0)',
+        },
+        { data => $trends->[1],
+          label => '5-min',
+          borderWidth => 1,
+          tension => 0.3,
+          borderColor => 'rgba(75,192,192,1)',
+          backgroundColor => 'rgba(75,192,192,0)',
+        },
+        { data => $trends->[2],
+          label => '10-min',
+          borderWidth => 1,
+          tension => 0.3,
+          borderColor => 'rgba(179,181,198,1)',
+          backgroundColor => 'rgba(179,181,198,0)',
+        },
+      ]
+    }
+  };
+  return \$trend;
 }
 
 sub progress_struct {
@@ -89,6 +150,10 @@ sub progress_struct {
           stacked => 'true'
         }],
         yAxes => [{
+          scaleLabel => {
+            display => 'true',
+            labelString => 'Jobs',
+          },
           stacked => 'true',
           type => 'linear',
           ticks => {
@@ -101,7 +166,7 @@ sub progress_struct {
       labels => $labels,
       datasets => [
         {
-          label => 'Jobs Started',
+          label => 'Started',
           backgroundColor => 'rgba(255,99,132,0.2)',
           borderColor => 'rgba(255,99,132,1)',
           borderWidth => 1,
@@ -110,7 +175,7 @@ sub progress_struct {
           data => $running,
         },
         {
-          label => 'Jobs Completed',
+          label => 'Completed',
           backgroundColor => 'rgba(75,192,192,0.2)',
           borderColor => 'rgba(75,192,192,1)',
           borderWidth => 1,
@@ -139,9 +204,13 @@ sub get_most_recent {
 }
 
 sub load_avg {
+  my $trend = shift;
   my ($stdout, $stderr, $exit) = capture { system('uptime'); };
   chomp $stdout;
   my ($one_min, $five_min, $ten_min) = $stdout =~ m/[^0-9]+([0-9]+\.[0-9]{2})[^0-9]+([0-9]+\.[0-9]{2})[^0-9]+([0-9]+\.[0-9]{2})$/;
+  push @{$trend->[0]}, $one_min;
+  push @{$trend->[1]}, $five_min;
+  push @{$trend->[2]}, $ten_min;
   return sprintf '%s/%s/%s',$one_min, $five_min, $ten_min;
 }
 
