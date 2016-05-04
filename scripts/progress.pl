@@ -50,9 +50,9 @@ while (1) {
   my @mods = ($ref_mod,$testdata_mod,$qc_mod);
 
   open my $OUT, '>', $outfile or die "$!: $outfile";
-  print $OUT "setup_status = $ref_status\n";
-  print $OUT "testdata_status = $testdata_status\n";
-  print $OUT "qc_status = $qc_status\n";
+  print $OUT qq{setup_status = "$ref_status"\n};
+  print $OUT qq{testdata_status = "$testdata_status"\n};
+  print $OUT qq{qc_status = "$qc_status"\n};
 
   for my $alg(@algs) {
     my (@running, @completed, @labels);
@@ -67,7 +67,7 @@ while (1) {
     print $OUT sprintf "%s = %s\n", $alg, encode_json ${progress_struct(\@running, \@completed, \@labels)};
   }
 
-  print $OUT sprintf "last_change = %s\n", recent_date_from_epoch( \@mods );
+  print $OUT sprintf qq{last_change = "%s"\n}, recent_date_from_epoch( \@mods );
 
   close $OUT;
 
