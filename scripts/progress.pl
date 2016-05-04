@@ -275,21 +275,24 @@ sub qc_status {
 
   for my $samp(@samples) {
     for my $type(qw(contamination genotyped)) {
-      $started++ if(-e "$base_path/output/$samp/$type");
-      if(-e "$base_path/output/$samp/$type/result.json") {
-        $done++;
-        $most_recent = get_most_recent($most_recent, "$base_path/output/$samp/$type/result.json");
+      if(-e "$base_path/output/$samp/$type") {
+        $started++;
+        if(-e "$base_path/output/$samp/$type/result.json") {
+          $done++;
+          $most_recent = get_most_recent($most_recent, "$base_path/output/$samp/$type/result.json");
+        }
       }
     }
   }
 
   if($started > 0) {
-    $status = 'started';
+    if($done == 3 && $done == $started) {
+      $status = 'done';
+    }
+    else {
+      $status = 'started';
+    }
   }
-  elsif($done == 3 && $done == $started) {
-    $status = 'done';
-  }
-
   return ($status, $most_recent);
 }
 
@@ -306,10 +309,12 @@ sub testdata_status {
       $most_recent = get_most_recent($most_recent, "$base_path/input/HCC1143.bam");
     }
     if($started > 0) {
-      $status = 'started';
-    }
-    elsif($done == $started) {
-      $status = 'done';
+      if($done == $started) {
+        $status = 'done';
+      }
+      else {
+        $status = 'started';
+      }
     }
   }
   return ($status, $most_recent);
@@ -336,10 +341,12 @@ sub setup_status {
 
   my $status = 'pending';
   if($started > 0) {
-    $status = 'started';
-  }
-  elsif($done == $started) {
-    $status = 'done';
+    if($done == $started) {
+      $status = 'done';
+    }
+    else {
+      $status = 'started';
+    }
   }
   return ($status, $most_recent);
 }
