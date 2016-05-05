@@ -58,7 +58,7 @@ while (1) {
   my @mods = ($min_epoch, # this ensures that archive files can't give daft time-points
               $ref_mod,$testdata_mod,$qc_mod);
 
-  my $complete_dt = completed($base_path);
+  my $complete_dt = completed($base_path, $mt_name, $wt_name);
 
   open my $OUT, '>', $outfile or die "$!: $outfile";
 
@@ -102,9 +102,10 @@ while (1) {
 }
 
 sub completed {
-  my ($base_path) = @_;
+  my ($base_path, $mt_name, $wt_name) = @_;
   my $logs_moved = 0;
   for my $alg(@algs) {
+    my $alg_base = sprintf "%s/output/%s_vs_%s/%s", $base_path, $mt_name, $wt_name, $alg;
     $logs_moved++ if(-e "$alg_base/logs");
   }
   my $ret = q{-};
