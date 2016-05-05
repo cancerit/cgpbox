@@ -1,9 +1,11 @@
 FROM  ubuntu:12.04
 
+ENV CGPBOX_VERSION 1.0.0
+
 MAINTAINER  keiranmraine@gmail.com
 
 LABEL uk.ac.sanger.cgp="Cancer Genome Project, Wellcome Trust Sanger Institute" \
-      version="0.0.1" \
+      version="$CGPBOX_VERSION" \
       description="The CGP somatic calling pipeline 'in-a-box'"
 
 USER  root

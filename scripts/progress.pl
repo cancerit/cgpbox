@@ -49,6 +49,9 @@ my %alg_elements = (ascat => [qw( allele_count
                                   tabix)],
                     );
 
+my $cgpbox_ver = q{-};
+$cgpbox_ver = $ENV{CGPBOX_VERSION} if(exists $ENV{CGPBOX_VERSION});
+
 my $load_trend = [[],[],[],[]];
 
 my $started_at = DateTime->now->set_time_zone('Europe/London')->strftime($dt_format);
@@ -66,6 +69,7 @@ while (1) {
   open my $OUT, '>', $outfile or die "$!: $outfile";
 
   # all the simple string variables
+  print $OUT sprintf qq{%s = "%s";\n}, 'cgpbox_ver', $cgpbox_ver;
   print $OUT sprintf qq{%s = "%s";\n}, 'mt_name', $mt_name;
   print $OUT sprintf qq{%s = "%s";\n}, 'wt_name', $wt_name;
   print $OUT sprintf qq{%s = "%s";\n}, 'setup_status', $ref_status;

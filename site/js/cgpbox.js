@@ -4,6 +4,7 @@ testdata_status = "-";
 setup_status = "-";
 qc_status = "-";
 load_avg = "-";
+cgpbox_ver = "-";
 ascat = {};
 pindel = {};
 caveman = {};
@@ -21,6 +22,7 @@ $(document).ready(function () {
     if(remaining <= 0)
         location.reload(true);
     document.getElementById('countdown').innerHTML = remaining;
+    document.getElementById('cgpbox_ver').innerHTML = cgpbox_ver;
     document.getElementById('last_mod').innerHTML = last_change;
     document.getElementById('testdata_status').innerHTML = testdata_status;
     document.getElementById('setup_status').innerHTML = setup_status;
