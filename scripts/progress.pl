@@ -5,6 +5,7 @@ use warnings;
 use List::Util qw(max);
 use JSON qw(encode_json);
 use Capture::Tiny qw(capture);
+use Cwd 'abs_path';
 
 my $base_path = shift @ARGV;
 my $mt_name = shift @ARGV;
@@ -13,16 +14,6 @@ my $outfile = shift @ARGV;
 
 my $min_epoch = time;
 my $max_cpus = max_cpu();
-
-my @time_legend = ('Now');
-for(1..120) {
-  if($_%20 == 0) {
-    unshift @time_legend, (0-$_)/2;
-  }
-  else {
-    unshift @time_legend, q{};
-  }
-}
 
 my @algs = qw(ascat pindel caveman brass);
 my %alg_elements = (ascat => [qw( allele_count
@@ -55,7 +46,9 @@ my %alg_elements = (ascat => [qw( allele_count
                                   tabix)],
                     );
 
-my $load_trend = [[(0)x120],[(0)x120],[(0)x120]];
+my $load_trend = [[],[],[],[]];
+
+my $started_at = DateTime->now->truncate(to => "minute")->set_time_zone('Europe/London')->strftime('%c %z %Z');
 
 while (1) {
   my ($ref_status, $ref_mod) = setup_status($base_path);
@@ -65,11 +58,23 @@ while (1) {
   my @mods = ($min_epoch, # this ensures that archive files can't give daft time-points
               $ref_mod,$testdata_mod,$qc_mod);
 
-  open my $OUT, '>', $outfile or die "$!: $outfile";
-  print $OUT qq{setup_status = "$ref_status"\n};
-  print $OUT qq{testdata_status = "$testdata_status"\n};
-  print $OUT qq{qc_status = "$qc_status"\n};
+  my $complete_dt = completed($base_path);
 
+  open my $OUT, '>', $outfile or die "$!: $outfile";
+
+  # all the simple string variables
+  print $OUT sprintf qq{%s = "%s";\n}, 'mt_name', $mt_name;
+  print $OUT sprintf qq{%s = "%s";\n}, 'wt_name', $wt_name;
+  print $OUT sprintf qq{%s = "%s";\n}, 'setup_status', $ref_status;
+  print $OUT sprintf qq{%s = "%s";\n}, 'testdata_status', $testdata_status;
+  print $OUT sprintf qq{%s = "%s";\n}, 'qc_status', $qc_status;
+  print $OUT sprintf qq{%s = "%s";\n}, 'last_change', recent_date_from_epoch( \@mods );
+  print $OUT sprintf qq{%s = "%s";\n}, 'total_cpus', $max_cpus;
+  print $OUT sprintf qq{%s = "%s";\n}, 'started_at', $started_at;
+  print $OUT sprintf qq{%s = "%s";\n}, 'completed_at', $complete_dt;
+  print $OUT sprintf qq{%s = "%s";\n}, 'load_avg', load_avg($load_trend);
+
+  # encoded variables
   for my $alg(@algs) {
     my (@running, @completed, @labels);
     for my $element(@{$alg_elements{$alg}}) {
@@ -80,30 +85,51 @@ while (1) {
       $element =~ s/^caveman_//;
       push @labels, $element;
     }
-    print $OUT sprintf "%s = %s\n", $alg, encode_json ${progress_struct(\@running, \@completed, \@labels)};
+    print $OUT sprintf "%s = %s\n;", $alg, encode_json ${progress_struct($alg, \@running, \@completed, \@labels)};
   }
 
-  print $OUT sprintf qq{last_change = "%s"\n}, recent_date_from_epoch( \@mods );
-  print $OUT sprintf qq{load_avg = "%s (cores=%d)"\n}, load_avg($load_trend), $max_cpus;
-  print $OUT sprintf "%s = %s\n", 'load_trend', encode_json ${trend_struct($load_trend)};
+
+  print $OUT sprintf qq{load_trend = %s;\n}, encode_json ${trend_struct($load_trend)};
 
   close $OUT;
 
+  if($complete_dt ne q{-}) {
+    print "Workflow completed, shutting down monitoring\n";
+    exit 0;
+  }
+
   sleep 30;
+}
+
+sub completed {
+  my ($base_path) = @_;
+  my $logs_moved = 0;
+  for my $alg(@algs) {
+    $logs_moved++ if(-e "$alg_base/logs");
+  }
+  my $ret = q{-};
+  $ret = DateTime->now->truncate(to => "minute")->set_time_zone('Europe/London')->strftime('%c %z %Z') if($logs_moved == @algs);
+  return $ret;
 }
 
 sub trend_struct {
   my $trends = shift;
   my $max_points = scalar @{$trends->[0]};
-  if($max_points > 120) {
+  if($max_points > 240) {
     shift @{$trends->[0]};
     shift @{$trends->[1]};
     shift @{$trends->[2]};
+    shift @{$trends->[3]};
   }
 
   my $trend = {
     type => 'line',
     options => {
+      title => {
+        display => 'true',
+        text => 'Server Load (max 2h)',
+        fontStyle => ''
+      },
       elements => {
         point => {
           radius => 0,
@@ -121,7 +147,7 @@ sub trend_struct {
       }
     },
     data => {
-      labels => \@time_legend,
+      labels => $trends->[3],
       datasets => [
         { data => $trends->[0],
           label => '1-min',
@@ -134,8 +160,8 @@ sub trend_struct {
           label => '5-min',
           borderWidth => 1,
           tension => 0.3,
-          borderColor => 'rgba(75,192,192,1)',
-          backgroundColor => 'rgba(75,192,192,0)',
+          borderColor => 'rgba(53,88,161,1)',
+          backgroundColor => 'rgba(53,88,161,0)',
         },
         { data => $trends->[2],
           label => '10-min',
@@ -151,10 +177,15 @@ sub trend_struct {
 }
 
 sub progress_struct {
-  my ($running, $completed, $labels) = @_;;
+  my ($alg, $running, $completed, $labels) = @_;
   my $progress = {
     type => 'bar',
     options => {
+      title => {
+        display => 'true',
+        text => ucfirst $alg,
+        fontStyle => ''
+      },
       scales => {
         xAxes => [{
           stacked => 'true'
@@ -187,11 +218,11 @@ sub progress_struct {
         },
         {
           label => 'Completed',
-          backgroundColor => 'rgba(75,192,192,0.2)',
-          borderColor => 'rgba(75,192,192,1)',
+          backgroundColor => 'rgba(53,88,161,0.2)',
+          borderColor => 'rgba(53,88,161,1)',
           borderWidth => 1,
-          hoverBackgroundColor => 'rgba(75,192,192,0.4)',
-          hoverBorderColor => 'rgba(75,192,192,1)',
+          hoverBackgroundColor => 'rgba(53,88,161,0.4)',
+          hoverBorderColor => 'rgba(53,88,161,1)',
           data => $completed,
         }
       ]
@@ -222,6 +253,11 @@ sub load_avg {
   push @{$trend->[0]}, $one_min;
   push @{$trend->[1]}, $five_min;
   push @{$trend->[2]}, $ten_min;
+
+  my $dt = DateTime->now->truncate(to => "minute")->set_time_zone('Europe/London')->strftime('%R');
+  $dt = q{} if(@{$trend->[3]} != 0 && $trend->[3]->[-1] eq $dt);
+  push @{$trend->[3]}, $dt;
+
   return sprintf '%s/%s/%s',$one_min, $five_min, $ten_min;
 }
 
@@ -282,7 +318,7 @@ sub qc_status {
   my ($base_path, @samples) = @_;
   my ($started, $done) = (0,0);
   my $most_recent = 0;
-  my $status = 'pending';
+  my $status = 'Pending';
 
   for my $samp(@samples) {
     for my $type(qw(contamination genotyped)) {
@@ -298,10 +334,10 @@ sub qc_status {
 
   if($started > 0) {
     if($done == 3 && $done == $started) {
-      $status = 'done';
+      $status = 'Completed';
     }
     else {
-      $status = 'started';
+      $status = 'Started';
     }
   }
   return ($status, $most_recent);
@@ -321,10 +357,10 @@ sub testdata_status {
     }
     if($started > 0) {
       if($done == $started) {
-        $status = 'done';
+        $status = 'Completed';
       }
       else {
-        $status = 'started';
+        $status = 'Started';
       }
     }
   }
@@ -350,13 +386,13 @@ sub setup_status {
     }
   }
 
-  my $status = 'pending';
+  my $status = 'Pending';
   if($started > 0) {
     if($done == $started) {
-      $status = 'done';
+      $status = 'Completed';
     }
     else {
-      $status = 'started';
+      $status = 'Started';
     }
   }
   return ($status, $most_recent);
