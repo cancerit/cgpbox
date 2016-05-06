@@ -20,7 +20,7 @@ run_parallel () {
 
     echo -e "\tStarting $key"
     set -x
-    CMD &
+    $CMD &
     set +x
     pids+=(["$key"]="$!")
   done
