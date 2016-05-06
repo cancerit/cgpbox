@@ -3,7 +3,7 @@
 # about to do some parallel work...
 declare -A do_parallel
 
-TIME_BASE="/usr/bin/time -f 'command: %C\nreal   : %e\nuser   : %U\nsys    : %S\ntext   : %Xk\ndata   : %Dk\nmax    : %Mk\n' -o"
+TIME_FORMAT='command:%C\nreal:%e\nuser:%U\nsys:%S\ntext:%Xk\ndata:%Dk\nmax:%Mk\n';
 
 # declare function to run parallel processing
 run_parallel () {
@@ -16,7 +16,7 @@ run_parallel () {
       sleep 1 # gnu sleep allows floating point here...
     done
 
-    CMD="$TIME_BASE /datastore/output/$key.time ${do_parallel[$key]}"
+    CMD='/usr/bin/time -f '$TIME_FORMAT' -o /datastore/output/'$key'.time '${do_parallel[$key]}
 
     echo -e "\tStarting $key"
     set -x
