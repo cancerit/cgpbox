@@ -254,7 +254,9 @@ AnnotateVcf.pl -t -c /datastore/reference_files/vagrent/e75/Homo_sapiens.GRCh37.
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/caveman/${NAME_MT}_vs_${NAME_WT}.annot.muts.vcf
 set +x
 
-echo -e "Annot CaVEMan start: `date`"
+echo -e "Annot CaVEMan end: `date`"
+
+cp -r /datastore/site /datastore/output/.
 
 # run any post-exec step
 echo -e "\nRun POST_EXEC: `date`"
@@ -263,6 +265,5 @@ for i in "${POST_EXEC[@]}"; do
   $i
   set +x
 done
-
 
 echo -e "\nWorkflow end: `date`"
