@@ -87,8 +87,8 @@ while (1) {
     my (@running, @completed, @labels);
     for my $element(@{$alg_elements{$alg}}) {
       my ($started, $done, $recent) = alg_counts($base_path, $alg, $element, $mt_name, $wt_name);
-      push @running, $started;
-      push @completed, $done;
+      push @running, 0+$started;
+      push @completed, 0+$done;
       push @mods, $recent;
       $element =~ s/^caveman_//;
       push @labels, $element;
@@ -278,16 +278,11 @@ sub max_cpu {
 
 sub file_listing {
   my ($search) = @_;
-  my ($stdout, $stderr, $exit) = capture { system("ls -ltrh $search"); };
-  my @lines = split /\n/, $stdout;
-  my $count = 0;
+  my @files = glob $search;
+  my $count = @files;
   my $most_recent = 0;
-  for my $line(@lines) {
-    chomp $line;
-    my @elements = split / +/, $line;
-    next unless(scalar @elements == 9);
-    $count++;
-    $most_recent = get_most_recent($most_recent, $elements[-1]);
+  for my $file(@files) {
+    $most_recent = get_most_recent($most_recent, $file);
   }
   return ($count, $most_recent);
 }
@@ -319,8 +314,11 @@ sub alg_counts {
   $most_recent_prog ||= 0;
   my $most_recent = max($most_recent_log, $most_recent_prog);
 
+  $started ||= 0;
+  $done ||= 0;
+
   $started = $started - $done;
-  return ($started+0, $done+0, $most_recent);
+  return ($started, $done, $most_recent);
 }
 
 sub qc_status {
