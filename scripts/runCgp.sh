@@ -3,6 +3,8 @@
 # about to do some parallel work...
 declare -A do_parallel
 
+TIME_BASE="/usr/bin/time -f 'command: %C\nreal   : %e\nuser   : %U\nsys    : %S\ntext   : %Xk\ndata   : %Dk\nmax    : %Mk\n' -o"
+
 # declare function to run parallel processing
 run_parallel () {
   # adapted from: http://stackoverflow.com/a/18666536/4460430
@@ -13,9 +15,12 @@ run_parallel () {
     while [ $(jobs 2>&1 | grep -c Running) -ge "$max_concurrent_tasks" ]; do
       sleep 1 # gnu sleep allows floating point here...
     done
+
+    CMD="$TIME_BASE /datastore/output/$key.time ${do_parallel[$key]}"
+
     echo -e "\tStarting $key"
     set -x
-    ${do_parallel[$key]} &
+    CMD &
     set +x
     pids+=(["$key"]="$!")
   done
@@ -56,7 +61,7 @@ source /datastore/run.params
 
 echo "Starting monitoring..."
 cp -r /opt/wtsi-cgp/site /datastore/site
-progress.pl /datastore $NAME_MT $NAME_WT /datastore/site/data/progress.js >& /datastore/monitor.log&
+progress.pl /datastore $NAME_MT $NAME_WT $TIMEZONE /datastore/site/data/progress.js >& /datastore/monitor.log&
 
 echo -e "\tNAME_MT : $NAME_MT"
 echo -e "\tNAME_WT : $NAME_WT"

@@ -13,6 +13,7 @@ my $dt_format = '%F %T';
 my $base_path = shift @ARGV;
 my $mt_name = shift @ARGV;
 my $wt_name = shift @ARGV;
+my $timezone = shift @ARGV;
 my $outfile = shift @ARGV;
 
 my $min_epoch = time;
@@ -54,7 +55,7 @@ $cgpbox_ver = $ENV{CGPBOX_VERSION} if(exists $ENV{CGPBOX_VERSION});
 
 my $load_trend = [[],[],[],[]];
 
-my $started_at = DateTime->now->set_time_zone('Europe/London')->strftime($dt_format);
+my $started_at = DateTime->now->set_time_zone($timezone)->strftime($dt_format);
 
 while (1) {
   my ($ref_status, $ref_mod) = setup_status($base_path);
@@ -116,7 +117,7 @@ sub completed {
     $logs_moved++ if(-e "$alg_base/logs");
   }
   my $ret = q{-};
-  $ret = DateTime->now->set_time_zone('Europe/London')->strftime($dt_format) if($logs_moved == @algs);
+  $ret = DateTime->now->set_time_zone($timezone)->strftime($dt_format) if($logs_moved == @algs);
   return $ret;
 }
 
@@ -148,7 +149,7 @@ sub trend_struct {
         yAxes => [{
           type => 'linear',
           ticks => {
-            suggestedMax => 10,
+            suggestedMax => $max_cpus,
             suggestedMin => 0,
           }
         }]
@@ -243,7 +244,7 @@ sub recent_date_from_epoch {
   my ($epochs) = @_;
   my $max =  max @{$epochs};
   return '-' unless(defined $max);
-  return DateTime->from_epoch( epoch => $max )->set_time_zone('Europe/London')->strftime($dt_format)
+  return DateTime->from_epoch( epoch => $max )->set_time_zone($timezone)->strftime($dt_format)
 }
 
 sub get_most_recent {
@@ -262,7 +263,7 @@ sub load_avg {
   push @{$trend->[1]}, $five_min;
   push @{$trend->[2]}, $ten_min;
 
-  my $dt = DateTime->now->truncate(to => "minute")->set_time_zone('Europe/London')->strftime('%R');
+  my $dt = DateTime->now->truncate(to => "minute")->set_time_zone($timezone)->strftime('%R');
   $dt = q{} if(@{$trend->[3]} != 0 && $trend->[3]->[-1] eq $dt);
   push @{$trend->[3]}, $dt;
 
