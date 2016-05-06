@@ -21,7 +21,7 @@ RUN apt-get -yqq update && \
       libgd2-xpm-dev libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
       libpstreams-dev libglib2.0-dev gfortran libcairo2-dev \
       cpanminus bsdtar libwww-perl openjdk-7-jdk \
-      libcapture-tiny-perl libjson-perl libjson-xs-perl libdatetime-perl && \
+      libcapture-tiny-perl libjson-perl libjson-xs-perl libdatetime-perl time && \
     apt-get clean
 
 RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share $OPT/site
