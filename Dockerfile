@@ -1,4 +1,4 @@
-FROM  ubuntu:12.04
+FROM  ubuntu:14.04
 
 ENV CGPBOX_VERSION 1.0.0
 
@@ -15,8 +15,8 @@ ENV PATH $OPT/bin:$PATH
 ENV PERL5LIB $OPT/lib/perl5
 
 
-RUN apt-get -yqq update && \
-    apt-get -yqq install libreadline6-dev build-essential autoconf software-properties-common python-software-properties \
+RUN apt-get -yq update && \
+    apt-get -yq install libreadline6-dev build-essential autoconf software-properties-common python-software-properties \
       wget curl zlib1g-dev libncurses5-dev \
       libgd2-xpm-dev libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
       libpstreams-dev libglib2.0-dev gfortran libcairo2-dev \
@@ -286,15 +286,9 @@ biocLite("data.table", ask=FALSE)\n\
 biocLite("gam", ask=FALSE)\n\
 biocLite("VGAM", ask=FALSE)\n\
 biocLite("stringr", ask=FALSE)\n\
-biocLite("BiocGenerics", ask=FALSE)\n\
 biocLite("poweRlaw", ask=FALSE)\n\
-biocLite("S4Vectors", ask=FALSE)\n\
-biocLite("IRanges", ask=FALSE)\n\
-biocLite("GenomeInfoDb", ask=FALSE)\n\
 biocLite("zlibbioc", ask=FALSE)\n\
-biocLite("XVector", ask=FALSE)\n\
 biocLite("RColorBrewer", ask=FALSE)\n\
-biocLite("GenomicRanges", ask=FALSE)\n\
 biocLite("copynumber", ask=FALSE)' > tmp.R && \
     Rscript tmp.R && \
     rm tmp.R
