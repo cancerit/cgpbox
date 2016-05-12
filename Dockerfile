@@ -19,7 +19,7 @@ RUN apt-get -yq update && \
       curl libcurl4-openssl-dev nettle-dev zlib1g-dev libncurses5-dev \
       libgd2-xpm-dev libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
       libpstreams-dev libglib2.0-dev gfortran libcairo2-dev \
-      git bsdtar libwww-perl openjdk-7-jdk && \
+      git bsdtar libwww-perl openjdk-7-jdk time && \
     apt-get clean
 
 RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share $OPT/site
