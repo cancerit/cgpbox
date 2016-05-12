@@ -69,19 +69,6 @@ while (1) {
 
   open my $OUT, '>', $outfile or die "$!: $outfile";
 
-  # all the simple string variables
-  print $OUT sprintf qq{%s = "%s";\n}, 'cgpbox_ver', $cgpbox_ver;
-  print $OUT sprintf qq{%s = "%s";\n}, 'mt_name', $mt_name;
-  print $OUT sprintf qq{%s = "%s";\n}, 'wt_name', $wt_name;
-  print $OUT sprintf qq{%s = "%s";\n}, 'setup_status', $ref_status;
-  print $OUT sprintf qq{%s = "%s";\n}, 'testdata_status', $testdata_status;
-  print $OUT sprintf qq{%s = "%s";\n}, 'qc_status', $qc_status;
-  print $OUT sprintf qq{%s = "%s";\n}, 'last_change', recent_date_from_epoch( \@mods );
-  print $OUT sprintf qq{%s = "%s";\n}, 'total_cpus', $max_cpus;
-  print $OUT sprintf qq{%s = "%s";\n}, 'started_at', $started_at;
-  print $OUT sprintf qq{%s = "%s";\n}, 'completed_at', $complete_dt;
-  print $OUT sprintf qq{%s = "%s";\n}, 'load_avg', load_avg($load_trend);
-
   # encoded variables
   for my $alg(@algs) {
     my (@running, @completed, @labels);
@@ -96,8 +83,20 @@ while (1) {
     print $OUT sprintf "%s = %s;\n", $alg, encode_json ${progress_struct($alg, \@running, \@completed, \@labels)};
   }
 
-
   print $OUT sprintf qq{load_trend = %s;\n}, encode_json ${trend_struct($load_trend)};
+
+  # all the simple string variables
+  print $OUT sprintf qq{%s = "%s";\n}, 'cgpbox_ver', $cgpbox_ver;
+  print $OUT sprintf qq{%s = "%s";\n}, 'mt_name', $mt_name;
+  print $OUT sprintf qq{%s = "%s";\n}, 'wt_name', $wt_name;
+  print $OUT sprintf qq{%s = "%s";\n}, 'setup_status', $ref_status;
+  print $OUT sprintf qq{%s = "%s";\n}, 'testdata_status', $testdata_status;
+  print $OUT sprintf qq{%s = "%s";\n}, 'qc_status', $qc_status;
+  print $OUT sprintf qq{%s = "%s";\n}, 'last_change', recent_date_from_epoch( \@mods );
+  print $OUT sprintf qq{%s = "%s";\n}, 'total_cpus', $max_cpus;
+  print $OUT sprintf qq{%s = "%s";\n}, 'started_at', $started_at;
+  print $OUT sprintf qq{%s = "%s";\n}, 'completed_at', $complete_dt;
+  print $OUT sprintf qq{%s = "%s";\n}, 'load_avg', load_avg($load_trend);
 
   close $OUT;
 
@@ -297,7 +296,6 @@ sub alg_counts {
   else {
     $logs = "$alg_base/tmp".(ucfirst $alg).'/logs';
   }
-
 
   my ($started, $most_recent_log) = file_listing("$logs/*::$element.*.err");
 
