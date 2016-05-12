@@ -133,6 +133,7 @@ sub trend_struct {
   my $trend = {
     type => 'line',
     options => {
+      animation => {'duration' => 0},
       title => {
         display => 'true',
         text => 'Server Load (max 2h)',
@@ -189,6 +190,7 @@ sub progress_struct {
   my $progress = {
     type => 'bar',
     options => {
+      animation => {'duration' => 0},
       title => {
         display => 'true',
         text => ucfirst $alg,
