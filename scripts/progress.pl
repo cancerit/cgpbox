@@ -357,9 +357,10 @@ sub testdata_status {
     my ($started, $done) = (0,0);
     $started++;
     $most_recent = get_most_recent($most_recent, "$base_path/testdata.tar");
+    my (undef, $most_recent_unpack) = file_listing("$base_path/input/*.bam*");
+    $most_recent = $most_recent_unpack if($most_recent_unpack > $most_recent);
     if(-e "$base_path/input/HCC1143.bam") {
       $done++;
-      $most_recent = get_most_recent($most_recent, "$base_path/input/HCC1143.bam");
     }
     if($started > 0) {
       if($done == $started) {
