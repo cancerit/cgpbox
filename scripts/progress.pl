@@ -379,6 +379,11 @@ sub setup_status {
   my ($base_path) = @_;
   my ($started, $done) = (0,0);
   my $most_recent = 0;
+
+  if(-e "$base_path/reference_files/unpack_ref.success") {
+    return ('Pre-staged', get_most_recent($most_recent, "$base_path/reference_files/unpack_ref.success");
+  }
+
   if(-e "$base_path/ref.tar.gz") {
     $started++;
     $most_recent = get_most_recent($most_recent, "$base_path/ref.tar.gz");
