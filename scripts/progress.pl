@@ -77,7 +77,6 @@ while (1) {
       push @running, 0+$started;
       push @completed, 0+$done;
       push @mods, $recent;
-      $element =~ s/^caveman_//;
       push @labels, $element;
     }
     print $OUT sprintf "%s = %s;\n", $alg, encode_json ${progress_struct($alg, \@running, \@completed, \@labels)};
