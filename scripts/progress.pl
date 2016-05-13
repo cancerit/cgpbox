@@ -129,6 +129,35 @@ sub trend_struct {
     shift @{$trends->[3]};
   }
 
+  my $thin_level = 1;
+  my $datapoints = @{$trends->[3]};
+  if($datapoints > 180) {
+    $thin_level = 12;
+  }
+  elsif($datapoints > 120) {
+    $thin_level = 8;
+  }
+  elsif($datapoints > 60) {
+    $thin_level = 4;
+  }
+  elsif($datapoints > 30) {
+    $thin_level = 2;
+  }
+  my @thinned;
+  my $skipped = $thin_level;
+  for(@{$trends->[3]}) {
+    if($_ ne q{}) {
+      if($skipped == $thin_level) {
+        $skipped = 0;
+      }
+      else {
+        $_ = q{};
+      }
+    }
+    push @thinned, $_;
+    $skipped++;
+  }
+
   my $trend = {
     type => 'line',
     options => {
@@ -151,11 +180,16 @@ sub trend_struct {
             suggestedMax => $max_cpus,
             suggestedMin => 0,
           }
-        }]
+        }],
+        xAxes => [{
+          ticks => {
+            'autoSkip' => 0
+          }
+        }],
       }
     },
     data => {
-      labels => $trends->[3],
+      labels => \@thinned,
       datasets => [
         { data => $trends->[0],
           label => '1-min',
