@@ -226,7 +226,6 @@ do_parallel[CaVEMan]="caveman.pl \
 
 echo -e "\t[Parallel block 3] BRASS added..."
 do_parallel[BRASS]="brass.pl -j 4 -k 4 -c $CPU \
- -e MT,GL%,hs37d5,NC_007605 \
  -d /datastore/reference_files/brass/ucscHiDepth_0.01_mrg1000_no_exon_coreChrs.bed.gz \
  -f /datastore/reference_files/brass/brass_np.groups.gz \
  -g /datastore/reference_files/genome.fa \
@@ -237,7 +236,6 @@ do_parallel[BRASS]="brass.pl -j 4 -k 4 -c $CPU \
  -b /datastore/reference_files/brass/hs37d5_500bp_windows.gc.bed.gz \
  -t $BAM_MT_TMP \
  -n $BAM_WT_TMP \
- -a /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/*.copynumber.caveman.csv \
  -ss /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/*.samplestatistics.csv \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/brass"
 
