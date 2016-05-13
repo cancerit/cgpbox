@@ -237,7 +237,7 @@ do_parallel[BRASS]="brass.pl -j 4 -k 4 -c $CPU \
  -ct /datastore/reference_files/brass/Human.GRCh37.CentTelo.tsv \
  -t $BAM_MT_TMP \
  -n $BAM_WT_TMP \
- -ss /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/*.samplestatistics.csv \
+ -ss /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/*.samplestatistics.txt \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/brass"
 
 echo "Starting Parallel block 3: `date`"
