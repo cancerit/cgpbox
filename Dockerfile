@@ -131,6 +131,9 @@ RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/BRASS/archive
     cd /tmp/downloads && \
     rm -rf master.zip /tmp/downloads/distro
 
+ENV R_LIBS $OPT/R-lib
+ENV R_LIBS_USER $OPT/R-lib
+
 # BRASS
 RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/BRASS/archive/master.zip && \
     mkdir /tmp/downloads/distro && \
@@ -160,9 +163,6 @@ RUN chmod ugo+x $OPT/bin/runCgp.sh $OPT/bin/getRef.sh $OPT/bin/progress.pl
 
 COPY site $OPT/site
 RUN mkdir -p $OPT/site/data && chmod -R ugo+rwx $OPT/site/data/
-
-ENV R_LIBS $OPT/R-lib
-ENV R_LIBS_USER $OPT/R-lib
 
 ## USER CONFIGURATION
 RUN adduser --disabled-password --gecos '' cgpbox && chsh -s /bin/bash && mkdir -p /home/cgpbox
