@@ -382,7 +382,10 @@ sub setup_status {
   my $most_recent = 0;
 
   if(-e "$base_path/reference_files/unpack_ref.success") {
-    return ('Pre-staged', get_most_recent($most_recent, "$base_path/reference_files/unpack_ref.success"));
+    my $this = get_most_recent($min_epoch, "$base_path/reference_files/unpack_ref.success");
+    if($this == $min_epoch) {
+      return ('Pre-staged', get_most_recent($most_recent, "$base_path/reference_files/unpack_ref.success"));
+    }
   }
 
   if(-e "$base_path/ref.tar.gz") {
