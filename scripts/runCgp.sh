@@ -234,6 +234,7 @@ do_parallel[BRASS]="brass.pl -j 4 -k 4 -c $CPU \
  -vi /datastore/reference_files/brass/viral.1.1.genomic.fa \
  -mi /datastore/reference_files/brass/all_ncbi_bacteria.20150703 \
  -b /datastore/reference_files/brass/hs37d5_500bp_windows.gc.bed.gz \
+ -ct /datastore/run/reference_files/brass/Human.GRCh37.CentTelo.tsv \
  -t $BAM_MT_TMP \
  -n $BAM_WT_TMP \
  -ss /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/*.samplestatistics.csv \
