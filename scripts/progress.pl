@@ -186,6 +186,11 @@ sub trend_struct {
 
 sub progress_struct {
   my ($alg, $running, $completed, $labels) = @_;
+  my @cleaned_labels;
+  for(@{$labels}) {
+    $_ =~ s/^caveman_//;
+    push @cleaned_labels, $_;
+  }
   my $progress = {
     type => 'bar',
     options => {
@@ -214,7 +219,7 @@ sub progress_struct {
       }
     },
     data => {
-      labels => $labels,
+      labels => \@cleaned_labels,
       datasets => [
         {
           label => 'Started',
