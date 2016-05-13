@@ -140,6 +140,15 @@ RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/BRASS/archive
     cd /tmp/downloads && \
     rm -rf master.zip /tmp/downloads/distro
 
+# cgpNgsQc
+RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpNgsQc/archive/master.zip && \
+    mkdir /tmp/downloads/distro && \
+    bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
+    cd /tmp/downloads/distro && \
+    ./setup.sh $OPT && \
+    cd /tmp/downloads && \
+    rm -rf master.zip /tmp/downloads/distro
+
 RUN curl -sSL https://s3.amazonaws.com/aws-cli/awscli-bundle.zip | bsdtar -xvf - && \
     python awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws && \
     rm -rf /tmp/downloads/awscli-bundle
