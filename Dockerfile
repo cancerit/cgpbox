@@ -161,8 +161,8 @@ RUN chmod ugo+x $OPT/bin/runCgp.sh $OPT/bin/getRef.sh $OPT/bin/progress.pl
 COPY site $OPT/site
 RUN mkdir -p $OPT/site/data && chmod -R ugo+rwx $OPT/site/data/
 
-ENV R_LIBS $OPT/lib/R-lib
-ENV R_LIBS_USER $OPT/lib/R-lib
+ENV R_LIBS $OPT/R-lib
+ENV R_LIBS_USER $OPT/R-lib
 
 ## USER CONFIGURATION
 RUN adduser --disabled-password --gecos '' cgpbox && chsh -s /bin/bash && mkdir -p /home/cgpbox
