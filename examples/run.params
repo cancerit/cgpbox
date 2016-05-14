@@ -38,7 +38,7 @@ PRE_EXEC[4]='rm -f /datastore/input/*.bas'
     - This is an example how you could write your result to S3 by setting the environment variables and path for your bucket
     - Nice use is that you can then set any AWS image to shutdown automatically when it becomes idle"
 
-POST_EXEC[0]='tar -C /datastore -zcf result_${NAME_MT}_vs_${NAME_WT}.tar.gz output'
+POST_EXEC[0]="tar -C /datastore -zcf result_${NAME_MT}_vs_${NAME_WT}.tar.gz output"
 #POST_EXEC[1]='export AWS_ACCESS_KEY_ID=XXX'
 #POST_EXEC[2]='export AWS_SECRET_ACCESS_KEY=YYY'
 #POST_EXEC[3]='export AWS_DEFAULT_REGION=ZZZ'
