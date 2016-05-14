@@ -82,8 +82,6 @@ while (1) {
     print $OUT sprintf "%s = %s;\n", $alg, encode_json ${progress_struct($alg, \@running, \@completed, \@labels)};
   }
 
-  print $OUT sprintf qq{load_trend = %s;\n}, encode_json ${trend_struct($load_trend)};
-
   # all the simple string variables
   print $OUT sprintf qq{%s = "%s";\n}, 'cgpbox_ver', $cgpbox_ver;
   print $OUT sprintf qq{%s = "%s";\n}, 'mt_name', $mt_name;
@@ -96,6 +94,8 @@ while (1) {
   print $OUT sprintf qq{%s = "%s";\n}, 'started_at', $started_at;
   print $OUT sprintf qq{%s = "%s";\n}, 'completed_at', $complete_dt;
   print $OUT sprintf qq{%s = "%s";\n}, 'load_avg', load_avg($load_trend);
+
+  print $OUT sprintf qq{load_trend = %s;\n}, encode_json ${trend_struct($load_trend)};
 
   close $OUT;
 
@@ -129,33 +129,31 @@ sub trend_struct {
     shift @{$trends->[3]};
   }
 
-  my $thin_level = 1;
+  my $thin_level = 2;
   my $datapoints = @{$trends->[3]};
   if($datapoints > 180) {
-    $thin_level = 12;
+    $thin_level = 18;
   }
   elsif($datapoints > 120) {
-    $thin_level = 8;
+    $thin_level = 12;
   }
   elsif($datapoints > 60) {
-    $thin_level = 4;
+    $thin_level = 6;
   }
   elsif($datapoints > 30) {
-    $thin_level = 2;
+    $thin_level = 4;
   }
   my @thinned;
-  my $skipped = $thin_level;
+  my $skipped = $thin_level-1;
   for(@{$trends->[3]}) {
-    if($_ ne q{}) {
-      if($skipped == $thin_level) {
-        $skipped = 0;
-      }
-      else {
-        $_ = q{};
-      }
-    }
-    push @thinned, $_;
     $skipped++;
+    if($skipped == $thin_level) {
+      $skipped = 0;
+      push @thinned, $_;
+    }
+    else {
+      push @thinned, q{};
+    }
   }
 
   my $trend = {
@@ -303,7 +301,7 @@ sub load_avg {
   push @{$trend->[2]}, $ten_min;
 
   my $dt = DateTime->now->truncate(to => "minute")->set_time_zone($timezone)->strftime('%R');
-  $dt = q{} if(@{$trend->[3]} != 0 && $trend->[3]->[-1] eq $dt);
+#  $dt = q{} if(@{$trend->[3]} != 0 && $trend->[3]->[-1] eq $dt);
   push @{$trend->[3]}, $dt;
 
   return sprintf '%s/%s/%s',$one_min, $five_min, $ten_min;
