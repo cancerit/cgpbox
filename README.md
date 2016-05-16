@@ -81,11 +81,28 @@ Then point you browser at:
 ````
 http://yourhost/html/index.html
 ````
-----
-![Example web 1](examples/images/web_1.png)
-![Example web 2](examples/images/web_2.png)
+--
+![Example display: startup](examples/images/web_1.png)
+--
+![Example display: mid run](examples/images/web_2.png)
+--
 
-----
+## Output
+
+On completion the data files used to generate the web-site are copied into the output location along with files containing timing/memory data.  These can be found at `$MOUNT_POINT/output/*.time` and are of the form:
+
+````
+$ cat ascat.time
+command:ascat.pl -o /datastore/output/HCC1143_vs_HCC1143_BL/ascat -t /datastore/output/tmp/HCC1143.bam -n /datastore/output/tmp/HCC1143_BL.bam -s /datastore/reference_files/ascat/SnpLocus.tsv -sp /datastore/reference_files/ascat/SnpPositions.tsv -sg /datastore/reference_files/ascat/SnpGcCorrections.tsv -r /datastore/reference_files/genome.fa -q 20 -g L -rs Human -ra GRCh37 -pr WGS -pl ILLUMINA -c 8
+real:1390.62
+user:2106.95
+sys:40.48
+text:0k
+data:0k
+max:2183804k
+````
+
+Additionally all of the data in the output folder is packaged as a tar.gz for easy retrieval (example data set: `$MOUNT_POINT/result_HCC1143_vs_HCC1143_BL.tar.gz`).  Please see `examples/run.params` for an example of using post-exec to push your data to AWS.
 
 ## Input requirements
 __cgpbox__ expects to be provided with a pair of BAM files (one tumour, one normal) each:

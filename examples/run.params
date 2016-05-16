@@ -1,14 +1,20 @@
 #!/bin/bash
 
 : "Required parameters
-    - NAME_* : should match that in the BAM file headers, primarily for naming of folders
-    - *_MT   : Refers to the Tumour sample
-    - *_WT   : Refers to the Wildtype/normal sample"
+    - NAME_*   : should match that in the BAM file headers, primarily for naming of folders
+    - *_MT     : Refers to the Tumour sample
+    - *_WT     : Refers to the Wildtype/normal sample
+    - TIMEZONE : Change this if you want the web tools to use your local timezone
+                 This will give you the list:
+                   perl -MDateTime -e 'print join "\n", DateTime::TimeZone->all_names;'
+ "
 
 NAME_MT='HCC1143'
 NAME_WT='HCC1143_BL'
 BAM_MT='/datastore/input/HCC1143.bam'
 BAM_WT='/datastore/input/HCC1143_BL.bam'
+
+TIMEZONE='Europe/London'
 
 : "PRE_EXEC - Commands to be run before the main workflow starts
     - NOTE: To allow many commands to run an array is defined, the first command must
@@ -32,8 +38,7 @@ PRE_EXEC[4]='rm -f /datastore/input/*.bas'
     - This is an example how you could write your result to S3 by setting the environment variables and path for your bucket
     - Nice use is that you can then set any AWS image to shutdown automatically when it becomes idle"
 
-POST_EXEC[0]='tar -C /datastore -zcf result_${NAME_MT}_vs_${NAME_WT}.tar.gz output'
-#POST_EXEC[1]='export AWS_ACCESS_KEY_ID=XXX'
-#POST_EXEC[2]='export AWS_SECRET_ACCESS_KEY=YYY'
-#POST_EXEC[3]='export AWS_DEFAULT_REGION=ZZZ'
-#POST_EXEC[4]='aws s3 cp result_${NAME_MT}_vs_${NAME_WT}.tar.gz s3://wtsi-pancancer/kr2Test/result_${NAME_MT}_vs_${NAME_WT}.tar.gz'
+#POST_EXEC[0]='export AWS_ACCESS_KEY_ID=XXX'
+#POST_EXEC[1]='export AWS_SECRET_ACCESS_KEY=YYY'
+#POST_EXEC[2]='export AWS_DEFAULT_REGION=ZZZ'
+#POST_EXEC[3]='aws s3 cp result_${NAME_MT}_vs_${NAME_WT}.tar.gz s3://some-bucket/result_${NAME_MT}_vs_${NAME_WT}.tar.gz'
