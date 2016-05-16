@@ -256,6 +256,9 @@ set +x
 echo -e "Annot CaVEMan end: `date`"
 
 cp -r /datastore/site /datastore/output/.
+cd /datastore
+echo 'Package results'
+tar -zcf result_${NAME_MT}_vs_${NAME_WT}.tar.gz output
 
 # run any post-exec step
 echo -e "\nRun POST_EXEC: `date`"
