@@ -1,0 +1,71 @@
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <title>CgpBox monitoring display</title>
+    <meta name="description" content="Graphs and statstics about the running analysis"/>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="stylesheet" type="text/css" href="../css/cgpbox.css">
+    <script src="../js/jquery-2.2.3.min.js"></script>
+    <script src="../js/Chart.bundle.js"></script>
+    <script src="../js/cgpbox.js"></script>
+  </head>
+  <body>
+    <div id="header" align="center">
+      <div style="height:10"></div>
+      <div style="display:inline-block">
+        <img src="images/logo.png" alt="Cancer IT logo" style="height:100px;padding:5px;margin:5px"/>
+      </div>
+      <div class="status">
+        <table>
+          <tr><th>Mutant sample:</th><td><span id="mt_name">?</span></td></tr>
+          <tr><th>Normal sample:</th><td><span id="wt_name">?</span></td></tr>
+          <tr><th>Total CPUs:</th><td><span id="total_cpus">?</span></td></tr>
+        </table>
+      </div>
+      <div class="status">
+        <table>
+          <tr><th>Test data:</th><td><span id="testdata_status">?</span></td></tr>
+          <tr><th>Setup status:</th><td><span id="setup_status">?</span></td></tr>
+          <tr><th>QC status:</th><td><span id="qc_status">?</span></td></tr>
+        </table>
+      </div>
+      <div class="status">
+        <table>
+          <tr><th>Job Started:</th><td><span id="started_at">?</span></td></tr>
+          <tr><th>Last status change:</th><td><span id="last_mod">?</span></td></tr>
+          <tr><th>Job Completed:</th><td><span id="completed_at">?</span></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div id="body" align="center">
+      <div style="min-width:800px;max-width:1800px;padding:5px;margin:5px">
+        <canvas height="50px" id="load_trend"></canvas>
+      </div>
+      <div style="text-align:left;padding-left:10px">
+        Time to refresh: <span id="countdown">?</span>
+      </div>
+      <div class="progress">
+        <canvas id="ascat"></canvas>
+      </div>
+      <div class="progress">
+        <canvas id="pindel"></canvas>
+      </div>
+      <div class="progress">
+        <canvas id="caveman"></canvas>
+      </div>
+      <div class="progress">
+        <canvas id="brass"></canvas>
+      </div>
+    </div>
+
+    <div id="footer">
+      <div style="float:left;text-align:left">
+        cgpbox version: <span id="cgpbox_ver">?</span>
+      </div>
+      <div style="float:right;text-align:right">
+        Created and maintained by <a href="mailto:cgpit@sanger.ac.uk?subject=Question%20from%20user%20of%20cgpbox"><img src="images/cancerit.png" alt="Mini Cancer IT logo" /></a>
+      </div>
+    </div>
+  </body>
+</html>

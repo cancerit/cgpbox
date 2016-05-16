@@ -3,6 +3,8 @@
 # about to do some parallel work...
 declare -A do_parallel
 
+TIME_FORMAT='command:%C\nreal:%e\nuser:%U\nsys:%S\ntext:%Xk\ndata:%Dk\nmax:%Mk\n';
+
 # declare function to run parallel processing
 run_parallel () {
   # adapted from: http://stackoverflow.com/a/18666536/4460430
@@ -13,9 +15,12 @@ run_parallel () {
     while [ $(jobs 2>&1 | grep -c Running) -ge "$max_concurrent_tasks" ]; do
       sleep 1 # gnu sleep allows floating point here...
     done
+
+    CMD='/usr/bin/time -f '$TIME_FORMAT' -o /datastore/output/'$key'.time '${do_parallel[$key]}
+
     echo -e "\tStarting $key"
     set -x
-    ${do_parallel[$key]} &
+    $CMD &
     set +x
     pids+=(["$key"]="$!")
   done
@@ -51,9 +56,12 @@ mkdir -p $TMP
 declare -a PRE_EXEC
 declare -a POST_EXEC
 
-
 echo "Loading user options..."
 source /datastore/run.params
+
+echo "Starting monitoring..."
+cp -r /opt/wtsi-cgp/site /datastore/site
+progress.pl /datastore $NAME_MT $NAME_WT $TIMEZONE /datastore/site/data/progress.js >& /datastore/monitor.log&
 
 echo -e "\tNAME_MT : $NAME_MT"
 echo -e "\tNAME_WT : $NAME_WT"
@@ -159,6 +167,7 @@ do_parallel[pindel]="pindel.pl \
  -g /datastore/reference_files/pindel/human.GRCh37.indelCoding.bed.gz \
  -u /datastore/reference_files/pindel/pindel_np.gff3.gz \
  -sf /datastore/reference_files/pindel/softRules.lst \
+ -b /datastore/reference_files/brass/ucscHiDepth_0.01_mrg1000_no_exon_coreChrs.bed.gz \
  -st WGS \
  -as GRCh37 \
  -sp Human \
@@ -217,7 +226,6 @@ do_parallel[CaVEMan]="caveman.pl \
 
 echo -e "\t[Parallel block 3] BRASS added..."
 do_parallel[BRASS]="brass.pl -j 4 -k 4 -c $CPU \
- -e MT,GL%,hs37d5,NC_007605 \
  -d /datastore/reference_files/brass/ucscHiDepth_0.01_mrg1000_no_exon_coreChrs.bed.gz \
  -f /datastore/reference_files/brass/brass_np.groups.gz \
  -g /datastore/reference_files/genome.fa \
@@ -226,10 +234,10 @@ do_parallel[BRASS]="brass.pl -j 4 -k 4 -c $CPU \
  -vi /datastore/reference_files/brass/viral.1.1.genomic.fa \
  -mi /datastore/reference_files/brass/all_ncbi_bacteria.20150703 \
  -b /datastore/reference_files/brass/hs37d5_500bp_windows.gc.bed.gz \
+ -ct /datastore/reference_files/brass/Human.GRCh37.CentTelo.tsv \
  -t $BAM_MT_TMP \
  -n $BAM_WT_TMP \
- -a /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/*.copynumber.caveman.csv \
- -ss /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/*.samplestatistics.csv \
+ -ss /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/*.samplestatistics.txt \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/brass"
 
 echo "Starting Parallel block 3: `date`"
@@ -245,7 +253,12 @@ AnnotateVcf.pl -t -c /datastore/reference_files/vagrent/e75/Homo_sapiens.GRCh37.
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/caveman/${NAME_MT}_vs_${NAME_WT}.annot.muts.vcf
 set +x
 
-echo -e "Annot CaVEMan start: `date`"
+echo -e "Annot CaVEMan end: `date`"
+
+cp -r /datastore/site /datastore/output/.
+cd /datastore
+echo 'Package results'
+tar -zcf result_${NAME_MT}_vs_${NAME_WT}.tar.gz output
 
 # run any post-exec step
 echo -e "\nRun POST_EXEC: `date`"
@@ -254,6 +267,5 @@ for i in "${POST_EXEC[@]}"; do
   $i
   set +x
 done
-
 
 echo -e "\nWorkflow end: `date`"

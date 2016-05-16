@@ -51,7 +51,7 @@ The required resources are unfortunately large but the system does run many elem
 
 @TODO HERE ADD EXAMPLE RUN TIMES FOR REAL 30x-40x genome coverage
 
-The small test data set completes in ~80 minutes on the AWS `4.10xlarge` instance type.  This consists of ~10GB of input data.
+The small test data set completes in ~80 minutes on the AWS `m4.10xlarge` instance type.  This consists of ~10GB of input data.  Please read the AWS documentation regarding [EBS volume types](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html) to avoid runtime being artificially increased by IO limits.  Examples here are based on GP2 SSD 1024GiB EBS.
 
 -----
 
@@ -61,12 +61,48 @@ To run the pre-built docker image with the test data log into a docker enabled h
 ````
 $ cd ~
 $ curl -sSL --retry 10 -O https://raw.githubusercontent.com/cancerit/cgpbox/master/examples/run.params
-$ (docker run --rm -v $MOUNT_POINT:/datastore -v ~/run.params:/datastore/run.params\
-  quay.io/wtsicgp/cgp_in_a_box > ~/run.out) >& ~/run.err &
+$ export MOUNT_POINT=/some/large/storage
+$ (docker run --rm -v $MOUNT_POINT:/datastore -v ~/run.params:/datastore/run.params quay.io/wtsicgp/cgp_in_a_box > ~/run.out) >& ~/run.err &
 ````
 `$MOUNT_POINT` should be a storage area with ~25GB of space for this test.
 
 Result files will be written to `$MOUNT_POINT/output`
+
+### Monitoring
+A simple webpage has been created so that you can monitor the progress of your job.  It simply provides evidence that things are progressing and requires the base host (not the docker) to have python installed:
+
+````
+$ cd $MOUNT_POINT/site
+$ sudo python -m SimpleHTTPServer 80 >& ~/monitor.log&
+````
+
+Then point you browser at:
+
+````
+http://yourhost/html/index.html
+````
+--
+![Example display: startup](examples/images/web_1.png)
+--
+![Example display: mid run](examples/images/web_2.png)
+--
+
+## Output
+
+On completion the data files used to generate the web-site are copied into the output location along with files containing timing/memory data.  These can be found at `$MOUNT_POINT/output/*.time` and are of the form:
+
+````
+$ cat ascat.time
+command:ascat.pl -o /datastore/output/HCC1143_vs_HCC1143_BL/ascat -t /datastore/output/tmp/HCC1143.bam -n /datastore/output/tmp/HCC1143_BL.bam -s /datastore/reference_files/ascat/SnpLocus.tsv -sp /datastore/reference_files/ascat/SnpPositions.tsv -sg /datastore/reference_files/ascat/SnpGcCorrections.tsv -r /datastore/reference_files/genome.fa -q 20 -g L -rs Human -ra GRCh37 -pr WGS -pl ILLUMINA -c 8
+real:1390.62
+user:2106.95
+sys:40.48
+text:0k
+data:0k
+max:2183804k
+````
+
+Additionally all of the data in the output folder is packaged as a tar.gz for easy retrieval (example data set: `$MOUNT_POINT/result_HCC1143_vs_HCC1143_BL.tar.gz`).  Please see `examples/run.params` for an example of using post-exec to push your data to AWS.
 
 ## Input requirements
 __cgpbox__ expects to be provided with a pair of BAM files (one tumour, one normal) each:

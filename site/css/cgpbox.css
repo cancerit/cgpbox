@@ -1,0 +1,32 @@
+html {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #666
+}
+
+th {
+  text-align: right;
+  color: #3558A1;
+}
+
+#footer {
+  padding: 5px;
+  margin: 5px;
+  border-top: double #666;
+  font-size: 12px;
+  vertical-align: bottom;
+}
+
+.progress {
+  display: inline-block;
+  width: 550px;
+  border: 1px dotted #3558A1;
+  padding: 5px;
+  margin: 5px;
+}
+
+.status {
+  display: inline-block;
+  vertical-align: bottom;
+  padding: 5px;
+  margin: 5px;
+}
