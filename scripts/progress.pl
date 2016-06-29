@@ -341,14 +341,14 @@ sub alg_counts {
     $logs = "$alg_base/tmp".(ucfirst $alg).'/logs';
   }
 
-  my ($started, $most_recent_log) = file_listing("$logs/*::$element.*.err");
+  my ($started, $most_recent_log) = file_listing("$logs/*_$element.*.err");
 
   my ($done, $most_recent_prog);
   if(-e "$alg_base/logs") {
     $done = $started;
   }
   else {
-    ($done, $most_recent_prog) = file_listing("$alg_base/tmp".(ucfirst $alg)."/progress/*::$element.*");
+    ($done, $most_recent_prog) = file_listing("$alg_base/tmp".(ucfirst $alg)."/progress/*_$element.*");
     $done ||= 0;
   }
 
