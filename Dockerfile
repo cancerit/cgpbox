@@ -2,7 +2,7 @@ FROM  ubuntu:14.04
 
 MAINTAINER  keiranmraine@gmail.com
 
-ENV CGPBOX_VERSION 1.0.0
+ENV CGPBOX_VERSION 1.1.0
 
 LABEL uk.ac.sanger.cgp="Cancer Genome Project, Wellcome Trust Sanger Institute" \
       version="$CGPBOX_VERSION" \
