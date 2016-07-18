@@ -144,8 +144,6 @@ do_parallel[ascat]="ascat.pl \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat \
  -t $BAM_MT_TMP \
  -n $BAM_WT_TMP \
- -s /datastore/reference_files/ascat/SnpLocus.tsv \
- -sp /datastore/reference_files/ascat/SnpPositions.tsv \
  -sg /datastore/reference_files/ascat/SnpGcCorrections.tsv \
  -r /datastore/reference_files/genome.fa \
  -q 20 \
