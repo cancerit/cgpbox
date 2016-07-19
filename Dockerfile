@@ -22,10 +22,10 @@ RUN apt-get -yq update && \
       git bsdtar libwww-perl openjdk-7-jdk time wget && \
     apt-get clean
 
-RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share $OPT/site
+RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share $OPT/site /tmp/hts_cache
 WORKDIR /tmp/downloads
 
-ENV REF_PATH /tmp/hts_cache/%2s/%2s/%s:http://www.ebi.ac.uk/ena/cram/md5/%s
+ENV REF_PATH /tmp/hts_cache/%2s/%2s/%s:http:://www.ebi.ac.uk/ena/cram/md5/%s
 ENV REF_CACHE /tmp/hts_cache/%2s/%2s/%s
 
 # PCAP-core
