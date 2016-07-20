@@ -423,7 +423,9 @@ sub setup_status {
   my ($started, $done) = (0,0);
   my $most_recent = 0;
 
-  if(-e "$base_path/$cgpbox_ver/reference_files/unpack_ref.success") {
+  $base_path .= '/'.$cgpbox_ver;
+
+  if(-e "$base_path/reference_files/unpack_ref.success") {
     my $this = get_most_recent($min_epoch, "$base_path/reference_files/unpack_ref.success");
     if($this == $min_epoch) {
       return ('Pre-staged', get_most_recent($most_recent, "$base_path/reference_files/unpack_ref.success"));
