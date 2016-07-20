@@ -23,10 +23,8 @@ RUN apt-get -yq update && \
     apt-get clean
 
 RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share $OPT/site /tmp/hts_cache
-WORKDIR /tmp/downloads
 
-ENV REF_PATH /tmp/hts_cache/%2s/%2s/%s:http:://www.ebi.ac.uk/ena/cram/md5/%s
-ENV REF_CACHE /tmp/hts_cache/%2s/%2s/%s
+WORKDIR /tmp/downloads
 
 # PCAP-core
 RUN curl -L -o master.zip --retry 10 https://github.com/ICGC-TCGA-PanCancer/PCAP-core/archive/master.zip && \
