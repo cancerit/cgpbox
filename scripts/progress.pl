@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use List::Util qw(max);
+use List::Util qw(first max);
 use JSON qw(encode_json);
 use Capture::Tiny qw(capture);
 use Cwd 'abs_path';
@@ -49,6 +49,7 @@ my %alg_elements = (ascat => [qw( allele_count
                                   grass
                                   tabix)],
                     );
+my @file_ignores = qw(Sanger_CGP_Ascat_Implement_ascat.merge_counts_);
 
 my $cgpbox_ver = q{-};
 $cgpbox_ver = $ENV{CGPBOX_VERSION} if(exists $ENV{CGPBOX_VERSION});
@@ -325,6 +326,7 @@ sub file_listing {
   my $count = @files;
   my $most_recent = 0;
   for my $file(@files) {
+    next if(first {$_ =~ m/$file/} @file_ignores);
     $most_recent = get_most_recent($most_recent, $file);
   }
   return ($count, $most_recent);
