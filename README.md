@@ -10,6 +10,8 @@ The pipeline is optimised for Wholegenome NGS somatic variation calling using BW
 	* [Test run](#test-run)
 	* [Running your data](#running-your-data)
 * [Input requirements](#input-requirements)
+* [Monitoring](#monitoring)
+* [Output](#output)
 * [Primary analysis software](#primary-analysis-software)
 * [AWS setup example](#aws-setup-example)
 * [LICENSE](#license)
@@ -68,7 +70,50 @@ $ (docker run --rm -v $MOUNT_POINT:/datastore -v ~/run.params:/datastore/run.par
 
 Result files will be written to `$MOUNT_POINT/output`
 
-### Monitoring
+### Running your data
+
+To analyse your own pairs of tumour normal BAM files you can modify the example `run.params` file indicated in [Test run](#test-run).
+
+The `run.params` file contains comments to assist you but here are the critial items:
+
+* `NAME_*` - Should match the sample names found in the headers of the BAM files.
+* `*_MT` - Refers to data linked to the MuTant/tumour sample.
+* `*_WT` - Refers to data linked to the WildType/Normal sample.
+* `BAM_*` - Paths to the input BAM files, path is that found within the docker image.
+
+Please see [Input requirements](#input-requirements).
+
+#### PRE-EXEC array
+
+This is an optional section to provide actions that should be performed ___prior___ to the main analysis being triggered.  In the example `run.params` this downloads and unpacks the test dataset.
+
+The uses are only limited by the tools available within the docker image (S3 tools are already included).  If there is a good case for additional tools please raise an issue.
+
+If not needed comment out or delete.
+
+#### POST-EXEC array
+
+This is an optional section to provide actions that should be performed ___after___ to the main analysis being triggered.  In the example `run.params` this shows how you could automatically trigger an upload to an S3 bucket.
+
+The uses are only limited by the tools available within the docker image (S3 tools are already included).  If there is a good case for additional tools please raise an issue.
+
+If not needed comment out or delete.
+
+### Input requirements
+__cgpbox__ expects to be provided with a pair of BAM files (one tumour, one normal) each:
+
+* Mapped with BWA-mem
+	* Having valid ReadGroup headers including LB and SN tags
+	* See SAM/BAM specification [here](https://samtools.github.io/hts-specs/SAMv1.pdf) for more details.
+* Duplicates marked.
+* BAM indexes created.
+
+### Data mapped in different fashion
+Data mapped using a different algorithm _may_ process successfully however we are unlikely to be able to provide detailed support.
+
+If you already have a mapped BAM you can re-map with all of the above handled for you using the `bwa_mem.pl` script which is part of [PCAP-core](https://github.com/ICGC-TCGA-PanCancer/PCAP-core).
+
+## Monitoring
 A simple webpage has been created so that you can monitor the progress of your job.  It simply provides evidence that things are progressing and requires the base host (not the docker) to have python installed:
 
 ````
@@ -103,20 +148,6 @@ max:2183804k
 ````
 
 Additionally all of the data in the output folder is packaged as a tar.gz for easy retrieval (example data set: `$MOUNT_POINT/result_HCC1143_vs_HCC1143_BL.tar.gz`).  Please see `examples/run.params` for an example of using post-exec to push your data to AWS.
-
-## Input requirements
-__cgpbox__ expects to be provided with a pair of BAM files (one tumour, one normal) each:
-
-* Mapped with BWA-mem
-	* Having valid ReadGroup headers including LB and SN tags
-	* See SAM/BAM specification [here](https://samtools.github.io/hts-specs/SAMv1.pdf) for more details.
-* Duplicates marked.
-* BAM indexes created.
-
-### Data mapped in different fashion
-Data mapped using a different algorithm _may_ process successfully however we are unlikely to be able to provide detailed support.
-
-If you already have a mapped BAM you can re-map with all of the above handled for you using the `bwa_mem.pl` script which is part of [PCAP-core](https://github.com/ICGC-TCGA-PanCancer/PCAP-core).
 
 ## Primary analysis software
 
