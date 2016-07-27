@@ -401,13 +401,13 @@ sub testdata_status {
   my $status = 'N/A';
   my $most_recent = 0;
   # these 2 only occur if pre-exe is test data
-  if($ENV{BUNDLED_TEST} == 1) {
+  if(-e "$base_path/testdata.tar") {
     my ($started, $done) = (0,0);
     $started++;
     $most_recent = get_most_recent($most_recent, "$base_path/testdata.tar");
     my (undef, $most_recent_unpack) = file_listing("$base_path/input/*.cram", "$base_path/input/*.bam*");
     $most_recent = $most_recent_unpack if($most_recent_unpack > $most_recent);
-    if(-e $ENV{BAM_MT} && -e $ENV{BAM_WT}) {
+    if(-e "$base_path/input/$mt_name.bam" && -e "$base_path/input/$wt_name.bam") {
       $done++;
     }
     if($started > 0) {
