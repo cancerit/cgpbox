@@ -293,8 +293,10 @@ sub recent_date_from_epoch {
 
 sub get_most_recent {
   my ($most_recent, $file) = @_;
-  my $epoch = (stat $file)[9];
-  $most_recent = $epoch if($epoch > $most_recent);
+  if(-e $file) {
+    my $epoch = (stat $file)[9];
+    $most_recent = $epoch if($epoch > $most_recent);
+  }
   return $most_recent;
 }
 
@@ -399,10 +401,10 @@ sub testdata_status {
   my $status = 'N/A';
   my $most_recent = 0;
   # these 2 only occur if pre-exe is test data
-  if(-e "$base_path/testdata.tar") {
+  if($ENV{BUNDLED_TEST} == 1) {
     my ($started, $done) = (0,0);
     $started++;
-    $most_recent = get_most_recent($most_recent, "$base_path/testdata.tar");
+    $most_recent = get_most_recent($most_recent, "$base_path/testdata.tar"); # this may be removed
     my (undef, $most_recent_unpack) = file_listing("$base_path/input/*.cram", "$base_path/input/*.bam*");
     $most_recent = $most_recent_unpack if($most_recent_unpack > $most_recent);
     if(-e $ENV{BAM_MT} && -e $ENV{BAM_WT}) {
