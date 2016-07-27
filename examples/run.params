@@ -33,20 +33,16 @@ TIMEZONE='Europe/London'
         6. Deletes the MT cram file to minimise required space
         7. Converts the WT cram file to bam
         8. Deletes the WT cram file to minimise required space"
-        9. Generate MT index
-       10. Generate WT index"
 
  PRE_EXEC[0]='rm -rf /datastore/input /datastore/testdata.tar'
  PRE_EXEC[1]='mkdir /datastore/input'
  PRE_EXEC[2]='curl -sSL --retry 10 -o /datastore/testdata.tar ftp://ftp.sanger.ac.uk/pub/cancer/cgpbox/testdata-${CGPBOX_VERSION}.tar'
  PRE_EXEC[3]='tar -C /datastore/input --strip-components 1 -xf /datastore/testdata.tar'
  PRE_EXEC[4]='rm -f /datastore/testdata.tar'
- PRE_EXEC[5]='samtools view -b -o /datastore/input/${NAME_MT}.bam /datastore/input/${NAME_MT}.cram'
+ PRE_EXEC[5]='bamcollate2 inputformat=cram outputformat=bam collate=0 index=1 outputthreads=$CPU exclude= filename=/datastore/input/${NAME_MT}.cram O=/datastore/input/${NAME_MT}.bam indexfilename=/datastore/input/${NAME_MT}.bam.bai'
  PRE_EXEC[6]='rm -f /datastore/input/${NAME_MT}.cram'
- PRE_EXEC[7]='samtools view -b -o /datastore/input/${NAME_WT}.bam /datastore/input/${NAME_WT}.cram'
+ PRE_EXEC[7]='bamcollate2 inputformat=cram outputformat=bam collate=0 index=1 outputthreads=$CPU exclude= filename=/datastore/input/${NAME_WT}.cram O=/datastore/input/${NAME_WT}.bam indexfilename=/datastore/input/${NAME_WT}.bam.bai'
  PRE_EXEC[8]='rm -f /datastore/input/${NAME_WT}.cram'
- PRE_EXEC[9]='samtools index /datastore/input/${NAME_MT}.bam'
-PRE_EXEC[10]='samtools index /datastore/input/${NAME_WT}.bam'
 
 : "Same as PRE_EXEC but run at the end of the workflow
     - This is an example how you could write your result to S3 by setting the environment variables and path for your bucket
