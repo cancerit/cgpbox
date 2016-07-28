@@ -18,6 +18,7 @@ my $outfile = shift @ARGV;
 
 my $min_epoch = time;
 my $max_cpus = max_cpu();
+my $is_test_data = 0;
 
 my @algs = qw(ascat pindel caveman brass);
 my %alg_elements = (ascat => [qw( allele_count
@@ -325,10 +326,11 @@ sub max_cpu {
 sub file_listing {
   my ($search) = @_;
   my @files = glob $search;
-  my $count = @files;
+  my $count = 0;
   my $most_recent = 0;
   for my $file(@files) {
     next if(first {$_ =~ m/$file/} @file_ignores);
+    $count++;
     $most_recent = get_most_recent($most_recent, $file);
   }
   return ($count, $most_recent);
@@ -400,8 +402,9 @@ sub testdata_status {
   my ($base_path) = @_;
   my $status = 'N/A';
   my $most_recent = 0;
+  $is_test_data = 1 if($is_test_data == 0 && -e "$base_path/testdata.tar");
   # these 2 only occur if pre-exe is test data
-  if(-e "$base_path/testdata.tar") {
+  if($is_test_data == 1) {
     my ($started, $done) = (0,0);
     $started++;
     $most_recent = get_most_recent($most_recent, "$base_path/testdata.tar");
