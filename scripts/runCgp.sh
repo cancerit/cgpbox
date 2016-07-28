@@ -85,7 +85,7 @@ echo -e "\nRun PRE_EXEC: `date`"
 for i in "${PRE_EXEC[@]}"; do
   set -x
   $i
-  set +x
+  { set +x; } 2> /dev/null
 done
 
 REF_BASE=/datastore/$CGPBOX_VERSION/reference_files
