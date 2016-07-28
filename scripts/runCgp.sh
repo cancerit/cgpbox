@@ -150,9 +150,9 @@ do_parallel[ascat]="ascat.pl \
  -r $REF_BASE/genome.fa \
  -q 20 \
  -g L \
- -rs Human \
- -ra GRCh37 \
- -pr WGS \
+ -rs '$SPECIES' \
+ -ra $ASSEMBLY \
+ -pr $PROTOCOL \
  -pl ILLUMINA \
  -c $CPU"
 
@@ -168,9 +168,9 @@ do_parallel[pindel]="pindel.pl \
  -u $REF_BASE/pindel/pindel_np.gff3.gz \
  -sf $REF_BASE/pindel/softRules.lst \
  -b $REF_BASE/brass/HiDepth.bed.gz \
- -st WGS \
- -as GRCh37 \
- -sp Human \
+ -st $PROTOCOL \
+ -as $ASSEMBLY \
+ -sp '$SPECIES' \
  -e NC_007605,hs37d5,GL% \
  -c $CPU"
 
@@ -213,8 +213,8 @@ do_parallel[CaVEMan]="caveman.pl \
  -ig $REF_BASE/caveman/HiDepth.tsv \
  -b $REF_BASE/caveman/flagging \
  -u $REF_BASE/caveman \
- -s HUMAN \
- -sa GRCh37 \
+ -s '$SPECIES' \
+ -sa $ASSEMBLY \
  -t $CPU \
  -st genomic \
  -in /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.germline.bed  \
@@ -229,7 +229,7 @@ do_parallel[BRASS]="brass.pl -j 4 -k 4 -c $CPU \
  -d $REF_BASE/brass/HiDepth.bed.gz \
  -f $REF_BASE/brass/brass_np.groups.gz \
  -g $REF_BASE/genome.fa \
- -s HUMAN -as GRCh37 -pr WGS -pl ILLUMINA \
+ -s '$SPECIES' -as $ASSEMBLY -pr $PROTOCOL -pl ILLUMINA \
  -g_cache $REF_BASE/vagrent/vagrent.cache.gz \
  -vi $REF_BASE/brass/viral.1.1.genomic.fa \
  -mi $REF_BASE/brass/all_ncbi_bacteria.20150703 \

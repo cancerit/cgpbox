@@ -14,6 +14,11 @@ NAME_WT='COLO-829-BL'
 BAM_MT='/datastore/input/COLO-829.bam'
 BAM_WT='/datastore/input/COLO-829-BL.bam'
 
+PROTOCOL='WGS' # Type of sequencing
+SPECIES='Human' # Species to tag
+ASSEMBLY='NCBI37'
+PINDEL_EXCLUDE='NC_007605,hs37d5,GL%'
+
 TIMEZONE='Europe/London'
 
 : "PRE_EXEC - Commands to be run before the main workflow starts
