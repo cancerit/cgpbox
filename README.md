@@ -3,7 +3,7 @@ The __cgpbox__ project encapsulates the core [Cancer Genome Project](http://www.
 
 [![Docker Repository on Quay](https://quay.io/repository/wtsicgp/cgp_in_a_box/status "Docker Repository on Quay")](https://quay.io/repository/wtsicgp/cgp_in_a_box)
 
-The pipeline is optimised for Wholegenome NGS somatic variation calling using BWA mem mapped, Illumina paired-end sequencing.
+The pipeline is optimised for somatic variation calling using ___BWA mem mapped, Illumina paired-end sequencing___.
 
 * [Analysis performed](#analysis-performed)
 * [Running the docker image](#running-the-docker-image)
@@ -51,13 +51,10 @@ The required resources are unfortunately large but the system does run many elem
 
 -----
 
-@TODO HERE ADD EXAMPLE RUN TIMES FOR REAL 30x-40x genome coverage
-
-The small test data set completes in ~80 minutes on the AWS `m4.10xlarge` instance type.  This consists of ~10GB of input data.  Please read the AWS documentation regarding [EBS volume types](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html) to avoid runtime being artificially increased by IO limits.  Examples here are based on GP2 SSD 1024GiB EBS.
-
------
-
 ### Test run
+
+__The current test dataset takes quite a long time to run.  We are working to find more suitable data that we can share.  Please see [Running your data](running-your-data) to use your own sample pair.__
+
 To run the pre-built docker image with the test data log into a docker enabled host and run the following:
 
 ````
@@ -98,6 +95,9 @@ This is an optional section to provide actions that should be performed ___after
 The uses are only limited by the tools available within the docker image (S3 tools are already included).  If there is a good case for additional tools please raise an issue.
 
 If not needed comment out or delete.
+
+#### Other params not documented here
+There are some other parameters that have not been documented here as they relate to future features. Basic notes are included with all parameters in [`examples/run.params`](examples/run.params).
 
 ### Input requirements
 __cgpbox__ expects to be provided with a pair of BAM files (one tumour, one normal) each:
@@ -151,7 +151,7 @@ Additionally all of the data in the output folder is packaged as a tar.gz for ea
 
 ## Primary analysis software
 
-It incorporates the following _cancerit_ projects:
+It incorporates the following ___cancerit___ projects:
 
  * [cgpVcf](https://github.com/cancerit/cgpVcf)
  * [alleleCount](https://github.com/cancerit/alleleCount)
@@ -167,14 +167,13 @@ It incorporates the following _cancerit_ projects:
 
 ### Dependancies
 
-Additionally these have dependancies on the following software packages which may have different license restrictions to the _cancerit_ packages:
+Additionally these have dependancies on the following software packages which may have different license restrictions to the ___cancerit___ packages:
 
-* [PCAP-core](https://github.com/ICGC-TCGA-PanCancer/PCAP-core) - maintained by _cancerit_
+* [PCAP-core](https://github.com/ICGC-TCGA-PanCancer/PCAP-core) - maintained by ___cancerit___
 * [kentUtils](https://github.com/ENCODE-DCC/kentUtils)
 * [BWA](https://github.com/lh3/bwa)
 * [biobambam2](https://github.com/gt1/biobambam2)
 * [htslib](https://github.com/samtools/htslib)
-* [samtools (legacy)](https://github.com/samtools/samtools)
 * [tabix](https://github.com/samtools/tabix)
 * [bedtools2](https://github.com/arq5x/bedtools2)
 * [verifyBamID](https://github.com/statgen/verifyBamID)
