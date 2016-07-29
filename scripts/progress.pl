@@ -329,7 +329,7 @@ sub file_listing {
   my $count = 0;
   my $most_recent = 0;
   for my $file(@files) {
-    next if(first {$_ =~ m/$file/} @file_ignores);
+    next if(first {$file =~ m/$_/} @file_ignores);
     $count++;
     $most_recent = get_most_recent($most_recent, $file);
   }
