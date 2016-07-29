@@ -85,8 +85,10 @@ echo -e "\nRun PRE_EXEC: `date`"
 for i in "${PRE_EXEC[@]}"; do
   set -x
   $i
-  set +x
+  { set +x; } 2> /dev/null
 done
+
+REF_BASE=/datastore/$CGPBOX_VERSION/reference_files
 
 BAM_MT_TMP=$TMP/$NAME_MT.bam
 BAM_WT_TMP=$TMP/$NAME_WT.bam
@@ -144,15 +146,13 @@ do_parallel[ascat]="ascat.pl \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat \
  -t $BAM_MT_TMP \
  -n $BAM_WT_TMP \
- -s /datastore/reference_files/ascat/SnpLocus.tsv \
- -sp /datastore/reference_files/ascat/SnpPositions.tsv \
- -sg /datastore/reference_files/ascat/SnpGcCorrections.tsv \
- -r /datastore/reference_files/genome.fa \
+ -sg $REF_BASE/ascat/SnpGcCorrections.tsv \
+ -r $REF_BASE/genome.fa \
  -q 20 \
  -g L \
- -rs Human \
- -ra GRCh37 \
- -pr WGS \
+ -rs '$SPECIES' \
+ -ra $ASSEMBLY \
+ -pr $PROTOCOL \
  -pl ILLUMINA \
  -c $CPU"
 
@@ -161,16 +161,16 @@ do_parallel[pindel]="pindel.pl \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel \
  -t $BAM_MT_TMP \
  -n $BAM_WT_TMP \
- -r /datastore/reference_files/genome.fa \
- -s /datastore/reference_files/pindel/simpleRepeats.bed.gz \
- -f /datastore/reference_files/pindel/genomicRules.lst \
- -g /datastore/reference_files/pindel/human.GRCh37.indelCoding.bed.gz \
- -u /datastore/reference_files/pindel/pindel_np.gff3.gz \
- -sf /datastore/reference_files/pindel/softRules.lst \
- -b /datastore/reference_files/brass/ucscHiDepth_0.01_mrg1000_no_exon_coreChrs.bed.gz \
- -st WGS \
- -as GRCh37 \
- -sp Human \
+ -r $REF_BASE/genome.fa \
+ -s $REF_BASE/pindel/simpleRepeats.bed.gz \
+ -f $REF_BASE/pindel/genomicRules.lst \
+ -g $REF_BASE/pindel/indelCoding.bed.gz \
+ -u $REF_BASE/pindel/pindel_np.gff3.gz \
+ -sf $REF_BASE/pindel/softRules.lst \
+ -b $REF_BASE/brass/HiDepth.bed.gz \
+ -st $PROTOCOL \
+ -as $ASSEMBLY \
+ -sp '$SPECIES' \
  -e NC_007605,hs37d5,GL% \
  -c $CPU"
 
@@ -203,18 +203,18 @@ do_parallel[verify_MT]="verifyBamHomChk.pl -d 25 \
 # annotate pindel
 rm -f /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.annot.vcf.gz*
 echo -e "\t[Parallel block 3] Pindel_annot added..."
-do_parallel[Pindel_annot]="AnnotateVcf.pl -t -c /datastore/reference_files/vagrent/e75/Homo_sapiens.GRCh37.75.vagrent.cache.gz \
+do_parallel[Pindel_annot]="AnnotateVcf.pl -t -c $REF_BASE/vagrent/vagrent.cache.gz \
  -i /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.flagged.vcf.gz \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.annot.vcf"
 
 echo -e "\t[Parallel block 3] CaVEMan added..."
 do_parallel[CaVEMan]="caveman.pl \
- -r /datastore/reference_files/genome.fa.fai \
- -ig /datastore/reference_files/caveman/ucscHiDepth_0.01_merge1000_no_exon.tsv \
- -b /datastore/reference_files/caveman/flagging \
- -u /datastore/reference_files/caveman \
- -s HUMAN \
- -sa GRCh37 \
+ -r $REF_BASE/genome.fa.fai \
+ -ig $REF_BASE/caveman/HiDepth.tsv \
+ -b $REF_BASE/caveman/flagging \
+ -u $REF_BASE/caveman \
+ -s '$SPECIES' \
+ -sa $ASSEMBLY \
  -t $CPU \
  -st genomic \
  -in /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.germline.bed  \
@@ -226,15 +226,15 @@ do_parallel[CaVEMan]="caveman.pl \
 
 echo -e "\t[Parallel block 3] BRASS added..."
 do_parallel[BRASS]="brass.pl -j 4 -k 4 -c $CPU \
- -d /datastore/reference_files/brass/ucscHiDepth_0.01_mrg1000_no_exon_coreChrs.bed.gz \
- -f /datastore/reference_files/brass/brass_np.groups.gz \
- -g /datastore/reference_files/genome.fa \
- -s HUMAN -as GRCh37 -pr WGS -pl ILLUMINA \
- -g_cache /datastore/reference_files/vagrent/e75/Homo_sapiens.GRCh37.75.vagrent.cache.gz \
- -vi /datastore/reference_files/brass/viral.1.1.genomic.fa \
- -mi /datastore/reference_files/brass/all_ncbi_bacteria.20150703 \
- -b /datastore/reference_files/brass/hs37d5_500bp_windows.gc.bed.gz \
- -ct /datastore/reference_files/brass/Human.GRCh37.CentTelo.tsv \
+ -d $REF_BASE/brass/HiDepth.bed.gz \
+ -f $REF_BASE/brass/brass_np.groups.gz \
+ -g $REF_BASE/genome.fa \
+ -s '$SPECIES' -as $ASSEMBLY -pr $PROTOCOL -pl ILLUMINA \
+ -g_cache $REF_BASE/vagrent/vagrent.cache.gz \
+ -vi $REF_BASE/brass/viral.1.1.genomic.fa \
+ -mi $REF_BASE/brass/all_ncbi_bacteria.20150703 \
+ -b $REF_BASE/brass/500bp_windows.gc.bed.gz \
+ -ct $REF_BASE/brass/CentTelo.tsv \
  -t $BAM_MT_TMP \
  -n $BAM_WT_TMP \
  -ss /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/*.samplestatistics.txt \
@@ -248,7 +248,7 @@ echo -e "Annot CaVEMan start: `date`"
 # annotate caveman
 rm -f /datastore/output/${NAME_MT}_vs_${NAME_WT}/caveman/${NAME_MT}_vs_${NAME_WT}.annot.muts.vcf.gz*
 set -x
-AnnotateVcf.pl -t -c /datastore/reference_files/vagrent/e75/Homo_sapiens.GRCh37.75.vagrent.cache.gz \
+AnnotateVcf.pl -t -c $REF_BASE/vagrent/vagrent.cache.gz \
  -i /datastore/output/${NAME_MT}_vs_${NAME_WT}/caveman/${NAME_MT}_vs_${NAME_WT}.flagged.muts.vcf.gz \
  -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/caveman/${NAME_MT}_vs_${NAME_WT}.annot.muts.vcf
 set +x

@@ -3,13 +3,15 @@ The __cgpbox__ project encapsulates the core [Cancer Genome Project](http://www.
 
 [![Docker Repository on Quay](https://quay.io/repository/wtsicgp/cgp_in_a_box/status "Docker Repository on Quay")](https://quay.io/repository/wtsicgp/cgp_in_a_box)
 
-The pipeline is optimised for Wholegenome NGS somatic variation calling using BWA mem mapped, Illumina paired-end sequencing.
+The pipeline is optimised for somatic variation calling using ___BWA mem mapped, Illumina paired-end sequencing___.
 
 * [Analysis performed](#analysis-performed)
 * [Running the docker image](#running-the-docker-image)
 	* [Test run](#test-run)
 	* [Running your data](#running-your-data)
 * [Input requirements](#input-requirements)
+* [Monitoring](#monitoring)
+* [Output](#output)
 * [Primary analysis software](#primary-analysis-software)
 * [AWS setup example](#aws-setup-example)
 * [LICENSE](#license)
@@ -49,13 +51,10 @@ The required resources are unfortunately large but the system does run many elem
 
 -----
 
-@TODO HERE ADD EXAMPLE RUN TIMES FOR REAL 30x-40x genome coverage
-
-The small test data set completes in ~80 minutes on the AWS `m4.10xlarge` instance type.  This consists of ~10GB of input data.  Please read the AWS documentation regarding [EBS volume types](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html) to avoid runtime being artificially increased by IO limits.  Examples here are based on GP2 SSD 1024GiB EBS.
-
------
-
 ### Test run
+
+__The current test dataset takes quite a long time to run.  We are working to find more suitable data that we can share.  Please see [Running your data](running-your-data) to use your own sample pair.__
+
 To run the pre-built docker image with the test data log into a docker enabled host and run the following:
 
 ````
@@ -68,7 +67,53 @@ $ (docker run --rm -v $MOUNT_POINT:/datastore -v ~/run.params:/datastore/run.par
 
 Result files will be written to `$MOUNT_POINT/output`
 
-### Monitoring
+### Running your data
+
+To analyse your own pairs of tumour normal BAM files you can modify the example `run.params` file indicated in [Test run](#test-run).
+
+The `run.params` file contains comments to assist you but here are the critial items:
+
+* `NAME_*` - Should match the sample names found in the headers of the BAM files.
+* `*_MT` - Refers to data linked to the MuTant/tumour sample.
+* `*_WT` - Refers to data linked to the WildType/Normal sample.
+* `BAM_*` - Paths to the input BAM files, path is that found within the docker image.
+
+Please see [Input requirements](#input-requirements).
+
+#### PRE-EXEC array
+
+This is an optional section to provide actions that should be performed ___prior___ to the main analysis being triggered.  In the example `run.params` this downloads and unpacks the test dataset.
+
+The uses are only limited by the tools available within the docker image (S3 tools are already included).  If there is a good case for additional tools please raise an issue.
+
+If not needed comment out or delete.
+
+#### POST-EXEC array
+
+This is an optional section to provide actions that should be performed ___after___ to the main analysis being triggered.  In the example `run.params` this shows how you could automatically trigger an upload to an S3 bucket.
+
+The uses are only limited by the tools available within the docker image (S3 tools are already included).  If there is a good case for additional tools please raise an issue.
+
+If not needed comment out or delete.
+
+#### Other params not documented here
+There are some other parameters that have not been documented here as they relate to future features. Basic notes are included with all parameters in [`examples/run.params`](examples/run.params).
+
+### Input requirements
+__cgpbox__ expects to be provided with a pair of BAM files (one tumour, one normal) each:
+
+* Mapped with BWA-mem
+	* Having valid ReadGroup headers including LB and SN tags
+	* See SAM/BAM specification [here](https://samtools.github.io/hts-specs/SAMv1.pdf) for more details.
+* Duplicates marked.
+* BAM indexes created.
+
+### Data mapped in different fashion
+Data mapped using a different algorithm _may_ process successfully however we are unlikely to be able to provide detailed support.
+
+If you already have a mapped BAM you can re-map with all of the above handled for you using the `bwa_mem.pl` script which is part of [PCAP-core](https://github.com/ICGC-TCGA-PanCancer/PCAP-core).
+
+## Monitoring
 A simple webpage has been created so that you can monitor the progress of your job.  It simply provides evidence that things are progressing and requires the base host (not the docker) to have python installed:
 
 ````
@@ -104,23 +149,9 @@ max:2183804k
 
 Additionally all of the data in the output folder is packaged as a tar.gz for easy retrieval (example data set: `$MOUNT_POINT/result_HCC1143_vs_HCC1143_BL.tar.gz`).  Please see `examples/run.params` for an example of using post-exec to push your data to AWS.
 
-## Input requirements
-__cgpbox__ expects to be provided with a pair of BAM files (one tumour, one normal) each:
-
-* Mapped with BWA-mem
-	* Having valid ReadGroup headers including LB and SN tags
-	* See SAM/BAM specification [here](https://samtools.github.io/hts-specs/SAMv1.pdf) for more details.
-* Duplicates marked.
-* BAM indexes created.
-
-### Data mapped in different fashion
-Data mapped using a different algorithm _may_ process successfully however we are unlikely to be able to provide detailed support.
-
-If you already have a mapped BAM you can re-map with all of the above handled for you using the `bwa_mem.pl` script which is part of [PCAP-core](https://github.com/ICGC-TCGA-PanCancer/PCAP-core).
-
 ## Primary analysis software
 
-It incorporates the following _cancerit_ projects:
+It incorporates the following ___cancerit___ projects:
 
  * [cgpVcf](https://github.com/cancerit/cgpVcf)
  * [alleleCount](https://github.com/cancerit/alleleCount)
@@ -136,14 +167,13 @@ It incorporates the following _cancerit_ projects:
 
 ### Dependancies
 
-Additionally these have dependancies on the following software packages which may have different license restrictions to the _cancerit_ packages:
+Additionally these have dependancies on the following software packages which may have different license restrictions to the ___cancerit___ packages:
 
-* [PCAP-core](https://github.com/ICGC-TCGA-PanCancer/PCAP-core) - maintained by _cancerit_
+* [PCAP-core](https://github.com/ICGC-TCGA-PanCancer/PCAP-core) - maintained by ___cancerit___
 * [kentUtils](https://github.com/ENCODE-DCC/kentUtils)
 * [BWA](https://github.com/lh3/bwa)
 * [biobambam2](https://github.com/gt1/biobambam2)
 * [htslib](https://github.com/samtools/htslib)
-* [samtools (legacy)](https://github.com/samtools/samtools)
 * [tabix](https://github.com/samtools/tabix)
 * [bedtools2](https://github.com/arq5x/bedtools2)
 * [verifyBamID](https://github.com/statgen/verifyBamID)

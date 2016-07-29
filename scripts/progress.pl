@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use List::Util qw(max);
+use List::Util qw(first max);
 use JSON qw(encode_json);
 use Capture::Tiny qw(capture);
 use Cwd 'abs_path';
@@ -18,6 +18,7 @@ my $outfile = shift @ARGV;
 
 my $min_epoch = time;
 my $max_cpus = max_cpu();
+my $is_test_data = 0;
 
 my @algs = qw(ascat pindel caveman brass);
 my %alg_elements = (ascat => [qw( allele_count
@@ -49,6 +50,7 @@ my %alg_elements = (ascat => [qw( allele_count
                                   grass
                                   tabix)],
                     );
+my @file_ignores = qw(Sanger_CGP_Ascat_Implement_ascat.merge_counts_);
 
 my $cgpbox_ver = q{-};
 $cgpbox_ver = $ENV{CGPBOX_VERSION} if(exists $ENV{CGPBOX_VERSION});
@@ -292,8 +294,10 @@ sub recent_date_from_epoch {
 
 sub get_most_recent {
   my ($most_recent, $file) = @_;
-  my $epoch = (stat $file)[9];
-  $most_recent = $epoch if($epoch > $most_recent);
+  if(-e $file) {
+    my $epoch = (stat $file)[9];
+    $most_recent = $epoch if($epoch > $most_recent);
+  }
   return $most_recent;
 }
 
@@ -322,9 +326,11 @@ sub max_cpu {
 sub file_listing {
   my ($search) = @_;
   my @files = glob $search;
-  my $count = @files;
+  my $count = 0;
   my $most_recent = 0;
   for my $file(@files) {
+    next if(first {$file =~ m/$_/} @file_ignores);
+    $count++;
     $most_recent = get_most_recent($most_recent, $file);
   }
   return ($count, $most_recent);
@@ -341,14 +347,14 @@ sub alg_counts {
     $logs = "$alg_base/tmp".(ucfirst $alg).'/logs';
   }
 
-  my ($started, $most_recent_log) = file_listing("$logs/*::$element.*.err");
+  my ($started, $most_recent_log) = file_listing("$logs/*_$element.*.err");
 
   my ($done, $most_recent_prog);
   if(-e "$alg_base/logs") {
     $done = $started;
   }
   else {
-    ($done, $most_recent_prog) = file_listing("$alg_base/tmp".(ucfirst $alg)."/progress/*::$element.*");
+    ($done, $most_recent_prog) = file_listing("$alg_base/tmp".(ucfirst $alg)."/progress/*_$element.*");
     $done ||= 0;
   }
 
@@ -396,14 +402,15 @@ sub testdata_status {
   my ($base_path) = @_;
   my $status = 'N/A';
   my $most_recent = 0;
+  $is_test_data = 1 if($is_test_data == 0 && -e "$base_path/testdata.tar");
   # these 2 only occur if pre-exe is test data
-  if(-e "$base_path/testdata.tar") {
+  if($is_test_data == 1) {
     my ($started, $done) = (0,0);
     $started++;
     $most_recent = get_most_recent($most_recent, "$base_path/testdata.tar");
-    my (undef, $most_recent_unpack) = file_listing("$base_path/input/*.bam*");
+    my (undef, $most_recent_unpack) = file_listing("$base_path/input/*.cram", "$base_path/input/*.bam*");
     $most_recent = $most_recent_unpack if($most_recent_unpack > $most_recent);
-    if(-e "$base_path/input/HCC1143.bam") {
+    if(-e "$base_path/input/$mt_name.bam" && -e "$base_path/input/$wt_name.bam") {
       $done++;
     }
     if($started > 0) {
@@ -422,6 +429,8 @@ sub setup_status {
   my ($base_path) = @_;
   my ($started, $done) = (0,0);
   my $most_recent = 0;
+
+  $base_path .= '/'.$cgpbox_ver;
 
   if(-e "$base_path/reference_files/unpack_ref.success") {
     my $this = get_most_recent($min_epoch, "$base_path/reference_files/unpack_ref.success");
