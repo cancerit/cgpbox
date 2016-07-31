@@ -2,7 +2,7 @@ FROM  ubuntu:14.04
 
 MAINTAINER  keiranmraine@gmail.com
 
-ENV CGPBOX_VERSION 1.0.0
+ENV CGPBOX_VERSION 2.0.0
 
 LABEL uk.ac.sanger.cgp="Cancer Genome Project, Wellcome Trust Sanger Institute" \
       version="$CGPBOX_VERSION" \
@@ -17,12 +17,13 @@ ENV PERL5LIB $OPT/lib/perl5
 RUN apt-get -yq update && \
     apt-get -yq install libreadline6-dev build-essential autoconf software-properties-common python-software-properties \
       curl libcurl4-openssl-dev nettle-dev zlib1g-dev libncurses5-dev \
-      libgd2-xpm-dev libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
+      libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
       libpstreams-dev libglib2.0-dev gfortran libcairo2-dev \
-      git bsdtar libwww-perl openjdk-7-jdk time && \
+      git bsdtar libwww-perl openjdk-7-jdk time wget && \
     apt-get clean
 
-RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share $OPT/site
+RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share $OPT/site /tmp/hts_cache
+
 WORKDIR /tmp/downloads
 
 # PCAP-core
@@ -32,7 +33,7 @@ RUN curl -L -o master.zip --retry 10 https://github.com/ICGC-TCGA-PanCancer/PCAP
     cd /tmp/downloads/distro && \
     ./setup.sh $OPT && \
     cd /tmp/downloads && \
-    rm -rf master.zip /tmp/downloads/distro
+    rm -rf master.zip /tmp/downloads/distro /tmp/hts_cache
 
 # alleleCount
 RUN curl -L -o master.zip --retry 10 https://github.com/cancerit/alleleCount/archive/master.zip && \

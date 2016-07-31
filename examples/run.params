@@ -9,10 +9,15 @@
                    perl -MDateTime -e 'print join "\n", DateTime::TimeZone->all_names;'
  "
 
-NAME_MT='HCC1143'
-NAME_WT='HCC1143_BL'
-BAM_MT='/datastore/input/HCC1143.bam'
-BAM_WT='/datastore/input/HCC1143_BL.bam'
+NAME_MT='COLO-829'
+NAME_WT='COLO-829-BL'
+BAM_MT='/datastore/input/COLO-829.bam'
+BAM_WT='/datastore/input/COLO-829-BL.bam'
+
+PROTOCOL='WGS' # Type of sequencing
+SPECIES='Human' # Species to tag
+ASSEMBLY='NCBI37'
+PINDEL_EXCLUDE='NC_007605,hs37d5,GL%'
 
 TIMEZONE='Europe/London'
 
@@ -22,17 +27,27 @@ TIMEZONE='Europe/London'
             Order of addition is maintaned.
     - Can be used to stage your files, the above variables are imported before this so
       they can be used in the normal fashion, $NAME_WT etc
-    - This example
+    - This example pulls an arcive of CRAM data, upacks, converts to BAM and builds indexes.
+      The following describes the individual commands
+        0. Cleans any existing data to remove partial setup
         1. creates the input directory in the mounted volume (root is always /datastore in docker)
         2. Downloads the downsampled test data
         3. Unpacks the data into the /datastore/input area
-        4. Removes the *.bas files to force generation"
+        4. Delete the tar to minimise required space
+        5. Converts the MT cram file to bam
+        6. Deletes the MT cram file to minimise required space
+        7. Converts the WT cram file to bam
+        8. Deletes the WT cram file to minimise required space"
 
-PRE_EXEC[0]='rm -rf /datastore/input'
-PRE_EXEC[1]='mkdir /datastore/input'
-PRE_EXEC[2]='curl -sSL --retry 10 -o /datastore/testdata.tar ftp://ftp.sanger.ac.uk/pub/cancer/cgpbox/testdata.tar'
-PRE_EXEC[3]='tar -C /datastore/input --strip-components 1 -xf /datastore/testdata.tar'
-PRE_EXEC[4]='rm -f /datastore/input/*.bas'
+ PRE_EXEC[0]="rm -rf /datastore/input /datastore/testdata.tar"
+ PRE_EXEC[1]="mkdir /datastore/input"
+ PRE_EXEC[2]="curl -sSL --retry 10 -o /datastore/testdata.tar ftp://ftp.sanger.ac.uk/pub/cancer/cgpbox/testdata-${CGPBOX_VERSION}.tar"
+ PRE_EXEC[3]="tar -C /datastore/input --strip-components 1 -xf /datastore/testdata.tar"
+ PRE_EXEC[4]="rm -f /datastore/testdata.tar"
+ PRE_EXEC[5]="bamcollate2 inputformat=cram outputformat=bam collate=0 index=1 outputthreads=$CPU exclude= filename=/datastore/input/${NAME_MT}.cram O=/datastore/input/${NAME_MT}.bam indexfilename=/datastore/input/${NAME_MT}.bam.bai"
+ PRE_EXEC[6]="rm -f /datastore/input/${NAME_MT}.cram"
+ PRE_EXEC[7]="bamcollate2 inputformat=cram outputformat=bam collate=0 index=1 outputthreads=$CPU exclude= filename=/datastore/input/${NAME_WT}.cram O=/datastore/input/${NAME_WT}.bam indexfilename=/datastore/input/${NAME_WT}.bam.bai"
+ PRE_EXEC[8]="rm -f /datastore/input/${NAME_WT}.cram"
 
 : "Same as PRE_EXEC but run at the end of the workflow
     - This is an example how you could write your result to S3 by setting the environment variables and path for your bucket
