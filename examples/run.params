@@ -19,6 +19,10 @@ SPECIES='Human' # Species to tag
 ASSEMBLY='NCBI37'
 PINDEL_EXCLUDE='NC_007605,hs37d5,GL%'
 
+: "Optionally force the CPU count to this value, by default all cores available are used at
+   appropriate points in the flow"
+#CPU=4
+
 TIMEZONE='Europe/London'
 
 : "PRE_EXEC - Commands to be run before the main workflow starts
