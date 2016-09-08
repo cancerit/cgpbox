@@ -71,12 +71,14 @@ Result files will be written to `$MOUNT_POINT/output`
 
 To analyse your own pairs of tumour normal BAM files you can modify the example `run.params` file indicated in [Test run](#test-run).
 
-The `run.params` file contains comments to assist you but here are the critial items:
+The `run.params` file contains comments to assist you but here are the critical items:
 
 * `NAME_*` - Should match the sample names found in the headers of the BAM files.
 * `*_MT` - Refers to data linked to the MuTant/tumour sample.
 * `*_WT` - Refers to data linked to the WildType/Normal sample.
 * `BAM_*` - Paths to the input BAM files, path is that found within the docker image.
+
+You are also able to force the CPU count to be a specified value.  By default the image will use all cores available to the docker image.  Should you need to make more memory available you can force a CPU value to be lower than the actual by specifying the value you want as `CPU=4` (uncommenting if needed).
 
 Please see [Input requirements](#input-requirements).
 
