@@ -49,7 +49,10 @@ set -e
 
 echo -e "\nStart workflow: `date`\n"
 
-CPU=`grep -c ^processor /proc/cpuinfo`
+if [ -z ${CPU+x} ]; then
+  CPU=`grep -c ^processor /proc/cpuinfo`
+fi
+
 TMP='/datastore/output/tmp'
 mkdir -p $TMP
 

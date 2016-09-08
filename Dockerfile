@@ -2,7 +2,7 @@ FROM  ubuntu:14.04
 
 MAINTAINER  keiranmraine@gmail.com
 
-ENV CGPBOX_VERSION 2.0.0
+ENV CGPBOX_VERSION 2.1.0
 
 LABEL uk.ac.sanger.cgp="Cancer Genome Project, Wellcome Trust Sanger Institute" \
       version="$CGPBOX_VERSION" \
@@ -19,7 +19,7 @@ RUN apt-get -yq update && \
       curl libcurl4-openssl-dev nettle-dev zlib1g-dev libncurses5-dev \
       libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
       libpstreams-dev libglib2.0-dev gfortran libcairo2-dev \
-      git bsdtar libwww-perl openjdk-7-jdk time wget && \
+      git bsdtar libwww-perl openjdk-7-jdk time && \
     apt-get clean
 
 RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share $OPT/site /tmp/hts_cache
