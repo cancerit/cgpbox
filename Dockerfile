@@ -27,7 +27,7 @@ RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share $OPT/site /tmp
 WORKDIR /tmp/downloads
 
 # PCAP-core
-RUN curl -L -o master.zip --retry 10 https://github.com/ICGC-TCGA-PanCancer/PCAP-core/archive/master.zip && \
+RUN curl -L -o master.zip --retry 10 https://github.com/ICGC-TCGA-PanCancer/PCAP-core/archive/v3.1.0.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro && \
@@ -36,7 +36,7 @@ RUN curl -L -o master.zip --retry 10 https://github.com/ICGC-TCGA-PanCancer/PCAP
     rm -rf master.zip /tmp/downloads/distro /tmp/hts_cache
 
 # alleleCount
-RUN curl -L -o master.zip --retry 10 https://github.com/cancerit/alleleCount/archive/master.zip && \
+RUN curl -L -o master.zip --retry 10 https://github.com/cancerit/alleleCount/archive/v3.2.0.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro && \
@@ -45,7 +45,7 @@ RUN curl -L -o master.zip --retry 10 https://github.com/cancerit/alleleCount/arc
     rm -rf master.zip /tmp/downloads/distro
 
 # cgpVcf
-RUN curl -L -o master.zip --retry 10 https://github.com/cancerit/cgpVcf/archive/master.zip && \
+RUN curl -L -o master.zip --retry 10 https://github.com/cancerit/cgpVcf/archive/v2.1.1.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro && \
@@ -59,7 +59,7 @@ RUN curl -L -o $OPT/bin/verifyBamId --retry 10 https://github.com/statgen/verify
     rm -f /tmp/downloads/verifyBamId
 
 # ascatNgs
-RUN curl -L -o master.zip --retry 10 https://github.com/cancerit/ascatNgs/archive/master.zip && \
+RUN curl -L -o master.zip --retry 10 https://github.com/cancerit/ascatNgs/archive/v3.1.0.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro && \
@@ -68,7 +68,7 @@ RUN curl -L -o master.zip --retry 10 https://github.com/cancerit/ascatNgs/archiv
     rm -rf master.zip /tmp/downloads/distro
 
 # cgpPindel
-RUN curl -L -o master.zip --retry 10 https://github.com/cancerit/cgpPindel/archive/master.zip && \
+RUN curl -L -o master.zip --retry 10 https://github.com/cancerit/cgpPindel/archive/v2.0.8.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro && \
@@ -77,7 +77,7 @@ RUN curl -L -o master.zip --retry 10 https://github.com/cancerit/cgpPindel/archi
     rm -rf master.zip /tmp/downloads/distro
 
 # VAGrENT
-RUN curl -L -o master.zip --retry 10 https://github.com/cancerit/VAGrENT/archive/master.zip && \
+RUN curl -L -o master.zip --retry 10 https://github.com/cancerit/VAGrENT/archive/v3.0.2.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro && \
@@ -85,7 +85,7 @@ RUN curl -L -o master.zip --retry 10 https://github.com/cancerit/VAGrENT/archive
     cd /tmp/downloads && \
     rm -rf master.zip /tmp/downloads/distro
 
-RUN curl -L -o master.zip --retry 10  https://github.com/cancerit/cgpCaVEManPostProcessing/archive/master.zip && \
+RUN curl -L -o master.zip --retry 10  https://github.com/cancerit/cgpCaVEManPostProcessing/archive/1.6.6.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro && \
@@ -94,7 +94,7 @@ RUN curl -L -o master.zip --retry 10  https://github.com/cancerit/cgpCaVEManPost
     rm -rf master.zip /tmp/downloads/distro
 
 # cgpCaVEManWrapper
-RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpCaVEManWrapper/archive/master.zip && \
+RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpCaVEManWrapper/archive/1.9.9.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro && \
@@ -103,7 +103,7 @@ RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpCaVEManWra
     rm -rf master.zip /tmp/downloads/distro
 
 # grass
-RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/grass/archive/master.zip && \
+RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/grass/archive/v2.0.4.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro && \
@@ -124,7 +124,7 @@ RUN curl -sSL -o tmp.tar.gz --retry 10 https://github.com/wrpearson/fasta36/rele
 # the intermediate cleanup is to ensure that the image remains small
 
 # BRASS Rsupport
-RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/BRASS/archive/master.zip && \
+RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/BRASS/archive/v5.1.6.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro/Rsupport && \
@@ -136,7 +136,7 @@ ENV R_LIBS $OPT/R-lib
 ENV R_LIBS_USER $OPT/R-lib
 
 # BRASS
-RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/BRASS/archive/master.zip && \
+RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/BRASS/archive/v5.1.6.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro && \
@@ -145,7 +145,7 @@ RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/BRASS/archive
     rm -rf master.zip /tmp/downloads/distro
 
 # cgpNgsQc
-RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpNgsQc/archive/master.zip && \
+RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpNgsQc/archive/v1.2.0.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro && \
