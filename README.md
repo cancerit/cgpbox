@@ -3,6 +3,10 @@ The __cgpbox__ project encapsulates the core [Cancer Genome Project](http://www.
 
 [![Docker Repository on Quay](https://quay.io/repository/wtsicgp/cgp_in_a_box/status "Docker Repository on Quay")](https://quay.io/repository/wtsicgp/cgp_in_a_box)
 
+| Master | Develop |
+|---|---|
+| [![Build Status](https://travis-ci.org/cancerit/cgpbox.svg?branch=master)](https://travis-ci.org/cancerit/cgpbox) |  [![Build Status](https://travis-ci.org/cancerit/cgpbox.svg?branch=develop)](https://travis-ci.org/cancerit/cgpbox) |
+
 The pipeline is optimised for somatic variation calling using ___BWA mem mapped, Illumina paired-end sequencing___.
 
 * [Analysis performed](#analysis-performed)
