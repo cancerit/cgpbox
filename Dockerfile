@@ -26,6 +26,11 @@ RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share $OPT/site /tmp
 
 WORKDIR /tmp/downloads
 
+# S3 tools
+RUN curl -sSL https://s3.amazonaws.com/aws-cli/awscli-bundle.zip | bsdtar -xvf - && \
+    python awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws && \
+    rm -rf /tmp/downloads/awscli-bundle
+
 # PCAP-core
 RUN curl -sSL -o master.zip --retry 10 https://github.com/ICGC-TCGA-PanCancer/PCAP-core/archive/v3.1.1.zip && \
     mkdir /tmp/downloads/distro && \
@@ -36,7 +41,16 @@ RUN curl -sSL -o master.zip --retry 10 https://github.com/ICGC-TCGA-PanCancer/PC
     rm -rf master.zip /tmp/downloads/distro /tmp/hts_cache
 
 # alleleCount
-RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/alleleCount/archive/v3.2.0.zip && \
+RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/alleleCount/archive/v3.2.1.zip && \
+    mkdir /tmp/downloads/distro && \
+    bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
+    cd /tmp/downloads/distro && \
+    ./setup.sh $OPT && \
+    cd /tmp/downloads && \
+    rm -rf master.zip /tmp/downloads/distro
+
+# cgpNgsQc
+RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpNgsQc/archive/v1.3.0.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro && \
@@ -52,11 +66,6 @@ RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpVcf/archiv
     ./setup.sh $OPT && \
     cd /tmp/downloads && \
     rm -rf master.zip /tmp/downloads/distro
-
-# verifyBamId
-RUN curl -sSL -o $OPT/bin/verifyBamId --retry 10 https://github.com/statgen/verifyBamID/releases/download/v1.1.2/verifyBamID.1.1.2 && \
-    chmod +x $OPT/bin/verifyBamId && \
-    rm -f /tmp/downloads/verifyBamId
 
 # ascatNgs
 RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/ascatNgs/archive/v3.1.0.zip && \
@@ -144,19 +153,6 @@ RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/BRASS/archive
     ./setup.sh $OPT && \
     cd /tmp/downloads && \
     rm -rf master.zip /tmp/downloads/distro
-
-# cgpNgsQc
-RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpNgsQc/archive/v1.2.0.zip && \
-    mkdir /tmp/downloads/distro && \
-    bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
-    cd /tmp/downloads/distro && \
-    ./setup.sh $OPT && \
-    cd /tmp/downloads && \
-    rm -rf master.zip /tmp/downloads/distro
-
-RUN curl -sSL https://s3.amazonaws.com/aws-cli/awscli-bundle.zip | bsdtar -xvf - && \
-    python awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws && \
-    rm -rf /tmp/downloads/awscli-bundle
 
 COPY scripts/runCgp.sh $OPT/bin/runCgp.sh
 COPY scripts/getRef.sh $OPT/bin/getRef.sh
