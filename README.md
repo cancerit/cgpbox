@@ -3,6 +3,8 @@ The __cgpbox__ project encapsulates the core [Cancer Genome Project](http://www.
 
 [![Docker Repository on Quay](https://quay.io/repository/wtsicgp/cgp_in_a_box/status "Docker Repository on Quay")](https://quay.io/repository/wtsicgp/cgp_in_a_box)
 
+You are also able to run in a standard virtualisation or bare-metal manner, see [INSTALL](INSTALL.md) for details.
+
 | Master | Develop |
 |---|---|
 | [![Build Status](https://travis-ci.org/cancerit/cgpbox.svg?branch=master)](https://travis-ci.org/cancerit/cgpbox) |  [![Build Status](https://travis-ci.org/cancerit/cgpbox.svg?branch=develop)](https://travis-ci.org/cancerit/cgpbox) |

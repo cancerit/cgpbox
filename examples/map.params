@@ -1,0 +1,63 @@
+#!/bin/bash
+
+: "Required parameters
+    - NAME_*   : should match that in the BAM file headers, primarily for naming of folders
+    - *_MT     : Refers to the Tumour sample
+    - *_WT     : Refers to the Wildtype/normal sample
+    - TIMEZONE : Change this if you want the web tools to use your local timezone
+                 This will give you the list:
+                   perl -MDateTime -e 'print join "\n", DateTime::TimeZone->all_names;'
+ "
+
+NAME_MT='COLO-829'
+NAME_WT='COLO-829-BL'
+BAM_MT='/datastore/input/COLO-829.bam'
+BAM_WT='/datastore/input/COLO-829-BL.bam'
+
+PROTOCOL='WGS' # Type of sequencing
+SPECIES='Human' # Species to tag
+ASSEMBLY='NCBI37'
+PINDEL_EXCLUDE='NC_007605,hs37d5,GL%'
+
+: "Optionally force the CPU count to this value, by default all cores available are used at
+   appropriate points in the flow"
+#CPU=4
+
+TIMEZONE='Europe/London'
+
+: "PRE_EXEC - Commands to be run before the main workflow starts
+    - NOTE: To allow many commands to run an array is defined, the first command must
+            be assigned to 'PRE_EXEC[0]=' all following having the number in '[]' incremented by 1
+            Order of addition is maintaned.
+    - Can be used to stage your files, the above variables are imported before this so
+      they can be used in the normal fashion, $NAME_WT etc
+    - This example pulls an arcive of CRAM data, upacks, converts to BAM and builds indexes.
+      The following describes the individual commands
+        0. Cleans any existing data to remove partial setup
+        1. creates the input directory in the mounted volume (root is always /datastore in docker)
+        2. Downloads the downsampled test data
+        3. Unpacks the data into the /datastore/input area
+        4. Delete the tar to minimise required space
+        5. Converts the MT cram file to bam
+        6. Deletes the MT cram file to minimise required space
+        7. Converts the WT cram file to bam
+        8. Deletes the WT cram file to minimise required space"
+
+ PRE_EXEC[0]="rm -rf /datastore/input /datastore/testdata.tar"
+ PRE_EXEC[1]="mkdir /datastore/input"
+ PRE_EXEC[2]="curl -sSL --retry 10 -o /datastore/testdata.tar ftp://ftp.sanger.ac.uk/pub/cancer/cgpbox/testdata-${CGPBOX_VERSION}.tar"
+ PRE_EXEC[3]="tar -C /datastore/input --strip-components 1 -xf /datastore/testdata.tar"
+ PRE_EXEC[4]="rm -f /datastore/testdata.tar"
+ PRE_EXEC[5]="bamcollate2 inputformat=cram outputformat=bam collate=0 index=1 outputthreads=$CPU exclude= filename=/datastore/input/${NAME_MT}.cram O=/datastore/input/${NAME_MT}.bam indexfilename=/datastore/input/${NAME_MT}.bam.bai"
+ PRE_EXEC[6]="rm -f /datastore/input/${NAME_MT}.cram"
+ PRE_EXEC[7]="bamcollate2 inputformat=cram outputformat=bam collate=0 index=1 outputthreads=$CPU exclude= filename=/datastore/input/${NAME_WT}.cram O=/datastore/input/${NAME_WT}.bam indexfilename=/datastore/input/${NAME_WT}.bam.bai"
+ PRE_EXEC[8]="rm -f /datastore/input/${NAME_WT}.cram"
+
+: "Same as PRE_EXEC but run at the end of the workflow
+    - This is an example how you could write your result to S3 by setting the environment variables and path for your bucket
+    - Nice use is that you can then set any AWS image to shutdown automatically when it becomes idle"
+
+#POST_EXEC[0]='export AWS_ACCESS_KEY_ID=XXX'
+#POST_EXEC[1]='export AWS_SECRET_ACCESS_KEY=YYY'
+#POST_EXEC[2]='export AWS_DEFAULT_REGION=ZZZ'
+#POST_EXEC[3]='aws s3 cp result_${NAME_MT}_vs_${NAME_WT}.tar.gz s3://some-bucket/result_${NAME_MT}_vs_${NAME_WT}.tar.gz'

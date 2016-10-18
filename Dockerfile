@@ -86,7 +86,7 @@ RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpPindel/arc
     rm -rf master.zip /tmp/downloads/distro
 
 # VAGrENT
-RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/VAGrENT/archive/v3.0.2.zip && \
+RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/VAGrENT/archive/v3.1.0.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro && \
@@ -104,7 +104,7 @@ RUN curl -sSL -o master.zip --retry 10  https://github.com/cancerit/cgpCaVEManPo
     rm -rf master.zip /tmp/downloads/distro
 
 # cgpCaVEManWrapper
-RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpCaVEManWrapper/archive/1.9.9.zip && \
+RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpCaVEManWrapper/archive/1.9.10.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro && \
@@ -113,7 +113,7 @@ RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpCaVEManWra
     rm -rf master.zip /tmp/downloads/distro
 
 # grass
-RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/grass/archive/v2.0.4.zip && \
+RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/grass/archive/v2.1.0.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro && \
