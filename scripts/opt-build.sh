@@ -115,17 +115,11 @@ curl -sSL -o master.zip --retry 10 https://github.com/cancerit/BRASS/archive/v5.
 mkdir /tmp/downloads/distro
 bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip
 cd /tmp/downloads/distro/Rsupport
-./setupR.sh $OPT 1
+#./setupR.sh $OPT 1
+./libInstall.R $R_LIBS
 cd /tmp/downloads
-rm -rf master.zip /tmp/downloads/distro
 
-export R_LIBS=$OPT/R-lib
-export R_LIBS_USER=$OPT/R-lib
-
-# BRASS
-curl -sSL -o master.zip --retry 10 https://github.com/cancerit/BRASS/archive/v5.1.6.zip
-mkdir /tmp/downloads/distro
-bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip
+# BRASS, using same download as Rsupport
 cd /tmp/downloads/distro
 ./setup.sh $OPT
 cd /tmp/downloads
