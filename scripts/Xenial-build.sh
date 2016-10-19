@@ -2,7 +2,7 @@
 
 # specific packages
 
-set -x
+set -xue
 
 apt-get -yq install libreadline6-dev
 apt-get -yq install build-essential
