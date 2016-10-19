@@ -116,7 +116,7 @@ mkdir /tmp/downloads/distro
 bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip
 cd /tmp/downloads/distro/Rsupport
 #./setupR.sh $OPT 1
-./libInstall.R $R_LIBS
+Rscript libInstall.R $R_LIBS
 cd /tmp/downloads
 
 # BRASS, using same download as Rsupport
