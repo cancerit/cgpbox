@@ -9,7 +9,6 @@ apt-get -yq install build-essential
 apt-get -yq install autoconf
 apt-get -yq install software-properties-common
 apt-get -yq install python-software-properties
-apt-get -yq install curl
 apt-get -yq install libssl-dev
 apt-get -yq install libgnutls-dev
 apt-get -yq install libcurl4-openssl-dev
