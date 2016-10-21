@@ -32,7 +32,7 @@ RUN curl -sSL https://s3.amazonaws.com/aws-cli/awscli-bundle.zip | bsdtar -xvf -
     rm -rf /tmp/downloads/awscli-bundle
 
 # PCAP-core
-RUN curl -sSL -o master.zip --retry 10 https://github.com/ICGC-TCGA-PanCancer/PCAP-core/archive/v3.1.1.zip && \
+RUN curl -sSL -o master.zip --retry 10 https://github.com/ICGC-TCGA-PanCancer/PCAP-core/archive/v3.3.0.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro && \
