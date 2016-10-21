@@ -16,7 +16,7 @@ run_parallel () {
       sleep 1 # gnu sleep allows floating point here...
     done
 
-    CMD='/usr/bin/time -f '$TIME_FORMAT' -o /datastore/output/'$key'.time '${do_parallel[$key]}
+    CMD='/usr/bin/time -f '$TIME_FORMAT' -o '$BOX_MNT_PNT'/output/'$key'.time '${do_parallel[$key]}
 
     echo -e "\tStarting $key"
     set -x
@@ -53,18 +53,18 @@ if [ -z ${CPU+x} ]; then
   CPU=`grep -c ^processor /proc/cpuinfo`
 fi
 
-TMP='/datastore/output/tmp'
+TMP=$BOX_MNT_PNT/output/tmp
 mkdir -p $TMP
 
 declare -a PRE_EXEC
 declare -a POST_EXEC
 
 echo "Loading user options..."
-source /datastore/run.params
+source $BOX_MNT_PNT/run.params
 
 echo "Starting monitoring..."
-cp -r /opt/wtsi-cgp/site /datastore/site
-progress.pl /datastore $NAME_MT $NAME_WT $TIMEZONE /datastore/site/data/progress.js >& /datastore/monitor.log&
+cp -r /opt/wtsi-cgp/site $BOX_MNT_PNT/site
+progress.pl $BOX_MNT_PNT $NAME_MT $NAME_WT $TIMEZONE $BOX_MNT_PNT/site/data/progress.js >& $BOX_MNT_PNT/monitor.log&
 
 echo -e "\tNAME_MT : $NAME_MT"
 echo -e "\tNAME_WT : $NAME_WT"
@@ -91,7 +91,7 @@ for i in "${PRE_EXEC[@]}"; do
   { set +x; } 2> /dev/null
 done
 
-REF_BASE=/datastore/$CGPBOX_VERSION/reference_files
+REF_BASE=$BOX_MNT_PNT/$CGPBOX_VERSION/reference_files
 
 BAM_MT_TMP=$TMP/$NAME_MT.bam
 BAM_WT_TMP=$TMP/$NAME_WT.bam
@@ -119,16 +119,16 @@ fi
 
 echo -e "\t[Parallel block 1] Genotype Check added..."
 do_parallel[geno_MT]="compareBamGenotypes.pl \
- -o /datastore/output/$NAME_WT/genotyped \
+ -o $BOX_MNT_PNT/output/$NAME_WT/genotyped \
  -nb $BAM_WT_TMP \
- -j /datastore/output/$NAME_WT/genotyped/result.json \
+ -j $BOX_MNT_PNT/output/$NAME_WT/genotyped/result.json \
  -tb $BAM_MT_TMP"
 
 echo -e "\t[Parallel block 1] VerifyBam Normal added..."
 do_parallel[verify_WT]="verifyBamHomChk.pl -d 25 \
- -o /datastore/output/$NAME_WT/contamination \
+ -o $BOX_MNT_PNT/output/$NAME_WT/contamination \
  -b $BAM_WT_TMP \
- -j /datastore/output/$NAME_WT/contamination/result.json"
+ -j $BOX_MNT_PNT/output/$NAME_WT/contamination/result.json"
 
 
 echo -e "\t[Parallel block 1] Get refset added..."
@@ -146,7 +146,7 @@ echo -e "\nSetting up Parallel block 2"
 echo -e "\t[Parallel block 2] ASCAT added..."
 
 do_parallel[ascat]="ascat.pl \
- -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat \
+ -o $BOX_MNT_PNT/output/${NAME_MT}_vs_${NAME_WT}/ascat \
  -t $BAM_MT_TMP \
  -n $BAM_WT_TMP \
  -sg $REF_BASE/ascat/SnpGcCorrections.tsv \
@@ -161,7 +161,7 @@ do_parallel[ascat]="ascat.pl \
 
 echo -e "\t[Parallel block 2] Pindel added..."
 do_parallel[pindel]="pindel.pl \
- -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel \
+ -o $BOX_MNT_PNT/output/${NAME_MT}_vs_${NAME_WT}/pindel \
  -t $BAM_MT_TMP \
  -n $BAM_WT_TMP \
  -r $REF_BASE/genome.fa \
@@ -185,7 +185,7 @@ run_parallel $CPU do_parallel
 echo -e "CaVEMan prep: `date`"
 
 set -x
-ASCAT_CN="/datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/$NAME_MT.copynumber.caveman.csv"
+ASCAT_CN="$BOX_MNT_PNT/output/${NAME_MT}_vs_${NAME_WT}/ascat/$NAME_MT.copynumber.caveman.csv"
 perl -ne '@F=(split q{,}, $_)[1,2,3,4]; $F[1]-1; print join("\t",@F)."\n";' < $ASCAT_CN > $TMP/norm.cn.bed
 perl -ne '@F=(split q{,}, $_)[1,2,3,6]; $F[1]-1; print join("\t",@F)."\n";' < $ASCAT_CN > $TMP/tum.cn.bed
 set +x
@@ -198,17 +198,17 @@ echo -e "\nSetting up Parallel block 3"
 echo -e "\t[Parallel block 3] VerifyBam Tumour added..."
 
 do_parallel[verify_MT]="verifyBamHomChk.pl -d 25 \
- -o /datastore/output/$NAME_MT/contamination \
+ -o $BOX_MNT_PNT/output/$NAME_MT/contamination \
  -b $BAM_MT_TMP \
- -a /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/${NAME_MT}.copynumber.caveman.csv \
- -j /datastore/output/$NAME_MT/contamination/result.json"
+ -a $BOX_MNT_PNT/output/${NAME_MT}_vs_${NAME_WT}/ascat/${NAME_MT}.copynumber.caveman.csv \
+ -j $BOX_MNT_PNT/output/$NAME_MT/contamination/result.json"
 
 # annotate pindel
-rm -f /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.annot.vcf.gz*
+rm -f $BOX_MNT_PNT/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.annot.vcf.gz*
 echo -e "\t[Parallel block 3] Pindel_annot added..."
 do_parallel[Pindel_annot]="AnnotateVcf.pl -t -c $REF_BASE/vagrent/vagrent.cache.gz \
- -i /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.flagged.vcf.gz \
- -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.annot.vcf"
+ -i $BOX_MNT_PNT/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.flagged.vcf.gz \
+ -o $BOX_MNT_PNT/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.annot.vcf"
 
 echo -e "\t[Parallel block 3] CaVEMan added..."
 do_parallel[CaVEMan]="caveman.pl \
@@ -220,12 +220,12 @@ do_parallel[CaVEMan]="caveman.pl \
  -sa $ASSEMBLY \
  -t $CPU \
  -st genomic \
- -in /datastore/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.germline.bed  \
+ -in $BOX_MNT_PNT/output/${NAME_MT}_vs_${NAME_WT}/pindel/${NAME_MT}_vs_${NAME_WT}.germline.bed  \
  -tc $TMP/tum.cn.bed \
  -nc $TMP/norm.cn.bed \
  -tb $BAM_MT_TMP \
  -nb $BAM_WT_TMP \
- -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/caveman"
+ -o $BOX_MNT_PNT/output/${NAME_MT}_vs_${NAME_WT}/caveman"
 
 echo -e "\t[Parallel block 3] BRASS added..."
 do_parallel[BRASS]="brass.pl -j 4 -k 4 -c $CPU \
@@ -240,8 +240,8 @@ do_parallel[BRASS]="brass.pl -j 4 -k 4 -c $CPU \
  -ct $REF_BASE/brass/CentTelo.tsv \
  -t $BAM_MT_TMP \
  -n $BAM_WT_TMP \
- -ss /datastore/output/${NAME_MT}_vs_${NAME_WT}/ascat/*.samplestatistics.txt \
- -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/brass"
+ -ss $BOX_MNT_PNT/output/${NAME_MT}_vs_${NAME_WT}/ascat/*.samplestatistics.txt \
+ -o $BOX_MNT_PNT/output/${NAME_MT}_vs_${NAME_WT}/brass"
 
 echo "Starting Parallel block 3: `date`"
 run_parallel $CPU do_parallel
@@ -249,17 +249,17 @@ echo
 
 echo -e "Annot CaVEMan start: `date`"
 # annotate caveman
-rm -f /datastore/output/${NAME_MT}_vs_${NAME_WT}/caveman/${NAME_MT}_vs_${NAME_WT}.annot.muts.vcf.gz*
+rm -f $BOX_MNT_PNT/output/${NAME_MT}_vs_${NAME_WT}/caveman/${NAME_MT}_vs_${NAME_WT}.annot.muts.vcf.gz*
 set -x
 AnnotateVcf.pl -t -c $REF_BASE/vagrent/vagrent.cache.gz \
- -i /datastore/output/${NAME_MT}_vs_${NAME_WT}/caveman/${NAME_MT}_vs_${NAME_WT}.flagged.muts.vcf.gz \
- -o /datastore/output/${NAME_MT}_vs_${NAME_WT}/caveman/${NAME_MT}_vs_${NAME_WT}.annot.muts.vcf
+ -i $BOX_MNT_PNT/output/${NAME_MT}_vs_${NAME_WT}/caveman/${NAME_MT}_vs_${NAME_WT}.flagged.muts.vcf.gz \
+ -o $BOX_MNT_PNT/output/${NAME_MT}_vs_${NAME_WT}/caveman/${NAME_MT}_vs_${NAME_WT}.annot.muts.vcf
 set +x
 
 echo -e "Annot CaVEMan end: `date`"
 
-cp -r /datastore/site /datastore/output/.
-cd /datastore
+cp -r $BOX_MNT_PNT/site $BOX_MNT_PNT/output/.
+cd $BOX_MNT_PNT
 echo 'Package results'
 tar -zcf result_${NAME_MT}_vs_${NAME_WT}.tar.gz output
 
