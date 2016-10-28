@@ -10,19 +10,17 @@
                      - mixture of BAM + CRAM inputs ($INPUT_DIR/*.*am)
                      - multiple paired FASTQ ($INPUT_DIR/*_[12].fq[.gz])
                      - multiple interleaved FASTQ ($INPUT_DIR/*.fq[.gz])
-    - OUTPUT_DIR  : Location to write final BAM/CRAM and associated files
-    - REF_DIR     : Folder containing genome.fa, genome.dict and associated index files:
+    - REF_BASE    : Folder containing genome.fa, genome.dict and associated index files:
                      - If supporting files are absent they will be built where possible.
                      - genome.dict - see `samtools dict`
+    - CRAM        : 0=BAM 1=CRAM
+    - SCRAMBLE    : Parameters to pass to scramble when 'CRAM=1'
  "
 
 BOX_MNT_PNT='/datastore' # do not change in Docker execution
 SAMPLE_NAME='COLO-829'
 INPUT_DIR=$BOX_MNT_PNT/inputs
-
-PROTOCOL='WGS' # Type of sequencing
-SPECIES='Human' # Species to tag
-ASSEMBLY='NCBI37'
+CRAM=0
 
 : "Optionally force the CPU count to this value, by default all cores available are used at
    appropriate points in the flow"

@@ -22,10 +22,9 @@ source $HOME/map.params
 set -u
 echo -e "\tSAMPLE_NAME : $SAMPLE_NAME"
 echo -e "\tINPUT_DIR : $INPUT_DIR"
-echo -e "\tPROTOCOL : $PROTOCOL"
-echo -e "\tSPECIES : $SPECIES"
-echo -e "\tASSEMBLY : $ASSEMBLY"
 echo -e "\tREF_BASE : $REF_BASE"
+echo -e "\tCRAM : $CRAM"
+echo -e "\tSCRAMBLE : $SCRAMBLE"
 set +u
 
 if [ ${#PRE_EXEC[@]} -eq 0 ]; then
@@ -48,12 +47,22 @@ for i in "${PRE_EXEC[@]}"; do
   { set +x; } 2> /dev/null
 done
 
+ADD_ARGS=''
+if [ ! -z ${CRAM+x} ]; then
+  if [ ! -z ${SCRAMBLE+x} ]; then
+    ADD_ARGS = "-c -sc $SCRAMBLE";
+  else
+    ADD_ARGS = '-c'
+  fi
+fi
+
 /usr/bin/time -f $TIME_FORMAT -o $BOX_MNT_PNT/mapping/$SAMPLE_NAME.time \
  bwa_mem.pl -o $BOX_MNT_PNT/mapping/$SAMPLE_NAME \
  -r $REF_BASE/genome.fa \
  -s $SAMPLE_NAME \
  -t $CPU \
  -mt $CPU \
+ $ADD_ARGS \
  $INPUT_DIR/*
 
 # run any post-exec step
