@@ -134,10 +134,12 @@ cd /tmp/downloads/distro
 cd /tmp/downloads
 rm -rf master.zip /tmp/downloads/distro
 
-curl -sSL https://raw.githubusercontent.com/cancerit/cgpbox/$CGPBOX_BRANCH/build/scripts/analysisWGS.sh > $OPT/bin/analysisWGS.sh
-curl -sSL https://raw.githubusercontent.com/cancerit/cgpbox/$CGPBOX_BRANCH/build/scripts/mapping.sh > $OPT/bin/mapping.sh
-curl -sSL https://raw.githubusercontent.com/cancerit/cgpbox/$CGPBOX_BRANCH/build/scripts/getRef.sh > $OPT/bin/getRef.sh
-curl -sSL https://raw.githubusercontent.com/cancerit/cgpbox/$CGPBOX_BRANCH/build/scripts/progress.sh > $OPT/bin/progress.sh
+git clone -b $CGPBOX_BRANCH --depth 1 https://github.com/cancerit/cgpbox.git /tmp/downloads/cgpbox
+
+cp /tmp/downloads/cgpbox/scripts/analysisWGS.sh > $OPT/bin/analysisWGS.sh
+cp /tmp/downloads/cgpbox/scripts/mapping.sh > $OPT/bin/mapping.sh
+cp /tmp/downloads/cgpbox/scripts/getRef.sh > $OPT/bin/getRef.sh
+cp /tmp/downloads/cgpbox/scripts/progress.pl > $OPT/bin/progress.pl
 
 chmod ugo+x $OPT/bin/analysisWGS.sh $OPT/bin/mapping.sh $OPT/bin/getRef.sh $OPT/bin/progress.pl
 
