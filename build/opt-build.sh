@@ -8,6 +8,15 @@ mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share $OPT/site /tmp/hts
 
 cd /tmp/downloads
 
+# cgpBigWig
+curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpBigWig/archive/0.3.0.zip
+mkdir /tmp/downloads/distro
+bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip
+cd /tmp/downloads/distro
+./setup.sh $OPT
+cd /tmp/downloads
+rm -rf master.zip /tmp/downloads/distro /tmp/hts_cache
+
 # PCAP-core
 curl -sSL -o master.zip --retry 10 https://github.com/ICGC-TCGA-PanCancer/PCAP-core/archive/v3.3.0.zip
 mkdir /tmp/downloads/distro
@@ -125,11 +134,10 @@ cd /tmp/downloads/distro
 cd /tmp/downloads
 rm -rf master.zip /tmp/downloads/distro
 
-git clone --depth 1 https://github.com/cancerit/cgpbox.git /tmp/downloads/cgpbox
-cp /tmp/downloads/cgpbox/scripts/analysisWGS.sh $OPT/bin/analysisWGS.sh
-cp /tmp/downloads/cgpbox/scripts/mapping.sh $OPT/bin/mapping.sh
-cp /tmp/downloads/cgpbox/scripts/getRef.sh $OPT/bin/getRef.sh
-cp /tmp/downloads/cgpbox/scripts/progress.pl $OPT/bin/progress.pl
+curl -sSL https://raw.githubusercontent.com/cancerit/cgpbox/$CGPBOX_BRANCH/build/scripts/analysisWGS.sh > $OPT/bin/analysisWGS.sh
+curl -sSL https://raw.githubusercontent.com/cancerit/cgpbox/$CGPBOX_BRANCH/build/scripts/mapping.sh > $OPT/bin/mapping.sh
+curl -sSL https://raw.githubusercontent.com/cancerit/cgpbox/$CGPBOX_BRANCH/build/scripts/getRef.sh > $OPT/bin/getRef.sh
+curl -sSL https://raw.githubusercontent.com/cancerit/cgpbox/$CGPBOX_BRANCH/build/scripts/progress.sh > $OPT/bin/progress.sh
 
 chmod ugo+x $OPT/bin/analysisWGS.sh $OPT/bin/mapping.sh $OPT/bin/getRef.sh $OPT/bin/progress.pl
 
