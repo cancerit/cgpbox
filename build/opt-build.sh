@@ -136,10 +136,10 @@ rm -rf master.zip /tmp/downloads/distro
 
 git clone -b $CGPBOX_BRANCH --depth 1 https://github.com/cancerit/cgpbox.git /tmp/downloads/cgpbox
 
-cp /tmp/downloads/cgpbox/scripts/analysisWGS.sh > $OPT/bin/analysisWGS.sh
-cp /tmp/downloads/cgpbox/scripts/mapping.sh > $OPT/bin/mapping.sh
-cp /tmp/downloads/cgpbox/scripts/getRef.sh > $OPT/bin/getRef.sh
-cp /tmp/downloads/cgpbox/scripts/progress.pl > $OPT/bin/progress.pl
+cp /tmp/downloads/cgpbox/scripts/analysisWGS.sh $OPT/bin/analysisWGS.sh
+cp /tmp/downloads/cgpbox/scripts/mapping.sh $OPT/bin/mapping.sh
+cp /tmp/downloads/cgpbox/scripts/getRef.sh $OPT/bin/getRef.sh
+cp /tmp/downloads/cgpbox/scripts/progress.pl $OPT/bin/progress.pl
 
 chmod ugo+x $OPT/bin/analysisWGS.sh $OPT/bin/mapping.sh $OPT/bin/getRef.sh $OPT/bin/progress.pl
 
