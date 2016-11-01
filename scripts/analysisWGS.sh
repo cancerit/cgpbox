@@ -62,12 +62,9 @@ declare -a POST_EXEC
 echo "Loading user options..."
 source $BOX_MNT_PNT/run.params
 
-echo "Starting monitoring..."
+# create area which allows monitoring site to be started, not actively updated until after PRE-EXEC completes
 cp -r /opt/wtsi-cgp/site $BOX_MNT_PNT/site
-progress.pl $BOX_MNT_PNT $NAME_MT $NAME_WT $TIMEZONE $BOX_MNT_PNT/site/data/progress.js >& $BOX_MNT_PNT/monitor.log&
 
-echo -e "\tNAME_MT : $NAME_MT"
-echo -e "\tNAME_WT : $NAME_WT"
 echo -e "\tBAM_MT : $BAM_MT"
 echo -e "\tBAM_WT : $BAM_WT"
 
@@ -90,6 +87,17 @@ for i in "${PRE_EXEC[@]}"; do
   $i
   { set +x; } 2> /dev/null
 done
+
+## get sample names from BAM headers
+NAME_MT=`samtools view -H $BAM_MT | perl -ne 'if($_ =~ m/^\@RG/) {($sm) = $_ =~m/\tSM:([^\t]+)/; print "$sm\n";}' | uniq`
+NAME_WT=`samtools view -H $BAM_WT | perl -ne 'if($_ =~ m/^\@RG/) {($sm) = $_ =~m/\tSM:([^\t]+)/; print "$sm\n";}' | uniq`
+
+echo -e "\tNAME_MT : $NAME_MT"
+echo -e "\tNAME_WT : $NAME_WT"
+
+echo -e '\nStarting monitoring...'
+progress.pl $BOX_MNT_PNT $NAME_MT $NAME_WT $TIMEZONE $BOX_MNT_PNT/site/data/progress.js >& $BOX_MNT_PNT/monitor.log&
+
 
 REF_BASE=$BOX_MNT_PNT/$CGPBOX_VERSION/reference_files
 
