@@ -10,13 +10,13 @@
                      - mixture of BAM + CRAM inputs ($INPUT_DIR/*.*am)
                      - multiple paired FASTQ ($INPUT_DIR/*_[12].fq[.gz])
                      - multiple interleaved FASTQ ($INPUT_DIR/*.fq[.gz])
-    - REF_BASE    : Folder containing genome.fa, genome.dict and associated index files:
-                     - If supporting files are absent they will be built where possible.
-                     - genome.dict - see `samtools dict`
+    - REF_BASE    : Folder containing genome.fa, genome.fa.dict and associated BWA index files:
+                     - genome.fa.dict - see 'samtools dict'
     - CRAM        : 0=BAM 1=CRAM
     - SCRAMBLE    : Parameters to pass to scramble when 'CRAM=1'
  "
 
+REF_BASE='/datastore/ref/reference_files'
 BOX_MNT_PNT='/datastore' # do not change in Docker execution
 SAMPLE_NAME='COLO-829'
 INPUT_DIR=$BOX_MNT_PNT/inputs
