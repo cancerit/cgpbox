@@ -10,9 +10,6 @@ if [ -z ${CPU+x} ]; then
   CPU=`grep -c ^processor /proc/cpuinfo`
 fi
 
-TMP=$BOX_MNT_PNT/output/tmp
-mkdir -p $TMP
-
 declare -a PRE_EXEC
 declare -a POST_EXEC
 
@@ -24,8 +21,15 @@ echo -e "\tSAMPLE_NAME : $SAMPLE_NAME"
 echo -e "\tINPUT_DIR : $INPUT_DIR"
 echo -e "\tREF_BASE : $REF_BASE"
 echo -e "\tCRAM : $CRAM"
-echo -e "\tSCRAMBLE : $SCRAMBLE"
+if [ -z ${SCRAMBLE+x} ]; then
+  echo -e "\tSCRAMBLE : <NOTSET>"
+else
+  echo -e "\tSCRAMBLE : $SCRAMBLE"
+fi
 set +u
+
+TMP=$BOX_MNT_PNT/output/tmp
+mkdir -p $TMP
 
 if [ ${#PRE_EXEC[@]} -eq 0 ]; then
   PRE_EXEC='echo No PRE_EXEC defined'
@@ -48,13 +52,15 @@ for i in "${PRE_EXEC[@]}"; do
 done
 
 ADD_ARGS=''
-if [ ! -z ${CRAM+x} ]; then
+if [ $CRAM -gt 0 ]; then
   if [ ! -z ${SCRAMBLE+x} ]; then
     ADD_ARGS = "-c -sc $SCRAMBLE";
   else
     ADD_ARGS = '-c'
   fi
 fi
+
+mkdir -p $BOX_MNT_PNT/mapping
 
 /usr/bin/time -f $TIME_FORMAT -o $BOX_MNT_PNT/mapping/$SAMPLE_NAME.time \
  bwa_mem.pl -o $BOX_MNT_PNT/mapping/$SAMPLE_NAME \
