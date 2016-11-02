@@ -28,9 +28,6 @@ else
 fi
 set +u
 
-TMP=$BOX_MNT_PNT/output/tmp
-mkdir -p $TMP
-
 if [ ${#PRE_EXEC[@]} -eq 0 ]; then
   PRE_EXEC='echo No PRE_EXEC defined'
 fi
