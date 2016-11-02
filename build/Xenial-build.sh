@@ -27,6 +27,7 @@ apt-get -yq install bsdtar
 apt-get -yq install libwww-perl
 apt-get -yq install s3cmd
 apt-get -yq install r-base r-base-dev
+apt-get -yq install libgoogle-perftools-dev
 apt-get clean
 
 ## theoretically can do this to fix sudo warnings, but don't on a base image

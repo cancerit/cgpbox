@@ -18,7 +18,7 @@ cd /tmp/downloads
 rm -rf master.zip /tmp/downloads/distro /tmp/hts_cache
 
 # PCAP-core
-curl -sSL -o master.zip --retry 10 https://github.com/ICGC-TCGA-PanCancer/PCAP-core/archive/v3.3.0.zip
+curl -sSL -o master.zip --retry 10 https://github.com/ICGC-TCGA-PanCancer/PCAP-core/archive/v3.3.1.zip
 mkdir /tmp/downloads/distro
 bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip
 cd /tmp/downloads/distro
@@ -72,7 +72,7 @@ cd /tmp/downloads
 rm -rf master.zip /tmp/downloads/distro
 
 # VAGrENT
-curl -sSL -o master.zip --retry 10 https://github.com/cancerit/VAGrENT/archive/v3.1.0.zip
+curl -sSL -o master.zip --retry 10 https://github.com/cancerit/VAGrENT/archive/v3.2.0.zip
 mkdir /tmp/downloads/distro
 bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip
 cd /tmp/downloads/distro

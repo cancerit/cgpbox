@@ -68,6 +68,7 @@ mkdir -p $BOX_MNT_PNT/mapping
  -s $SAMPLE_NAME \
  -t $CPU \
  -mt $CPU \
+ -l /usr/lib/libtcmalloc_minimal.so \
  $ADD_ARGS \
  $INPUT_DIR/*
 

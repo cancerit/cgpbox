@@ -19,7 +19,7 @@ RUN apt-get -yq update && \
       curl libcurl4-openssl-dev nettle-dev zlib1g-dev libncurses5-dev \
       libexpat1-dev python unzip libboost-dev libboost-iostreams-dev \
       libpstreams-dev libglib2.0-dev gfortran libcairo2-dev \
-      git bsdtar libwww-perl openjdk-7-jdk time s3cmd && \
+      git bsdtar libwww-perl openjdk-7-jdk time s3cmd libgoogle-perftools-dev && \
     apt-get clean
 
 RUN mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share $OPT/site /tmp/hts_cache
@@ -36,7 +36,7 @@ RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpBigWig/arc
     rm -rf master.zip /tmp/downloads/distro /tmp/hts_cache
 
 # PCAP-core
-RUN curl -sSL -o master.zip --retry 10 https://github.com/ICGC-TCGA-PanCancer/PCAP-core/archive/v3.3.0.zip && \
+RUN curl -sSL -o master.zip --retry 10 https://github.com/ICGC-TCGA-PanCancer/PCAP-core/archive/v3.3.1.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro && \
@@ -90,7 +90,7 @@ RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpPindel/arc
     rm -rf master.zip /tmp/downloads/distro
 
 # VAGrENT
-RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/VAGrENT/archive/v3.1.0.zip && \
+RUN curl -sSL -o master.zip --retry 10 https://github.com/cancerit/VAGrENT/archive/v3.2.0.zip && \
     mkdir /tmp/downloads/distro && \
     bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip && \
     cd /tmp/downloads/distro && \
