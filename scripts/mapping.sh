@@ -50,11 +50,16 @@ done
 
 ADD_ARGS=''
 if [ $CRAM -gt 0 ]; then
+  ADD_ARGS = "$ADD_ARGS -c"
   if [ ! -z ${SCRAMBLE+x} ]; then
-    ADD_ARGS = "-c -sc $SCRAMBLE";
-  else
-    ADD_ARGS = '-c'
+    ADD_ARGS = "$ADD_ARGS -sc '$SCRAMBLE'";
   fi
+fi
+
+
+# use a different malloc library when cores for mapping are over 8
+if [ $CPU -gt 7 ]; then
+  ADD_ARGS = "$ADD_ARGS -l /usr/lib/libtcmalloc_minimal.so"
 fi
 
 mkdir -p $BOX_MNT_PNT/mapping
@@ -65,7 +70,6 @@ mkdir -p $BOX_MNT_PNT/mapping
  -s $SAMPLE_NAME \
  -t $CPU \
  -mt $CPU \
- -l /usr/lib/libtcmalloc_minimal.so \
  $ADD_ARGS \
  $INPUT_DIR/*
 
