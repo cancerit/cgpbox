@@ -61,7 +61,7 @@ apt-get -yq install libsub-uplevel-perl
 apt-get -yq install libtest-exception-perl
 apt-get -yq install libtest-warn-perl
 apt-get -yq install libtest-most-perl
-apt-get -yq install libbioperl-perl
+apt-get -yq install libbio-perl-perl
 apt-get -yq install libtry-tiny-perl
 apt-get -yq install libappconfig-perl
 apt-get -yq install libtest-leaktrace-perl
