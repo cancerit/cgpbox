@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eux
+
 sudo apt-get -yq update
 sudo apt-get -yq install apt-transport-https
 sudo apt-get -yq install autoconf
