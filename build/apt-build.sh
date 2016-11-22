@@ -65,7 +65,7 @@ apt-get -yq install libbio-perl-perl
 apt-get -yq install libtry-tiny-perl
 apt-get -yq install libappconfig-perl
 apt-get -yq install libtest-leaktrace-perl
-apt-get -yq install libtemplate-toolkit-perl # gets upgraded
+apt-get -yq install libtemplate-perl
 apt-get -yq install libio-stringy-perl
 apt-get -yq install libconfig-inifiles-perl
 apt-get -yq install libdata-uuid-perl
