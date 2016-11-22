@@ -29,6 +29,7 @@ apt-get -yq install r-base r-base-dev
 apt-get -yq install s3cmd
 apt-get -yq install software-properties-common
 apt-get -yq install unzip
+apt-get -yq install time
 apt-get -yq install zlib1g-dev
 apt-get -yq install libpam-tmpdir
 # install all perl libs, identify by grep of cgp_box_stack build "grep 'Successfully installed' build_stack.log"
