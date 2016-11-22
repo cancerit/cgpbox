@@ -117,7 +117,6 @@ apt-get -yq install libmro-compat-perl
 apt-get -yq install libeval-closure-perl
 apt-get -yq install librole-tiny-perl
 apt-get -yq install libscalar-list-utils-perl # gets upgraded
-apt-get -yq install libparams-validationcompiler-perl
 apt-get -yq install libdatetime-locale-perl
 apt-get -yq install libclass-singleton-perl
 apt-get -yq install libdatetime-timezone-perl
@@ -133,4 +132,5 @@ apt-get -yq install libmath-combinatorics-perl
 apt-get -yq install libparse-yapp-perl
 apt-get -yq install libxml-writer-perl
 apt-get -yq install libgraph-readwrite-perl
+apt -yq autoremove
 apt-get clean
