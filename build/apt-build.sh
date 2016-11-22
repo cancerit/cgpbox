@@ -84,7 +84,7 @@ apt-get -yq install libtest-fatal-perl
 apt-get -yq install libdevel-symdump-perl
 apt-get -yq install libpod-coverage-perl
 apt-get -yq install libproc-pid-file-perl
-apt-get -yq install libcanary-stability-2012-perl
+apt-get -yq install libcanary-stability-perl
 apt-get -yq install libcommon-sense-perl
 apt-get -yq install libtypes-serialiser-perl
 apt-get -yq install libjson-xs-perl
