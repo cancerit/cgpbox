@@ -116,7 +116,6 @@ apt-get -yq install libnamespace-autoclean-perl
 apt-get -yq install libmro-compat-perl
 apt-get -yq install libeval-closure-perl
 apt-get -yq install librole-tiny-perl
-apt-get -yq install libspecio-perl
 apt-get -yq install libscalar-list-utils-perl # gets upgraded
 apt-get -yq install libparams-validationcompiler-perl
 apt-get -yq install libdatetime-locale-perl
