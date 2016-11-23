@@ -134,7 +134,7 @@ cd /tmp/downloads/distro
 cd /tmp/downloads
 rm -rf master.zip /tmp/downloads/distro
 
-git clone -b $CGPBOX_BRANCH --depth 1 https://github.com/cancerit/cgpbox.git /tmp/downloads/cgpbox
+git clone -b $CGPBOX_VERSION --depth 1 https://github.com/cancerit/cgpbox.git /tmp/downloads/cgpbox
 
 cp /tmp/downloads/cgpbox/scripts/analysisWGS.sh $OPT/bin/analysisWGS.sh
 cp /tmp/downloads/cgpbox/scripts/mapping.sh $OPT/bin/mapping.sh
