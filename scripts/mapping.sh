@@ -62,10 +62,10 @@ if [ $CPU -gt 7 ]; then
   ADD_ARGS = "$ADD_ARGS -l /usr/lib/libtcmalloc_minimal.so"
 fi
 
-mkdir -p $BOX_MNT_PNT/mapping
+mkdir -p $OUTPUT_DIR
 
-/usr/bin/time -f $TIME_FORMAT -o $BOX_MNT_PNT/mapping/$SAMPLE_NAME.time \
- bwa_mem.pl -o $BOX_MNT_PNT/mapping/$SAMPLE_NAME \
+/usr/bin/time -f $TIME_FORMAT -o $BOX_MNT_PNT/$SAMPLE_NAME/mapping.time \
+ bwa_mem.pl -o $OUTPUT_DIR \
  -r $REF_BASE/genome.fa \
  -s $SAMPLE_NAME \
  -t $CPU \

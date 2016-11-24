@@ -20,6 +20,7 @@ REF_BASE='/datastore/ref/reference_files'
 BOX_MNT_PNT='/datastore' # do not change in Docker execution
 SAMPLE_NAME='COLO-829'
 INPUT_DIR=$BOX_MNT_PNT/$SAMPLE_NAME/inputs
+OUTPUT_DIR=$BOX_MNT_PNT/$SAMPLE_NAME/mapping
 CRAM=0
 
 : "Optionally force the CPU count to this value, by default all cores available are used at

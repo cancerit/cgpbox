@@ -4,6 +4,7 @@
     - BOX_MNT_PNT : where data can be written to:
                     - Docker, e.g '-v $MOUNT_POINT:/datastore', set BOX_MNT_PNT='/datastore'
                     - Non containerised point this to some writable are
+    - OUTPUT_DIR  : Write results to this folder.
     - *_MT        : Refers to the Tumour sample
     - *_WT        : Refers to the Wildtype/normal sample
     - TIMEZONE    : Change this if you want the web tools to use your local timezone
@@ -12,6 +13,7 @@
  "
 
 BOX_MNT_PNT='/datastore' # do not change in Docker execution
+OUTPUT_DIR=$BOX_MNT_PNT/analysis
 
 BAM_MT=$BOX_MNT_PNT/input/COLO-829.bam
 BAM_WT=$BOX_MNT_PNT/input/COLO-829-BL.bam
