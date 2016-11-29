@@ -50,21 +50,21 @@ done
 
 ADD_ARGS=''
 if [ $CRAM -gt 0 ]; then
-  ADD_ARGS = "$ADD_ARGS -c"
+  ADD_ARGS="$ADD_ARGS -c"
   if [ ! -z ${SCRAMBLE+x} ]; then
-    ADD_ARGS = "$ADD_ARGS -sc '$SCRAMBLE'";
+    ADD_ARGS="$ADD_ARGS -sc '$SCRAMBLE'";
   fi
 fi
 
 
 # use a different malloc library when cores for mapping are over 8
 if [ $CPU -gt 7 ]; then
-  ADD_ARGS = "$ADD_ARGS -l /usr/lib/libtcmalloc_minimal.so"
+  ADD_ARGS="$ADD_ARGS -l /usr/lib/libtcmalloc_minimal.so"
 fi
 
 mkdir -p $OUTPUT_DIR
 
-/usr/bin/time -f $TIME_FORMAT -o $BOX_MNT_PNT/$SAMPLE_NAME/mapping.time \
+/usr/bin/time -f $TIME_FORMAT -o $OUTPUT_DIR.time \
  bwa_mem.pl -o $OUTPUT_DIR \
  -r $REF_BASE/genome.fa \
  -s $SAMPLE_NAME \
@@ -78,7 +78,7 @@ echo -e "\nRun POST_EXEC: `date`"
 for i in "${POST_EXEC[@]}"; do
   set -x
   $i
-  set +x
+  { set +x; } 2> /dev/null
 done
 
 echo -e "\nWorkflow end: `date`"
