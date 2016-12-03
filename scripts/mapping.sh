@@ -6,15 +6,22 @@ set -e
 
 echo -e "\nStart workflow: `date`\n"
 
-if [ -z ${CPU+x} ]; then
-  CPU=`grep -c ^processor /proc/cpuinfo`
-fi
-
 declare -a PRE_EXEC
 declare -a POST_EXEC
 
-echo "Loading user options..."
-source $HOME/map.params
+if [ -z ${PARAM_FILE+x} ] ; then
+  PARAM_FILE=$HOME/run.params
+fi
+echo "Loading user options from: $PARAM_FILE"
+if [ ! -f $PARAM_FILE ]; then
+  echo -e "\tERROR: file indicated by PARAM_FILE not found: $PARAM_FILE" 2>
+  exit 1
+fi
+source $PARAM_FILE
+
+if [ -z ${CPU+x} ]; then
+  CPU=`grep -c ^processor /proc/cpuinfo`
+fi
 
 set -u
 echo -e "\tSAMPLE_NAME : $SAMPLE_NAME"
@@ -40,13 +47,16 @@ set -u
 
 # run any pre-exec step before attempting to access BAMs
 # logically the pre-exec could be pulling them
-echo -e "\nRun PRE_EXEC: `date`"
+if [ ! -f $OUTPUT_DIR/pre-exec.done ]; then
+  echo -e "\nRun PRE_EXEC: `date`"
 
-for i in "${PRE_EXEC[@]}"; do
-  set -x
-  $i
-  { set +x; } 2> /dev/null
-done
+  for i in "${PRE_EXEC[@]}"; do
+    set -x
+    $i
+    { set +x; } 2> /dev/null
+  done
+  touch $OUTPUT_DIR/pre-exec.done
+fi
 
 ADD_ARGS=''
 if [ $CRAM -gt 0 ]; then
@@ -68,6 +78,7 @@ mkdir -p $OUTPUT_DIR
  bwa_mem.pl -o $OUTPUT_DIR \
  -r $REF_BASE/genome.fa \
  -s $SAMPLE_NAME \
+ -f 25
  -t $CPU \
  -mt $CPU \
  $ADD_ARGS \

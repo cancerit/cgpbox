@@ -12,6 +12,7 @@
                       perl -MDateTime -e 'print join "\n", DateTime::TimeZone->all_names;'
  "
 
+REF_BASE='/datastore/ref/reference_files'
 BOX_MNT_PNT='/datastore' # do not change in Docker execution
 OUTPUT_DIR=$BOX_MNT_PNT/analysis
 
