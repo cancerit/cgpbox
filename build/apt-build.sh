@@ -133,5 +133,6 @@ apt-get -yq install libmath-combinatorics-perl
 apt-get -yq install libparse-yapp-perl
 apt-get -yq install libxml-writer-perl
 apt-get -yq install libgraph-readwrite-perl
+apt-get -yq install libarchive-extract-perl
 apt -yq autoremove
 apt-get clean

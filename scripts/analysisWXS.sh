@@ -106,7 +106,7 @@ echo -e "\tNAME_MT : $NAME_MT"
 echo -e "\tNAME_WT : $NAME_WT"
 
 #echo -e '\nStarting monitoring...'
-#progress.pl $BOX_MNT_PNT $NAME_MT $NAME_WT $TIMEZONE $BOX_MNT_PNT/site/data/progress.js >& $BOX_MNT_PNT/monitor.log&
+#progress.pl $OUTPUT_DIR $NAME_MT $NAME_WT $TIMEZONE $OUTPUT_DIR/site/data/progress.js >& $OUTPUT_DIR/monitor.log&
 
 BAM_MT_TMP=$TMP/$NAME_MT.bam
 BAM_WT_TMP=$TMP/$NAME_WT.bam

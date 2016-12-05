@@ -9,107 +9,109 @@ mkdir -p /tmp/downloads $OPT/bin $OPT/etc $OPT/lib $OPT/share $OPT/site /tmp/hts
 cd /tmp/downloads
 
 # cgpBigWig
-curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpBigWig/archive/0.3.0.zip
+curl -sSL -o distro.zip --retry 10 https://github.com/cancerit/cgpBigWig/archive/0.3.0.zip
 mkdir /tmp/downloads/distro
-bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip
+bsdtar -C /tmp/downloads/distro --strip-components 1 -xf distro.zip
 cd /tmp/downloads/distro
 ./setup.sh $OPT
 cd /tmp/downloads
-rm -rf master.zip /tmp/downloads/distro /tmp/hts_cache
+rm -rf distro.zip /tmp/downloads/distro /tmp/hts_cache
 
 # PCAP-core
-curl -sSL -o master.zip --retry 10 https://github.com/ICGC-TCGA-PanCancer/PCAP-core/archive/v3.3.3.zip
+curl -sSL -o distro.zip --retry 10 https://github.com/ICGC-TCGA-PanCancer/PCAP-core/archive/v3.3.4.zip
 mkdir /tmp/downloads/distro
-bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip
+bsdtar -C /tmp/downloads/distro --strip-components 1 -xf distro.zip
 cd /tmp/downloads/distro
 ./setup.sh $OPT
 cd /tmp/downloads
-rm -rf master.zip /tmp/downloads/distro /tmp/hts_cache
+rm -rf distro.zip /tmp/downloads/distro /tmp/hts_cache
 
 # alleleCount
-curl -sSL -o master.zip --retry 10 https://github.com/cancerit/alleleCount/archive/v3.2.1.zip
+curl -sSL -o distro.zip --retry 10 https://github.com/cancerit/alleleCount/archive/v3.2.1.zip
 mkdir /tmp/downloads/distro
-bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip
+bsdtar -C /tmp/downloads/distro --strip-components 1 -xf distro.zip
 cd /tmp/downloads/distro
 ./setup.sh $OPT
 cd /tmp/downloads
-rm -rf master.zip /tmp/downloads/distro
+rm -rf distro.zip /tmp/downloads/distro
 
 # cgpNgsQc
-curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpNgsQc/archive/v1.3.0.zip
+curl -sSL -o distro.zip --retry 10 https://github.com/cancerit/cgpNgsQc/archive/v1.3.0.zip
 mkdir /tmp/downloads/distro
-bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip
+bsdtar -C /tmp/downloads/distro --strip-components 1 -xf distro.zip
 cd /tmp/downloads/distro
 ./setup.sh $OPT
 cd /tmp/downloads
-rm -rf master.zip /tmp/downloads/distro
+rm -rf distro.zip /tmp/downloads/distro
 
 # cgpVcf
-curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpVcf/archive/v2.1.1.zip
+curl -sSL -o distro.zip --retry 10 https://github.com/cancerit/cgpVcf/archive/v2.1.1.zip
 mkdir /tmp/downloads/distro
-bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip
+bsdtar -C /tmp/downloads/distro --strip-components 1 -xf distro.zip
 cd /tmp/downloads/distro
 ./setup.sh $OPT
 cd /tmp/downloads
-rm -rf master.zip /tmp/downloads/distro
+rm -rf distro.zip /tmp/downloads/distro
 
 # ascatNgs
-curl -sSL -o master.zip --retry 10 https://github.com/cancerit/ascatNgs/archive/v3.1.0.zip
+curl -sSL -o distro.zip --retry 10 https://github.com/cancerit/ascatNgs/archive/v3.1.0.zip
 mkdir /tmp/downloads/distro
-bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip
+bsdtar -C /tmp/downloads/distro --strip-components 1 -xf distro.zip
 cd /tmp/downloads/distro
 ./setup.sh $OPT
 cd /tmp/downloads
-rm -rf master.zip /tmp/downloads/distro
+rm -rf distro.zip /tmp/downloads/distro
 
 # cgpPindel
-curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpPindel/archive/v2.0.10.zip
+curl -sSL -o distro.zip --retry 10 https://github.com/cancerit/cgpPindel/archive/v2.0.10.zip
 mkdir /tmp/downloads/distro
-bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip
+bsdtar -C /tmp/downloads/distro --strip-components 1 -xf distro.zip
 cd /tmp/downloads/distro
 ./setup.sh $OPT
 cd /tmp/downloads
-rm -rf master.zip /tmp/downloads/distro
+rm -rf distro.zip /tmp/downloads/distro
 
 # VAGrENT
-curl -sSL -o master.zip --retry 10 https://github.com/cancerit/VAGrENT/archive/v3.2.0.zip
+curl -sSL -o distro.zip --retry 10 https://github.com/cancerit/VAGrENT/archive/v3.2.0.zip
 mkdir /tmp/downloads/distro
-bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip
+bsdtar -C /tmp/downloads/distro --strip-components 1 -xf distro.zip
 cd /tmp/downloads/distro
 ./setup.sh $OPT
 cd /tmp/downloads
-rm -rf master.zip /tmp/downloads/distro
+rm -rf distro.zip /tmp/downloads/distro
 
 # cgpCaVEManPostProcessing
-curl -sSL -o master.zip --retry 10  https://github.com/cancerit/cgpCaVEManPostProcessing/archive/1.6.6.zip
+curl -sSL -o distro.zip --retry 10  https://github.com/cancerit/cgpCaVEManPostProcessing/archive/1.6.6.zip
 mkdir /tmp/downloads/distro
-bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip
+bsdtar -C /tmp/downloads/distro --strip-components 1 -xf distro.zip
 cd /tmp/downloads/distro
 ./setup.sh $OPT
 cd /tmp/downloads
-rm -rf master.zip /tmp/downloads/distro
+rm -rf distro.zip /tmp/downloads/distro
 
 # cgpCaVEManWrapper
-curl -sSL -o master.zip --retry 10 https://github.com/cancerit/cgpCaVEManWrapper/archive/1.9.11.zip
+curl -sSL -o distro.zip --retry 10 https://github.com/cancerit/cgpCaVEManWrapper/archive/1.9.12.zip
 mkdir /tmp/downloads/distro
-bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip
+bsdtar -C /tmp/downloads/distro --strip-components 1 -xf distro.zip
 cd /tmp/downloads/distro
+#### THIS IS NOT STANDARD - TESTING ONLY ####
+CAVE_C_REMOTE_TAR=https://github.com/cancerit/CaVEMan/archive/feature/speed_pileup_upgrade.tar.gz \
 ./setup.sh $OPT
 cd /tmp/downloads
-rm -rf master.zip /tmp/downloads/distro
+rm -rf distro.zip /tmp/downloads/distro
 
 # grass
-curl -sSL -o master.zip --retry 10 https://github.com/cancerit/grass/archive/v2.1.0.zip
+curl -sSL -o distro.zip --retry 10 https://github.com/cancerit/grass/archive/v2.1.0.zip
 mkdir /tmp/downloads/distro
-bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip
+bsdtar -C /tmp/downloads/distro --strip-components 1 -xf distro.zip
 cd /tmp/downloads/distro
 ./setup.sh $OPT
 cd /tmp/downloads
-rm -rf master.zip /tmp/downloads/distro
+rm -rf distro.zip /tmp/downloads/distro
 
 # Add ssearch36 BRASS dep
 curl -sSL -o tmp.tar.gz --retry 10 https://github.com/wrpearson/fasta36/releases/download/v36.3.8d_13Apr16/fasta-36.3.8d-linux64.tar.gz
-mkdir  /tmp/downloads/fasta
+mkdir /tmp/downloads/fasta
 tar -C /tmp/downloads/fasta --strip-components 2 -zxf tmp.tar.gz
 cp /tmp/downloads/fasta/bin/ssearch36 $OPT/bin/.
 rm -rf /tmp/downloads/fasta
@@ -120,9 +122,9 @@ rm -rf /tmp/downloads/fasta
 # the intermediate cleanup is to ensure that the image remains small
 
 # BRASS Rsupport
-curl -sSL -o master.zip --retry 10 https://github.com/cancerit/BRASS/archive/v5.1.6.zip
+curl -sSL -o distro.zip --retry 10 https://github.com/cancerit/BRASS/archive/v5.1.6.zip
 mkdir /tmp/downloads/distro
-bsdtar -C /tmp/downloads/distro --strip-components 1 -xf master.zip
+bsdtar -C /tmp/downloads/distro --strip-components 1 -xf distro.zip
 cd /tmp/downloads/distro/Rsupport
 #./setupR.sh $OPT 1
 Rscript libInstall.R $R_LIBS
@@ -132,7 +134,17 @@ cd /tmp/downloads
 cd /tmp/downloads/distro
 ./setup.sh $OPT
 cd /tmp/downloads
-rm -rf master.zip /tmp/downloads/distro
+rm -rf distro.zip /tmp/downloads/distro
+
+# battenberg
+#curl -sSL -o distro.zip --retry 10 https://github.com/cancerit/cgpBattenberg/archive/1.6.0.zip
+curl -sSL -o distro.zip --retry 10 https://github.com/cancerit/cgpBattenberg/archive/feature/limAllele.zip
+mkdir /tmp/downloads/distro
+bsdtar -C /tmp/downloads/distro --strip-components 1 -xf distro.zip
+cd /tmp/downloads/distro
+./setup.sh $OPT
+cd /tmp/downloads
+rm -rf distro.zip /tmp/downloads/distro
 
 mkdir -p /tmp/downloads/cgpbox
 curl -sSL https://github.com/cancerit/cgpbox/archive/$CGPBOX_VERSION.tar.gz | tar -C /tmp/downloads/cgpbox -zx --strip-components=1

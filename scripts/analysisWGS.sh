@@ -106,7 +106,7 @@ echo -e "\tNAME_MT : $NAME_MT"
 echo -e "\tNAME_WT : $NAME_WT"
 
 echo -e '\nStarting monitoring...'
-progress.pl $BOX_MNT_PNT $NAME_MT $NAME_WT $TIMEZONE $OUTPUT_DIR/site/data/progress.js >& $OUTPUT_DIR/monitor.log&
+progress.pl $OUTPUT_DIR $NAME_MT $NAME_WT $TIMEZONE $OUTPUT_DIR/site/data/progress.js >& $OUTPUT_DIR/monitor.log&
 
 BAM_MT_TMP=$TMP/$NAME_MT.bam
 BAM_WT_TMP=$TMP/$NAME_WT.bam
@@ -173,6 +173,19 @@ do_parallel[ascat]="ascat.pl \
  -pr $PROTOCOL \
  -pl ILLUMINA \
  -c $CPU"
+
+echo -e "\t[Parallel block 2] BB alleleCount added..."
+do_parallel[alleleCount]="battenberg.pl \
+ -o /lustre/scratch112/sanger/kr2/PanProstate/BB_test \
+ -u $REF_BASE/battenberg/1000genomesloci \
+ -e $REF_BASE/battenberg/impute/impute_info.txt \
+ -r $REF_BASE/genome.fa.fai \
+ -ig $REF_BASE/battenberg/ignore_contigs.txt \
+ -ge XX \
+ -tb $BAM_MT_TMP \
+ -nb $BAM_WT_TMP \
+ -p allelecount \
+ -t $CPU"
 
 echo -e "\t[Parallel block 2] Pindel added..."
 do_parallel[pindel]="pindel.pl \

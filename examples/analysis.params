@@ -1,27 +1,36 @@
 #!/bin/bash
 
-: "Required parameters
-    - BOX_MNT_PNT : where data can be written to:
-                    - Docker, e.g '-v $MOUNT_POINT:/datastore', set BOX_MNT_PNT='/datastore'
-                    - Non containerised point this to some writable are
-    - OUTPUT_DIR  : Write results to this folder.
-    - *_MT        : Refers to the Tumour sample
-    - *_WT        : Refers to the Wildtype/normal sample
-    - TIMEZONE    : Change this if you want the web tools to use your local timezone
-                    This will give you the list:
-                      perl -MDateTime -e 'print join "\n", DateTime::TimeZone->all_names;'
+: "Parameters
+    - BOX_MNT_PNT    : Not used outside of this script, should be a writable area
+    - REF_BASE       : The root of the reference file area
+    - OUTPUT_DIR     : Write results to this folder
+    - BAM_MT         : Refers to the Tumour sample
+    - BAM_WT         : Refers to the Wildtype/normal sample
+    - PROTOCOL       : WGS/WXS
+    - SPECIES        : Provide to handle potential absence in BAM headers
+    - ASSEMBLY       : Provide to handle potential absence in BAM headers
+    - PINDEL_EXCLUDE : Contigs to exclude from analysis (% is wildcard)
+    - CPU            : Uncomment and set to prevent all available CPUs being used.
+    - TIMEZONE       : Change this if you want the web tools to use your local timezone
+                       This will give you the list:
+                         perl -MDateTime -e 'print join "\n", DateTime::TimeZone->all_names;'
+
+    - PRE_EXEC[.]    : See below for details
+    - POST_EXEC[.]   : See below for details
  "
 
+# Mounted
 REF_BASE='/datastore/ref/reference_files'
-BOX_MNT_PNT='/datastore' # do not change in Docker execution
+BOX_MNT_PNT='/datastore'
 OUTPUT_DIR=$BOX_MNT_PNT/analysis
 
 BAM_MT=$BOX_MNT_PNT/input/COLO-829.bam
 BAM_WT=$BOX_MNT_PNT/input/COLO-829-BL.bam
+BB_ALLELE_COUNTS=1 # 0|1
 
 PROTOCOL='WGS' # Type of sequencing
 SPECIES='Human' # Species to tag
-ASSEMBLY='NCBI37'
+ASSEMBLY='GRCh37d5'
 PINDEL_EXCLUDE='NC_007605,hs37d5,GL%'
 
 : "Optionally force the CPU count to this value, by default all cores available are used at
@@ -36,27 +45,52 @@ TIMEZONE='Europe/London'
             Order of addition is maintaned.
     - Can be used to stage your files, the above variables are imported before this so
       they can be used in the normal fashion
-    - This example pulls an arcive of CRAM data, upacks, converts to BAM and builds indexes.
-      The following describes the individual commands
-        0. Cleans any existing data to remove partial setup
-        1. creates the input directory in the mounted volume (root should always be /datastore in docker)
-        2. Downloads the downsampled test data
-        3. Unpacks the data into the $BOX_MNT_PNT/input area
-        4. Delete the tar to minimise required space
-        5. Converts the MT cram file to bam
-        6. Deletes the MT cram file to minimise required space
-        7. Converts the WT cram file to bam
-        8. Deletes the WT cram file to minimise required space"
 
- PRE_EXEC[0]="rm -rf $BOX_MNT_PNT/input $BOX_MNT_PNT/testdata.tar"
- PRE_EXEC[1]="mkdir $BOX_MNT_PNT/input"
- PRE_EXEC[2]="curl -sSL --retry 10 -o $BOX_MNT_PNT/testdata.tar ftp://ftp.sanger.ac.uk/pub/cancer/cgpbox/testdata-${CGPBOX_VERSION}.tar"
- PRE_EXEC[3]="tar -C $BOX_MNT_PNT/input --strip-components 1 -xf $BOX_MNT_PNT/testdata.tar"
- PRE_EXEC[4]="rm -f $BOX_MNT_PNT/testdata.tar"
- PRE_EXEC[5]="bamcollate2 inputformat=cram outputformat=bam collate=0 index=1 outputthreads=$CPU exclude= filename=$BOX_MNT_PNT/input/MT.cram O=$BOX_MNT_PNT/input/MT.bam indexfilename=$BOX_MNT_PNT/input/MT.bam.bai"
- PRE_EXEC[6]="rm -f $BOX_MNT_PNT/input/MT.cram"
- PRE_EXEC[7]="bamcollate2 inputformat=cram outputformat=bam collate=0 index=1 outputthreads=$CPU exclude= filename=$BOX_MNT_PNT/input/WT.cram O=$BOX_MNT_PNT/input/WT.bam indexfilename=$BOX_MNT_PNT/input/WT.bam.bai"
- PRE_EXEC[8]="rm -f $BOX_MNT_PNT/input/WT.cram"
+    - First block builds the reference area
+      0-2  - Download reference files (mapping + WGS + WXS)
+      3-5  - Download reference files for SNV and INDEL analysis (WGS + WXS)
+      6-8  - Download reference files for CNV and SV analysis (WGS)
+      9-11 - Download reference files for Battenberg (WGS, optional see BB_ALLELE_COUNTS flag)
+
+    - The next section pulls an arcive of CRAM data, upacks, converts to BAM and builds indexes.
+      The following describes the individual commands
+        12. Cleans any existing data to remove partial setup
+        13. creates the input directory in the mounted volume (root should always be /datastore in docker)
+        14. Downloads the downsampled test data
+        15. Unpacks the data into the $BOX_MNT_PNT/input area
+        16. Delete the tar to minimise required space
+        17. Converts the MT cram file to bam
+        18. Deletes the MT cram file to minimise required space
+        19. Converts the WT cram file to bam
+        20. Deletes the WT cram file to minimise required space"
+
+# get core mapping reference files
+PRE_EXEC[0]="curl -sSL --retry 10 -o $BOX_MNT_PNT/map_ref.tar.gz ftp://ftp.sanger.ac.uk/pub/cancer/cgpbox/v3+/human/map_ref_GRCh37d5.tar.gz"
+PRE_EXEC[1]="tar -C $BOX_MNT_PNT -zxvf map_ref.tar.gz"
+PRE_EXEC[2]="mv map_ref $REF_BASE"
+# add the SNV/INDEL reference files
+PRE_EXEC[3]="curl -sSL --retry 10 -o $BOX_MNT_PNT/SNV_INDEL_ref.tar.gz ftp://ftp.sanger.ac.uk/pub/cancer/cgpbox/v3+/human/SNV_INDEL_ref_GRCh37d5.tar.gz"
+PRE_EXEC[4]="tar -C $BOX_MNT_PNT -zxvf SNV_INDEL_ref.tar.gz"
+PRE_EXEC[5]="rsync -r $BOX_MNT_PNT/SNV_INDEL_ref/* $REF_BASE/."
+# add the CNV/SV files
+PRE_EXEC[6]="curl -sSL --retry 10 -o $BOX_MNT_PNT/CNV_SV_ref.tar.gz ftp://ftp.sanger.ac.uk/pub/cancer/cgpbox/v3+/human/CNV_SV_ref_GRCh37d5.tar.gz"
+PRE_EXEC[7]="tar -C $BOX_MNT_PNT -zxvf CNV_SV_ref.tar.gz"
+PRE_EXEC[8]="rsync -r $BOX_MNT_PNT/CNV_SV_ref/* $REF_BASE/."
+# add battenberg ref files
+PRE_EXEC[9]="curl -sSL --retry 10 -o $BOX_MNT_PNT/BB_ref.tar.gz ftp://ftp.sanger.ac.uk/pub/cancer/cgpbox/v3+/human/BB_ref_GRCh37d5.tar.gz"
+PRE_EXEC[10]="tar -C $BOX_MNT_PNT -zxvf BB_ref.tar.gz"
+PRE_EXEC[11]="rsync -r $BOX_MNT_PNT/BB_ref/* $REF_BASE/."
+
+# Example data for WGS test run
+PRE_EXEC[12]="rm -rf $BOX_MNT_PNT/input $BOX_MNT_PNT/testdata.tar"
+PRE_EXEC[13]="mkdir $BOX_MNT_PNT/input"
+PRE_EXEC[14]="curl -sSL --retry 10 -o $BOX_MNT_PNT/testdata.tar ftp://ftp.sanger.ac.uk/pub/cancer/cgpbox/testdata-${CGPBOX_VERSION}.tar"
+PRE_EXEC[15]="tar -C $BOX_MNT_PNT/input --strip-components 1 -xf $BOX_MNT_PNT/testdata.tar"
+PRE_EXEC[16]="rm -f $BOX_MNT_PNT/testdata.tar"
+PRE_EXEC[17]="bamcollate2 inputformat=cram outputformat=bam collate=0 index=1 outputthreads=$CPU exclude= filename=$BOX_MNT_PNT/input/MT.cram O=$BOX_MNT_PNT/input/MT.bam indexfilename=$BOX_MNT_PNT/input/MT.bam.bai"
+PRE_EXEC[18]="rm -f $BOX_MNT_PNT/input/MT.cram"
+PRE_EXEC[19]="bamcollate2 inputformat=cram outputformat=bam collate=0 index=1 outputthreads=$CPU exclude= filename=$BOX_MNT_PNT/input/WT.cram O=$BOX_MNT_PNT/input/WT.bam indexfilename=$BOX_MNT_PNT/input/WT.bam.bai"
+PRE_EXEC[20]="rm -f $BOX_MNT_PNT/input/WT.cram"
 
 : "Same as PRE_EXEC but run at the end of the workflow
     - This is an example how you could write your result to S3 by setting the environment variables and path for your bucket

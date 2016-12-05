@@ -1,27 +1,37 @@
 #!/bin/bash
 
-: "Required parameters
-    - BOX_MNT_PNT : where data can be read/written to:
-    - SAMPLE_NAME : Sample name to be applied to the headers and filename of BAM.
-    - INPUT_DIR   : Folder containing input data.  This most only contain data for this sample.
-                    Can be:
-                     - multiple BAM inputs ($INPUT_DIR/*.bam)
-                     - multiple CRAM inputs ($INPUT_DIR/*.cram)
-                     - mixture of BAM + CRAM inputs ($INPUT_DIR/*.*am)
-                     - multiple paired FASTQ ($INPUT_DIR/*_[12].fq[.gz])
-                     - multiple interleaved FASTQ ($INPUT_DIR/*.fq[.gz])
-    - REF_BASE    : Folder containing genome.fa, genome.fa.dict and associated BWA index files:
-                     - genome.fa.dict - see 'samtools dict'
-    - CRAM        : 0=BAM 1=CRAM
-    - SCRAMBLE    : Parameters to pass to scramble when 'CRAM=1'
+
+: "Parameters
+    - BOX_MNT_PNT  : Not used outside of this script, should be a writable area
+    - REF_BASE     : The root of the reference file area
+    - SAMPLE_NAME  : Sample name to be applied to the headers and filename of BAM.
+    - OUTPUT_DIR   : Write results to this folder
+    - INPUT_DIR    : Folder containing input data.  This most only contain data for this sample.
+                      Can be:
+                       - multiple BAM inputs ($INPUT_DIR/*.bam)
+                       - multiple CRAM inputs ($INPUT_DIR/*.cram)
+                       - mixture of BAM + CRAM inputs ($INPUT_DIR/*.*am)
+                       - multiple paired FASTQ ($INPUT_DIR/*_[12].fq[.gz])
+                       - multiple interleaved FASTQ ($INPUT_DIR/*.fq[.gz])
+    - BWA_PARAM    : Parameters to pass directly to 'bwa mem' command line
+    - CRAM         : 0=BAM 1=CRAM
+    - SCRAMBLE     : Parameters to pass to scramble when 'CRAM=1'
+    - CPU          : Uncomment and set to prevent all available CPUs being used.
+    - TIMEZONE     : Change this if you want the web tools to use your local timezone
+                      This will give you the list:
+                        perl -MDateTime -e 'print join "\n", DateTime::TimeZone->all_names;'
+    - PRE_EXEC[.]  : See below for details
+    - POST_EXEC[.] : See below for details
  "
 
 REF_BASE='/datastore/ref/reference_files'
-BOX_MNT_PNT='/datastore' # do not change in Docker execution
+BOX_MNT_PNT='/datastore'
 SAMPLE_NAME='COLO-829'
 INPUT_DIR=$BOX_MNT_PNT/$SAMPLE_NAME/inputs
 OUTPUT_DIR=$BOX_MNT_PNT/$SAMPLE_NAME/mapping
 CRAM=0
+SCRAMBLE=''
+BWA_PARAM='-Y'
 
 : "Optionally force the CPU count to this value, by default all cores available are used at
    appropriate points in the flow"
@@ -34,28 +44,15 @@ TIMEZONE='Europe/London'
             be assigned to 'PRE_EXEC[0]=' all following having the number in '[]' incremented by 1
             Order of addition is maintaned.
     - Can be used to stage your files, the above variables are imported before this so
-      they can be used in the normal fashion, $NAME_WT etc
-    - This example pulls an arcive of CRAM data, upacks, converts to BAM and builds indexes.
-      The following describes the individual commands
-        0. Cleans any existing data to remove partial setup
-        1. creates the input directory in the mounted volume (root is always /datastore in docker)
-        2. Downloads the downsampled test data
-        3. Unpacks the data into the $BOX_MNT_PNT/input area
-        4. Delete the tar to minimise required space
-        5. Converts the MT cram file to bam
-        6. Deletes the MT cram file to minimise required space
-        7. Converts the WT cram file to bam
-        8. Deletes the WT cram file to minimise required space"
+      they can be used in the normal fashion
 
-# PRE_EXEC[0]="rm -rf $BOX_MNT_PNT/input $BOX_MNT_PNT/testdata.tar"
-# PRE_EXEC[1]="mkdir $BOX_MNT_PNT/input"
-# PRE_EXEC[2]="curl -sSL --retry 10 -o $BOX_MNT_PNT/testdata.tar ftp://ftp.sanger.ac.uk/pub/cancer/cgpbox/testdata-${CGPBOX_VERSION}.tar"
-# PRE_EXEC[3]="tar -C $BOX_MNT_PNT/input --strip-components 1 -xf $BOX_MNT_PNT/testdata.tar"
-# PRE_EXEC[4]="rm -f $BOX_MNT_PNT/testdata.tar"
-# PRE_EXEC[5]="bamcollate2 inputformat=cram outputformat=bam collate=0 index=1 outputthreads=$CPU exclude= filename=$BOX_MNT_PNT/input/${NAME_MT}.cram O=$BOX_MNT_PNT/input/${NAME_MT}.bam indexfilename=$BOX_MNT_PNT/input/${NAME_MT}.bam.bai"
-# PRE_EXEC[6]="rm -f $BOX_MNT_PNT/input/${NAME_MT}.cram"
-# PRE_EXEC[7]="bamcollate2 inputformat=cram outputformat=bam collate=0 index=1 outputthreads=$CPU exclude= filename=$BOX_MNT_PNT/input/${NAME_WT}.cram O=$BOX_MNT_PNT/input/${NAME_WT}.bam indexfilename=$BOX_MNT_PNT/input/${NAME_WT}.bam.bai"
-# PRE_EXEC[8]="rm -f $BOX_MNT_PNT/input/${NAME_WT}.cram"
+    - First block builds the reference area
+      0-2  - Download reference files (mapping + WGS + WXS)
+      "
+# get core mapping reference files
+PRE_EXEC[0]="curl -sSL --retry 10 -o $BOX_MNT_PNT/map_ref.tar.gz ftp://ftp.sanger.ac.uk/pub/cancer/cgpbox/v3+/human/map_ref_GRCh37d5.tar.gz"
+PRE_EXEC[1]="tar -C $BOX_MNT_PNT -zxvf map_ref.tar.gz"
+PRE_EXEC[2]="mv map_ref $REF_BASE"
 
 : "Same as PRE_EXEC but run at the end of the workflow
     - This is an example how you could write your result to S3 by setting the environment variables and path for your bucket

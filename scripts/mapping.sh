@@ -72,6 +72,11 @@ if [ $CPU -gt 7 ]; then
   ADD_ARGS="$ADD_ARGS -l /usr/lib/libtcmalloc_minimal.so"
 fi
 
+# if BWA_PARAM set
+if [ ! -z ${BWA_PARAM+x} ]; then
+  ADD_ARGS="$ADD_ARGS '$BWA_PARAM'"
+fi
+
 mkdir -p $OUTPUT_DIR
 
 /usr/bin/time -f $TIME_FORMAT -o $OUTPUT_DIR.time \

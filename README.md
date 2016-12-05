@@ -1,7 +1,7 @@
 # cgpbox
 The __cgpbox__ project encapsulates the core [Cancer Genome Project](http://www.sanger.ac.uk/science/groups/cancer-genome-project) analysis pipeline in an easy to use docker image:
 
-[![Docker Repository on Quay](https://quay.io/repository/wtsicgp/cgp_in_a_box/status "Docker Repository on Quay")](https://quay.io/repository/wtsicgp/cgp_in_a_box)
+[![Docker Repository on Quay](https://quay.io/repository/wtsicgp/cgpbox/status "Docker Repository on Quay")](https://quay.io/repository/wtsicgp/cgpbox)
 
 You are also able to run in a standard virtualisation or bare-metal manner, see [INSTALL](INSTALL.md) for details.
 
@@ -12,9 +12,13 @@ You are also able to run in a standard virtualisation or bare-metal manner, see 
 The pipeline is optimised for somatic variation calling using ___BWA mem mapped, Illumina paired-end sequencing___.
 
 * [Analysis performed](#analysis-performed)
+  * [Mapping](#mapping)
+  * [WGS calling](#wgs-calling)
+  * [WXS calling](#wxs-calling)
+* [Reference files](#reference-files)
 * [Running the docker image](#running-the-docker-image)
-	* [Test run](#test-run)
-	* [Running your data](#running-your-data)
+  * [Test run](#test-run)
+  * [Running your data](#running-your-data)
 * [Input requirements](#input-requirements)
 * [Monitoring](#monitoring)
 * [Output](#output)
@@ -23,24 +27,121 @@ The pipeline is optimised for somatic variation calling using ___BWA mem mapped,
 * [LICENSE](#license)
 
 ## Analysis performed
+__cgpbox__ has been extended to support mapping and WXS analysis in addition to the original WGS analysis.
 
-__cgpbox__ will perform the following analysis (not necessarily in this order):
+All of the analysis can be tailored to any reference by providing the relevant reference files.  Limitations of algorithms are detailed on the individual GitHub pages.
 
- * Basic genotype call using the standard Sequenom SNP locations
-	 * GRCh37 locations [here](https://github.com/cancerit/cgpNgsQc/blob/develop/share/genotype/general.tsv)
- * A comparison of the called genotype between tumour and normal.
- * An evaluation of gender using 4 chrY specific SNPs
-	 * GRCh37 locations [here](https://github.com/cancerit/cgpNgsQc/blob/develop/share/genotype/gender.tsv)
-	 * not ordered as first 2 are part of standard Sequenom QCplex, additional are included for improved accuracy in patchy sequencing.
- * Copy Number Variation (CNV) using [ascatNgs](https://github.com/cancerit/ascatNgs)
-	 * [ASCAT algorithm](https://www.crick.ac.uk/peter-van-loo/software/ASCAT)
- * Insertion and deletion (InDel) calling using [cgpPindel](https://github.com/cancerit/cgpPindel)
-	 * A variation of [Pindel](http://gmt.genome.wustl.edu/packages/pindel/)
- * Single Nucleotide Variant (SNV) calling using [CaVEMan](https://github.com/cancerit/CaVEMan)
-	 * Post-processing via [cgpCaVEManPostProcessing](https://github.com/cancerit/cgpCaVEManPostProcessing)
- * Gene annotation of SNV and InDel calls using [VAGrENT](https://github.com/cancerit/VAGrENT)
- * Structural Variation (SV) calls using [BRASS](https://github.com/cancerit/BRASS)
-	 * Basic gene annotation via [grass](https://github.com/cancerit/grass)
+### Mapping
+Mapping of any paired-end Illumina sequencing starting from BAM, CRAM or FASTQ.
+
+### WGS calling
+* Generation of BAM stats (when not present).
+* Basic genotype call using the standard Sequenom SNP locations
+  * GRCh37 locations [here](https://github.com/cancerit/cgpNgsQc/blob/develop/share/genotype/general.tsv)
+* A comparison of the called genotype between tumour and normal.
+* An evaluation of gender using 4 chrY specific SNPs
+  * GRCh37 locations [here](https://github.com/cancerit/cgpNgsQc/blob/develop/share/genotype/gender.tsv)
+  * not ordered as first 2 are part of standard Sequenom QCplex, additional are included for improved accuracy in patchy sequencing.
+* Copy Number Variation (CNV) using [ascatNgs](https://github.com/cancerit/ascatNgs)
+  * [ASCAT algorithm](https://www.crick.ac.uk/peter-van-loo/software/ASCAT)
+* Insertion and deletion (InDel) calling using [cgpPindel](https://github.com/cancerit/cgpPindel)
+  * A variation of [Pindel](http://gmt.genome.wustl.edu/packages/pindel/)
+* Single Nucleotide Variant (SNV) calling using [CaVEMan](https://github.com/cancerit/CaVEMan)
+  * Post-processing via [cgpCaVEManPostProcessing](https://github.com/cancerit/cgpCaVEManPostProcessing)
+* Gene annotation of SNV and InDel calls using [VAGrENT](https://github.com/cancerit/VAGrENT)
+* Structural Variation (SV) calls using [BRASS](https://github.com/cancerit/BRASS)
+  * Basic gene annotation via [grass](https://github.com/cancerit/grass)
+
+Optionally generate the alleleCount files for use by [cgpBattenberg](https://github.com/cancerit/cgpBattenberg).
+
+### WXS calling
+* Generation of BAM stats (when not present).
+* Insertion and deletion (InDel) calling using [cgpPindel](https://github.com/cancerit/cgpPindel)
+  * A variation of [Pindel](http://gmt.genome.wustl.edu/packages/pindel/)
+* Single Nucleotide Variant (SNV) calling using [CaVEMan](https://github.com/cancerit/CaVEMan)
+  * Post-processing via [cgpCaVEManPostProcessing](https://github.com/cancerit/cgpCaVEManPostProcessing)
+* Gene annotation of SNV and InDel calls using [VAGrENT](https://github.com/cancerit/VAGrENT)
+
+## Reference files
+We provide the reference files required to process Human GRCh37d5 on our ftp site.  There are 4 archives arranged to reduce redundancy when executing different flows.
+
+### Mapping reference
+Files names `map_ref_SPECIES_BUILD.tar.gz` contain files required by the mapping and analysis flows.  Core reference fasta, BWA indicies, samtools index, reference dictionary.
+
+The file names must match as shown (folder not important):
+
+```
+map_ref/
+map_ref/genome.fa
+map_ref/genome.fa.64.amb
+map_ref/genome.fa.64.ann
+map_ref/genome.fa.64.bwt
+map_ref/genome.fa.64.pac
+map_ref/genome.fa.64.sa
+map_ref/genome.fa.dict
+map_ref/genome.fa.fai
+```
+
+### SNV and INDEL reference
+Files required to run the SNV (CaVEMan) and INDEL (cgpPindel) callers with variant consequence annotation (the WXS analysis).  These are needed in addition to the mapping reference.
+
+```
+SNV_INDEL_ref/caveman/flagging/centromeric_repeats.bed.gz
+SNV_INDEL_ref/caveman/flagging/centromeric_repeats.bed.gz.tbi
+SNV_INDEL_ref/caveman/flagging/flag.to.vcf.convert.ini
+SNV_INDEL_ref/caveman/flagging/flag.vcf.config.ini
+SNV_INDEL_ref/caveman/flagging/hi_seq_depth.bed.gz
+SNV_INDEL_ref/caveman/flagging/hi_seq_depth.bed.gz.tbi
+SNV_INDEL_ref/caveman/flagging/simple_repeats.bed.gz
+SNV_INDEL_ref/caveman/flagging/simple_repeats.bed.gz.tbi
+SNV_INDEL_ref/caveman/flagging/snps.bed.gz
+SNV_INDEL_ref/caveman/flagging/snps.bed.gz.tbi
+SNV_INDEL_ref/caveman/HiDepth.tsv
+SNV_INDEL_ref/caveman/unmatchedNormal.bed.gz
+SNV_INDEL_ref/caveman/unmatchedNormal.bed.gz.tbi
+SNV_INDEL_ref/pindel/HiDepth.bed.gz
+SNV_INDEL_ref/pindel/HiDepth.bed.gz.tbi
+SNV_INDEL_ref/pindel/pindel_np.gff3.gz
+SNV_INDEL_ref/pindel/pindel_np.gff3.gz.tbi
+SNV_INDEL_ref/pindel/simpleRepeats.bed.gz
+SNV_INDEL_ref/pindel/simpleRepeats.bed.gz.tbi
+SNV_INDEL_ref/pindel/softRules.lst
+SNV_INDEL_ref/pindel/WGS_Rules.lst
+SNV_INDEL_ref/pindel/WXS_Rules.lst
+SNV_INDEL_ref/vagrent/codingexon_regions.indel.bed.gz
+SNV_INDEL_ref/vagrent/codingexon_regions.indel.bed.gz.tbi
+SNV_INDEL_ref/vagrent/codingexon_regions.sub.bed.gz
+SNV_INDEL_ref/vagrent/codingexon_regions.sub.bed.gz.tbi
+SNV_INDEL_ref/vagrent/exon_regions.indel.bed.gz
+SNV_INDEL_ref/vagrent/exon_regions.indel.bed.gz.tbi
+SNV_INDEL_ref/vagrent/exon_regions.sub.bed.gz
+SNV_INDEL_ref/vagrent/exon_regions.sub.bed.gz.tbi
+SNV_INDEL_ref/vagrent/gene_regions.bed.gz
+SNV_INDEL_ref/vagrent/gene_regions.bed.gz.tbi
+SNV_INDEL_ref/vagrent/vagrent.cache.gz
+SNV_INDEL_ref/vagrent/vagrent.cache.gz.tbi
+SNV_INDEL_ref/vagrent/vagrent.fa
+SNV_INDEL_ref/vagrent/vagrent.fa.fai
+```
+
+### CNV and SV reference
+This adds files required by the WGS analysis to the above for CNV (ascatNgs) and SV (BRASS).
+
+```
+CNV_SV_ref/ascat/SnpGcCorrections.tsv
+CNV_SV_ref/brass/500bp_windows.gc.bed.gz
+CNV_SV_ref/brass/all_ncbi_bacteria.20150703.1.fa.2bit
+CNV_SV_ref/brass/all_ncbi_bacteria.20150703.2.fa.2bit
+CNV_SV_ref/brass/all_ncbi_bacteria.20150703.3.fa.2bit
+CNV_SV_ref/brass/all_ncbi_bacteria.20150703.4.fa.2bit
+CNV_SV_ref/brass/brass_np.groups.gz
+CNV_SV_ref/brass/brass_np.groups.gz.tbi
+CNV_SV_ref/brass/CentTelo.tsv
+CNV_SV_ref/brass/HiDepth.bed.gz
+CNV_SV_ref/brass/viral.1.1.genomic.fa
+```
+
+
 
 ## Running the docker image
 The bulk of this repository is to manage the building of a docker image so that users don't have to.
