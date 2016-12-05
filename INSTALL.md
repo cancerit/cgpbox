@@ -20,9 +20,9 @@ Remember to set the image instance to be this image (not the quay.io version) wh
 # Bare-metal or non-container
 This method can be used if you have root access to the system, or more likely want to build an image of another type (such as OpenStack) which adding Docker on top of is not necessary/sensible.  This approach is likely to give better performance/throughput.
 
-## Example using Ubuntu Trusty
+## Example using Ubuntu Xenial
 
-The following scripts can be executed on a Trusty host with root access:
+The following scripts can be executed on a Xenial host with root access:
 
 ```
 build/apt-build.sh
