@@ -84,6 +84,7 @@ if [ ${#POST_EXEC[@]} -eq 0 ]; then
 fi
 
 set -u
+mkdir -p $OUTPUT_DIR
 
 # run any pre-exec step before attempting to access BAMs
 # logically the pre-exec could be pulling them

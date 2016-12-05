@@ -53,6 +53,7 @@ TIMEZONE='Europe/London'
 PRE_EXEC[0]="curl -sSL --retry 10 -o $BOX_MNT_PNT/map_ref.tar.gz ftp://ftp.sanger.ac.uk/pub/cancer/cgpbox/v3+/human/map_ref_GRCh37d5.tar.gz"
 PRE_EXEC[1]="tar -C $BOX_MNT_PNT -zxvf map_ref.tar.gz"
 PRE_EXEC[2]="mv map_ref $REF_BASE"
+PRE_EXEC[3]="rm -f *.tar.gz"
 
 : "Same as PRE_EXEC but run at the end of the workflow
     - This is an example how you could write your result to S3 by setting the environment variables and path for your bucket

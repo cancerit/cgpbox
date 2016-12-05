@@ -14,7 +14,7 @@ if [ -z ${PARAM_FILE+x} ] ; then
 fi
 echo "Loading user options from: $PARAM_FILE"
 if [ ! -f $PARAM_FILE ]; then
-  echo -e "\tERROR: file indicated by PARAM_FILE not found: $PARAM_FILE" 2>
+  echo -e "\tERROR: file indicated by PARAM_FILE not found: $PARAM_FILE" 1>&2
   exit 1
 fi
 source $PARAM_FILE
@@ -44,6 +44,7 @@ if [ ${#POST_EXEC[@]} -eq 0 ]; then
 fi
 
 set -u
+mkdir -p $OUTPUT_DIR
 
 # run any pre-exec step before attempting to access BAMs
 # logically the pre-exec could be pulling them
@@ -74,16 +75,14 @@ fi
 
 # if BWA_PARAM set
 if [ ! -z ${BWA_PARAM+x} ]; then
-  ADD_ARGS="$ADD_ARGS '$BWA_PARAM'"
+  ADD_ARGS="$ADD_ARGS -b '$BWA_PARAM'"
 fi
-
-mkdir -p $OUTPUT_DIR
 
 /usr/bin/time -f $TIME_FORMAT -o $OUTPUT_DIR.time \
  bwa_mem.pl -o $OUTPUT_DIR \
  -r $REF_BASE/genome.fa \
  -s $SAMPLE_NAME \
- -f 25
+ -f 25 \
  -t $CPU \
  -mt $CPU \
  $ADD_ARGS \

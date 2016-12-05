@@ -92,6 +92,8 @@ PRE_EXEC[18]="rm -f $BOX_MNT_PNT/input/MT.cram"
 PRE_EXEC[19]="bamcollate2 inputformat=cram outputformat=bam collate=0 index=1 outputthreads=$CPU exclude= filename=$BOX_MNT_PNT/input/WT.cram O=$BOX_MNT_PNT/input/WT.bam indexfilename=$BOX_MNT_PNT/input/WT.bam.bai"
 PRE_EXEC[20]="rm -f $BOX_MNT_PNT/input/WT.cram"
 
+PRE_EXEC[21]="rm -f *.tar.gz *.tar"
+
 : "Same as PRE_EXEC but run at the end of the workflow
     - This is an example how you could write your result to S3 by setting the environment variables and path for your bucket
     - Nice use is that you can then set any AWS image to shutdown automatically when it becomes idle
