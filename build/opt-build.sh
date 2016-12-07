@@ -146,13 +146,15 @@ cd /tmp/downloads/distro
 cd /tmp/downloads
 rm -rf distro.zip /tmp/downloads/distro
 
-mkdir -p /tmp/downloads/cgpbox
-curl -sSL https://github.com/cancerit/cgpbox/archive/$CGPBOX_VERSION.tar.gz | tar -C /tmp/downloads/cgpbox -zx --strip-components=1
+if[ ! -e $OPT/bin/analysisWGS.sh ] ; then
+  mkdir -p /tmp/downloads/cgpbox
+  curl -sSL https://github.com/cancerit/cgpbox/archive/$CGPBOX_VERSION.tar.gz | tar -C /tmp/downloads/cgpbox -zx --strip-components=1
 
-cp /tmp/downloads/cgpbox/scripts/analysisWGS.sh $OPT/bin/analysisWGS.sh
-cp /tmp/downloads/cgpbox/scripts/mapping.sh $OPT/bin/mapping.sh
-cp /tmp/downloads/cgpbox/scripts/getRef.sh $OPT/bin/getRef.sh
-cp /tmp/downloads/cgpbox/scripts/progress.pl $OPT/bin/progress.pl
+  cp /tmp/downloads/cgpbox/scripts/analysisWGS.sh $OPT/bin/analysisWGS.sh
+  cp /tmp/downloads/cgpbox/scripts/mapping.sh $OPT/bin/mapping.sh
+  cp /tmp/downloads/cgpbox/scripts/getRef.sh $OPT/bin/getRef.sh
+  cp /tmp/downloads/cgpbox/scripts/progress.pl $OPT/bin/progress.pl
+fi
 
 chmod ugo+x $OPT/bin/analysisWGS.sh $OPT/bin/mapping.sh $OPT/bin/getRef.sh $OPT/bin/progress.pl
 
