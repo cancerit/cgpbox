@@ -180,6 +180,7 @@ do_parallel[alleleCount]="battenberg.pl \
  -o /lustre/scratch112/sanger/kr2/PanProstate/BB_test \
  -u $REF_BASE/battenberg/1000genomesloci \
  -e $REF_BASE/battenberg/impute/impute_info.txt \
+ -c $REF_BASE/battenberg/probloci.txt \
  -r $REF_BASE/genome.fa.fai \
  -ig $REF_BASE/battenberg/ignore_contigs.txt \
  -ge XX \
